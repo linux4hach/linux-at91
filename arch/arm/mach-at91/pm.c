@@ -269,7 +269,7 @@ static int at91_pm_enter(suspend_state_t state)
 			if (cpu_is_at91rm9200())
 				at91rm9200_standby();
 			else if (cpu_is_at91sam9g45())
-				at91sam9g45_standby();
+				at91sam_ddramc_standby(2);
 			else if (cpu_is_at91sam9263())
 				at91sam9263_standby();
 			else
