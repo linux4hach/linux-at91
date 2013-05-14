@@ -150,3 +150,11 @@ config ARM_SPEAR_CPUFREQ
 	default y
 	help
 	  This adds the CPUFreq driver support for SPEAr SOCs.
+
+config ARM_AT91_CPUFREQ
+	bool "Atmel AT91 CPUFreq Support"
+	depends on HAVE_CLK && PM_OPP && OF
+	help
+	  This enables the AT 91 CPUfreq driver
+
+	  If in doubt, say N.

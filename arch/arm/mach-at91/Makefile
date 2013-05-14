@@ -99,6 +99,7 @@ obj-y				+= leds.o
 obj-$(CONFIG_PM)		+= pm.o
 obj-$(CONFIG_AT91_SLOW_CLOCK)	+= pm_slowclock.o
 obj-$(CONFIG_CPU_IDLE)	+= cpuidle.o
+obj-$(CONFIG_ARM_AT91_CPUFREQ)	+= cpufreq_cpu_clock.o
 
 ifeq ($(CONFIG_PM_DEBUG),y)
 CFLAGS_pm.o += -DDEBUG
