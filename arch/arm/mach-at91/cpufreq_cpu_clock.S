@@ -63,6 +63,16 @@ tmp1		.req	r6
 2:
 	.endm
 
+	.macro wait_sometime
+	ldr	count, =0x100000
+1:	sub	count, count, #1
+	cmp	count, #0
+	bne	1b
+2:
+	.endm
+
+#define DDR_ADDR	0xC0000000
+
 /*
  * void __update_cpu_clock(void __iomem *pmc, u32 pllar_mul,
  *			u32 mckr_mdiv, void __iomem *ddramc)
@@ -72,16 +82,21 @@ ENTRY(__update_cpu_clock)
 	stmfd	sp!, {r4 - r12, lr}
 
 	/* Make DDRAM enter self-refresh mode */
+	ldr tmp, =(DDR_ADDR)
+	ldr	tmp1, [tmp]
+	str	tmp1, .saved_data_of_ddr
 	ldr	tmp, [ddramc, #AT91_DDRSDRC_LPR]
 	str	tmp, .saved_sam9_lpr
 	bic	tmp, tmp, #AT91_DDRSDRC_LPCB
 	orr	tmp, tmp, #AT91_DDRSDRC_LPCB_SELF_REFRESH
 	str	tmp, [ddramc, #AT91_DDRSDRC_LPR]
 
+	wait_sometime
+
 	/* Master/Processor Clock Source Selection to Main Clock */
 	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_CSS
-	orr	tmp, tmp, #AT91_PMC_CSS_MAIN
+	orr	tmp, tmp, #AT91_PMC_CSS_SLOW
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
 	bic	tmp, tmp, #AT91_PMC_PLLADIV2
@@ -89,8 +104,10 @@ ENTRY(__update_cpu_clock)
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
 	bic	tmp, tmp, #AT91_PMC_MDIV
-	bic	tmp, tmp, #AT91_PMC_ALT_PRES
 	orr	tmp, tmp, #AT91SAM9_PMC_MDIV_2
+	str	tmp, [pmc, #AT91_PMC_MCKR]
+
+	bic	tmp, tmp, #AT91_PMC_ALT_PRES
 	orr	tmp, tmp, #AT91_PMC_ALT_PRES_1
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
@@ -129,11 +146,64 @@ ENTRY(__update_cpu_clock)
 	/* Restore LPR on AT91 with DDRAM */
 	ldr	tmp, .saved_sam9_lpr
 	str	tmp, [ddramc, #AT91_DDRSDRC_LPR]
+	wait_sometime
+
+	ldr	tmp, =(AT91_DDRSDRC_MODE_PRECHARGE)
+	str	tmp, [ddramc, #AT91_DDRSDRC_MR]
+	mov	tmp1, #0x0
+	ldr tmp, =(DDR_ADDR)
+	str	tmp1, [tmp]
+	/*wait_sometime*/
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+
+	ldr	tmp, =(AT91_DDRSDRC_MODE_REFRESH)
+	str	tmp, [ddramc, #AT91_DDRSDRC_MR]
+	mov	tmp1, #0x0
+	ldr tmp, =(DDR_ADDR)
+	str	tmp1, [tmp]
+	/*wait_sometime*/
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+
+	ldr	tmp, =(AT91_DDRSDRC_MODE_NORMAL)
+	str	tmp, [ddramc, #AT91_DDRSDRC_MR]
+	mov	tmp1, #0x0
+	ldr tmp, =(DDR_ADDR)
+	str	tmp1, [tmp]
+	/*wait_sometime*/
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+
+	ldr	tmp1, .saved_data_of_ddr
+	ldr tmp, =(DDR_ADDR)
+	str	tmp1, [tmp]
 
 	/* Restore registers, and return */
 	ldmfd	sp!, {r4 - r12, pc}
 
 .saved_sam9_lpr:
+	.word 0
+
+.saved_data_of_ddr:
 	.word 0
 
 .ltorg
