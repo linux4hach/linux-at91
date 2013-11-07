@@ -36,6 +36,7 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/dma-mapping.h>
+#include <linux/cpufreq.h>
 #include <linux/atmel_pdc.h>
 #include <linux/atmel_serial.h>
 #include <linux/uaccess.h>
@@ -49,6 +50,8 @@
 #include <mach/cpu.h>
 #include <asm/gpio.h>
 #endif
+
+extern unsigned long clk_get_master_clock(void);
 
 #define PDC_BUFFER_SIZE		512
 /* Revisit: We should calculate this based on the actual port settings */
@@ -155,6 +158,10 @@ struct atmel_uart_port {
 
 	struct serial_rs485	rs485;		/* rs485 settings */
 	unsigned int		tx_done_mask;
+
+#ifdef CONFIG_CPU_FREQ
+	struct notifier_block	freq_transition;
+#endif
 };
 
 static struct atmel_uart_port atmel_ports[ATMEL_MAX_UART];
@@ -1749,6 +1756,91 @@ static int atmel_serial_resume(struct platform_device *pdev)
 #define atmel_serial_resume NULL
 #endif
 
+#ifdef CONFIG_CPU_FREQ
+static int atmel_serial_cpufreq_transition(struct notifier_block *nb,
+					unsigned long val, void *data)
+{
+	struct atmel_uart_port *atmel_port;
+	struct uart_port *port;
+	struct ktermios *termios;
+	struct tty_struct *tty;
+
+	atmel_port = container_of(nb, struct atmel_uart_port, freq_transition);
+	port = &atmel_port->uart;
+
+	/*
+	 * try and work out if the baudrate is changing, we can detect
+	 * a change in rate, but we do not have support for detecting
+	 * a disturbance in the clock-rate over the change.
+	 */
+
+	if (IS_ERR(atmel_port->clk))
+		goto exit;
+
+	if (val == CPUFREQ_PRECHANGE) {
+		/* we should really shut the port down whilst the
+		 * frequency change is in progress.
+		 */
+		if (atmel_is_console_port(port)) {
+			/* Drain the TX shifter */
+			while (!(UART_GET_CSR(port) & ATMEL_US_TXEMPTY))
+				cpu_relax();
+		}
+
+		uart_suspend_port(&atmel_uart, port);
+
+	} else if (val == CPUFREQ_POSTCHANGE) {
+
+		uart_resume_port(&atmel_uart, port);
+
+		if (port->state == NULL)
+			goto exit;
+
+		tty = port->state->port.tty;
+
+		if (tty == NULL)
+			goto exit;
+
+		termios = &tty->termios;
+
+		if (termios == NULL) {
+			pr_warn("%s: no termios?\n", __func__);
+			goto exit;
+		}
+
+		port->uartclk = clk_get_master_clock();
+		atmel_set_termios(port, termios, NULL);
+	}
+
+ exit:
+	return 0;
+}
+
+static inline int atmel_serial_cpufreq_register(struct atmel_uart_port *port)
+{
+	port->freq_transition.notifier_call = atmel_serial_cpufreq_transition;
+
+	return cpufreq_register_notifier(&port->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+
+static inline void atmel_serial_cpufreq_unregister(struct atmel_uart_port *port)
+{
+	cpufreq_unregister_notifier(&port->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+#else
+static inline int atmel_serial_cpufreq_register(struct atmel_uart_port *port)
+{
+	return 0;
+}
+
+static inline void atmel_serial_cpufreq_unregister(struct atmel_uart_port *port)
+{
+	return;
+}
+#endif
+
 static int atmel_serial_probe(struct platform_device *pdev)
 {
 	struct atmel_uart_port *port;
@@ -1818,6 +1910,10 @@ static int atmel_serial_probe(struct platform_device *pdev)
 	}
 #endif
 
+	ret = atmel_serial_cpufreq_register(port);
+	if (ret < 0)
+		dev_err(&pdev->dev, "failed to add cpufreq notifier\n");
+
 	device_init_wakeup(&pdev->dev, 1);
 	platform_set_drvdata(pdev, port);
 
@@ -1850,6 +1946,7 @@ static int atmel_serial_remove(struct platform_device *pdev)
 	platform_set_drvdata(pdev, NULL);
 
 	ret = uart_remove_one_port(&atmel_uart, port);
+	atmel_serial_cpufreq_unregister(atmel_port);
 
 	tasklet_kill(&atmel_port->tasklet);
 	kfree(atmel_port->rx_ring.buf);
