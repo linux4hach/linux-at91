@@ -17,6 +17,7 @@
 #include <linux/clk.h>
 #include <linux/init.h>
 #include <linux/delay.h>
+#include <linux/cpufreq.h>
 
 #include <linux/platform_data/atmel.h>
 #include <mach/cpu.h>
@@ -499,6 +500,76 @@ static const struct platform_device_id atmelfb_dev_table[] = {
 	{ "atmel_hlcdfb_ovl2", (kernel_ulong_t)&dev_data_ovl },
 }
 MODULE_DEVICE_TABLE(platform, atmelfb_dev_table);
+
+#ifdef CONFIG_CPU_FREQ
+static int atmel_lcdfb_cpufreq_transition(struct notifier_block *nb,
+					unsigned long val, void *data)
+{
+	struct atmel_lcdfb_info *sinfo;
+
+	sinfo = container_of(nb, struct atmel_lcdfb_info, freq_transition);
+
+	switch (val) {
+	case CPUFREQ_PRECHANGE:
+		if (sinfo->atmel_lcdfb_power_control)
+			sinfo->atmel_lcdfb_power_control(0);
+
+		atmel_hlcdfb_stop(sinfo, ATMEL_LCDC_STOP_NOWAIT);
+		atmel_lcdfb_stop_clock(sinfo);
+		break;
+
+	case CPUFREQ_POSTCHANGE:
+		atmel_lcdfb_start_clock(sinfo);
+		atmel_hlcdfb_start(sinfo);
+		if (sinfo->atmel_lcdfb_power_control)
+			sinfo->atmel_lcdfb_power_control(1);
+
+		break;
+	}
+
+	return 0;
+
+}
+
+
+int atmel_lcdfb_cpufreq_register(struct atmel_lcdfb_info *sinfo)
+{
+	static unsigned int entries;
+	int ret = 0;
+
+	if (entries == 0) {
+		entries++;
+
+		sinfo->freq_transition.notifier_call
+			= atmel_lcdfb_cpufreq_transition;
+
+		ret = cpufreq_register_notifier(&sinfo->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+	}
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(atmel_lcdfb_cpufreq_register);
+
+void atmel_lcdfb_cpufreq_unregister(struct atmel_lcdfb_info *sinfo)
+{
+	cpufreq_unregister_notifier(&sinfo->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+EXPORT_SYMBOL_GPL(atmel_lcdfb_cpufreq_unregister);
+#else
+int atmel_lcdfb_cpufreq_register(struct atmel_lcdfb_info *sinfo)
+{
+	return 0;
+}
+EXPORT_SYMBOL_GPL(atmel_lcdfb_cpufreq_register);
+
+void atmel_lcdfb_cpufreq_unregister(struct atmel_lcdfb_info *sinfo)
+{
+	return;
+}
+EXPORT_SYMBOL_GPL(atmel_lcdfb_cpufreq_unregister);
+#endif /* #ifdef CONFIG_CPU_FREQ */
 
 static int __init atmel_hlcdfb_probe(struct platform_device *pdev)
 {

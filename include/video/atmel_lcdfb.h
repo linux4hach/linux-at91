@@ -57,6 +57,9 @@ extern int __atmel_lcdfb_probe(struct platform_device *pdev,
 				struct atmel_lcdfb_devdata *devdata);
 extern int __atmel_lcdfb_remove(struct platform_device *pdev);
 
+extern int atmel_lcdfb_cpufreq_register(struct atmel_lcdfb_info *sinfo);
+extern void atmel_lcdfb_cpufreq_unregister(struct atmel_lcdfb_info *sinfo);
+
  /* LCD Controller info data structure, stored in device platform_data */
 struct atmel_lcdfb_info {
 	spinlock_t		lock;
@@ -92,6 +95,10 @@ struct atmel_lcdfb_info {
 	void (*atmel_lcdfb_power_control)(int on);
 	struct fb_monspecs	*default_monspecs;
 	u32			pseudo_palette[16];
+
+#ifdef CONFIG_CPU_FREQ
+	struct notifier_block	freq_transition;
+#endif
 };
 
 #define lcdc_readl(sinfo, reg)		__raw_readl((sinfo)->mmio+(reg))

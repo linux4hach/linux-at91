@@ -741,6 +741,12 @@ int __atmel_lcdfb_probe(struct platform_device *pdev,
 
 	dev_set_drvdata(dev, info);
 
+	ret = atmel_lcdfb_cpufreq_register(sinfo);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to register cpufreq\n");
+		goto reset_drvdata;
+	}
+
 	/*
 	 * Tell the world that we're ready to go
 	 */
@@ -815,6 +821,9 @@ int __atmel_lcdfb_remove(struct platform_device *pdev)
 	if (sinfo->atmel_lcdfb_power_control)
 		sinfo->atmel_lcdfb_power_control(0);
 	unregister_framebuffer(info);
+
+	atmel_lcdfb_cpufreq_unregister(sinfo);
+
 	atmel_lcdfb_stop_clock(sinfo);
 	clk_put(sinfo->lcdc_clk);
 	if (sinfo->bus_clk)
