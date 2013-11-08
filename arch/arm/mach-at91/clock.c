@@ -591,7 +591,7 @@ int __init clk_register(struct clk *clk)
 
 /*------------------------------------------------------------------------*/
 
-static u32 __init at91_pll_rate(struct clk *pll, u32 freq, u32 reg)
+static u32 at91_pll_rate(struct clk *pll, u32 freq, u32 reg)
 {
 	unsigned mul, div;
 
@@ -975,3 +975,44 @@ void at91sam9_idle(void)
 	at91_pmc_write(AT91_PMC_SCDR, AT91_PMC_PCK);
 	cpu_do_idle();
 }
+
+unsigned long clk_get_master_clock(void)
+{
+	unsigned int mcfr;
+	unsigned int mckr;
+	unsigned long main_clock;
+	unsigned long rate_hz;
+	unsigned long mck_hz;
+
+	do {
+		mcfr = at91_pmc_read(AT91_CKGR_MCFR);
+	} while (!(mcfr & AT91_PMC_MAINRDY));
+
+	main_clock = (mcfr & AT91_PMC_MAINF) * (AT91_SLOW_CLOCK / 16);
+
+	rate_hz = at91_pll_rate(NULL, main_clock,
+				at91_pmc_read(AT91_CKGR_PLLAR));
+
+	mckr = at91_pmc_read(AT91_PMC_MCKR);
+
+	if (cpu_has_plladiv2())
+		rate_hz /= (1 << ((mckr & AT91_PMC_PLLADIV2) >> 12));
+
+	rate_hz /= pmc_prescaler_divider(mckr);
+	if (cpu_is_at91rm9200()) {
+		mck_hz = rate_hz / (1 + ((mckr & AT91_PMC_MDIV) >> 8));
+	} else if (cpu_is_at91sam9g20()) {
+		mck_hz = (mckr & AT91_PMC_MDIV) ?
+			rate_hz / ((mckr & AT91_PMC_MDIV) >> 7) : rate_hz;
+		if (mckr & AT91_PMC_PDIV)
+			mck_hz = rate_hz / 2;
+	} else if (cpu_has_mdiv3()) {
+		mck_hz = (mckr & AT91_PMC_MDIV) == AT91SAM9_PMC_MDIV_3 ?
+		rate_hz / 3 : rate_hz / (1 << ((mckr & AT91_PMC_MDIV) >> 8));
+	} else {
+		mck_hz = rate_hz / (1 << ((mckr & AT91_PMC_MDIV) >> 8));
+	}
+
+	return mck_hz;
+}
+EXPORT_SYMBOL(clk_get_master_clock);
