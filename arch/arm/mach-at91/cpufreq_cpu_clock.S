@@ -96,17 +96,20 @@ ENTRY(__update_cpu_clock)
 	/* Master/Processor Clock Source Selection to Main Clock */
 	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_CSS
-	orr	tmp, tmp, #AT91_PMC_CSS_SLOW
+	orr	tmp, tmp, #AT91_PMC_CSS_MAIN
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
+	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_PLLADIV2
 	orr	tmp, tmp, #AT91_PMC_PLLADIV2_ON
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
+	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_MDIV
 	orr	tmp, tmp, #AT91SAM9_PMC_MDIV_2
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
+	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_ALT_PRES
 	orr	tmp, tmp, #AT91_PMC_ALT_PRES_1
 	str	tmp, [pmc, #AT91_PMC_MCKR]
@@ -122,21 +125,24 @@ ENTRY(__update_cpu_clock)
 	 * and set new prescaler and divider
 	 */
 	ldr	tmp, [pmc, #AT91_PMC_MCKR]
-	bic	tmp, tmp, #AT91_PMC_ALT_PRES
-	and	tmp1, mckr_mdiv, #AT91_PMC_ALT_PRES
-	orr     tmp, tmp, tmp1
-	str     tmp, [pmc, #AT91_PMC_MCKR]
-
 	bic	tmp, tmp, #AT91_PMC_PLLADIV2
 	and	tmp1, mckr_mdiv, #AT91_PMC_PLLADIV2
 	orr     tmp, tmp, tmp1
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
+	ldr	tmp, [pmc, #AT91_PMC_MCKR]
+	bic	tmp, tmp, #AT91_PMC_ALT_PRES
+	and	tmp1, mckr_mdiv, #AT91_PMC_ALT_PRES
+	orr     tmp, tmp, tmp1
+	str     tmp, [pmc, #AT91_PMC_MCKR]
+
+	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_MDIV
 	and	tmp1, mckr_mdiv,#AT91_PMC_MDIV
 	orr	tmp, tmp, tmp1
 	str	tmp, [pmc, #AT91_PMC_MCKR]
 
+	ldr	tmp, [pmc, #AT91_PMC_MCKR]
 	bic	tmp, tmp, #AT91_PMC_CSS
 	orr	tmp, tmp, #AT91_PMC_CSS_PLLA
 	str	tmp, [pmc, #AT91_PMC_MCKR]
