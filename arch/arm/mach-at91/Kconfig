@@ -36,6 +36,7 @@ config SOC_SAMA5
 	select GENERIC_CLOCKEVENTS
 	select MULTI_IRQ_HANDLER
 	select SPARSE_IRQ
+	select ARCH_HAS_OPP
 
 menu "Atmel AT91 System-on-Chip"
 
