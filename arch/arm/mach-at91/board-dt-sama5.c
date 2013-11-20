@@ -15,6 +15,7 @@
 #include <linux/of.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
+#include <linux/opp.h>
 #include <linux/phy.h>
 
 #include <asm/setup.h>
@@ -246,6 +247,35 @@ static struct platform_device *sensors[] __initdata = {
 	&isi_ov5640,
 };
 
+static void __init sama5_opp_init(struct device *cpu_dev)
+{
+	struct device_node *np;
+
+	np = of_find_node_by_path("/cpus/cpu@0");
+	if (!np) {
+		pr_warn("failed to find cpu0 node\n");
+		return;
+	}
+
+	cpu_dev->of_node = np;
+	if (of_init_opp_table(cpu_dev))
+		pr_warn("failed to init OPP table\n");
+
+	of_node_put(np);
+}
+
+static struct platform_device sama5d3_cpufreq_pdev = {
+	.name = "at91-cpufreq",
+};
+
+static void __init sama5_init_late(void)
+{
+	if (IS_ENABLED(CONFIG_ARM_AT91_CPUFREQ)) {
+		sama5_opp_init(&sama5d3_cpufreq_pdev.dev);
+		platform_device_register(&sama5d3_cpufreq_pdev);
+	}
+}
+
 struct of_dev_auxdata at91_auxdata_lookup[] __initdata = {
 	OF_DEV_AUXDATA("atmel,at91sam9x5-lcd", 0xf8038000, "atmel_hlcdfb_base", &ek_lcdc_data),
 	OF_DEV_AUXDATA("atmel,at91sam9x5-lcd", 0xf8038100, "atmel_hlcdfb_ovl1", &ek_lcdc_data),
@@ -323,5 +353,6 @@ DT_MACHINE_START(sama5_dt, "Atmel SAMA5 (Device Tree)")
 	.init_early	= at91_dt_initialize,
 	.init_irq	= at91_dt_init_irq,
 	.init_machine	= sama5_dt_device_init,
+	.init_late	= sama5_init_late,
 	.dt_compat	= sama5_dt_board_compat,
 MACHINE_END
