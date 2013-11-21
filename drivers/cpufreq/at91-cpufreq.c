@@ -18,6 +18,7 @@
 #include <linux/cpufreq.h>
 #include <linux/opp.h>
 #include <linux/platform_device.h>
+#include <linux/regulator/consumer.h>
 #include <mach/at91_pmc.h>
 #include <mach/at91_ramc.h>
 
@@ -39,6 +40,10 @@ struct at91_cpufreq_data {
 	struct cpufreq_regs_setting *regs_setting_table;
 	u32	regs_setting_count;
 	struct device *dev;
+
+#ifdef CONFIG_REGULATOR
+	struct regulator *vddcore_reg;
+#endif
 };
 
 static struct at91_cpufreq_data	*cpufreq_info;
@@ -159,6 +164,10 @@ static int at91_cpufreq_target(struct cpufreq_policy *policy,
 	struct cpufreq_freqs freqs;
 	unsigned long flags;
 	int index;
+#ifdef CONFIG_REGULATOR
+	struct opp *opp;
+	u32	volt;
+#endif
 	int ret = 0;
 
 	if (policy->cpu != 0)
@@ -191,7 +200,28 @@ static int at91_cpufreq_target(struct cpufreq_policy *policy,
 
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
 
+#ifdef CONFIG_REGULATOR
+	rcu_read_lock();
+	opp = opp_find_freq_exact(cpufreq_info->dev,
+				  cpufreq_info->cur_frequency * 1000, true);
+	if (IS_ERR(opp)) {
+		rcu_read_unlock();
+		dev_err(cpufreq_info->dev, "failed to find OPP for %d\n",
+			cpufreq_info->cur_frequency * 1000);
+		return -EINVAL;
+	}
+
+	volt = opp_get_voltage(opp);
+	rcu_read_unlock();
+
+	if (cpufreq_info->vddcore_reg)
+		regulator_set_voltage(cpufreq_info->vddcore_reg, volt, volt);
+
+	pr_info("\nNow, running on the frequency / volatage: %dMHz / %dmV\n",
+						freqs.new / 1000, volt / 1000);
+#else
 	pr_info("\nNow, running on the frequency: %d MHz\n", freqs.new / 1000);
+#endif
 
 	return 0;
 }
@@ -292,6 +322,9 @@ static int of_init_cpufreq_regs_setting_table(void)
 static int at91_cpufreq_probe(struct platform_device *pdev)
 {
 	struct device_node *np;
+#ifdef CONFIG_REGULATOR
+	static struct regulator *vddcore = NULL;
+#endif
 	int ret = -EINVAL;
 
 	np = pdev->dev.of_node;
@@ -346,16 +379,32 @@ static int at91_cpufreq_probe(struct platform_device *pdev)
 		goto err_free_table;
 	}
 
+#ifdef CONFIG_REGULATOR
+	vddcore = regulator_get(&pdev->dev, "DCDC_REG2");
+	if (IS_ERR(vddcore)) {
+		dev_err(cpufreq_info->dev,
+			"%s: unable to get the vddcore regulator\n", __func__);
+		vddcore = NULL;
+	} else {
+		dev_info(cpufreq_info->dev, "Found vddcore regulator\n");
+	}
+#endif
+	cpufreq_info->vddcore_reg = vddcore;
+
 	ret = cpufreq_register_driver(&at91_cpufreq_driver);
 	if (ret) {
 		dev_err(cpufreq_info->dev,
 			"%s: failed to register cpufreq driver\n", __func__);
-		goto err_free_table;
+		goto err_put_regulator;
 	}
-
 
 	of_node_put(np);
 	return 0;
+
+#ifdef CONFIG_REGULATOR
+err_put_regulator:
+	regulator_put(cpufreq_info->vddcore_reg);
+#endif
 
 err_free_table:
 	opp_free_cpufreq_table(cpufreq_info->dev, &cpufreq_info->freq_table);
@@ -369,6 +418,10 @@ static int at91_cpufreq_remove(struct platform_device *pdev)
 {
 	cpufreq_unregister_driver(&at91_cpufreq_driver);
 	opp_free_cpufreq_table(cpufreq_info->dev, &cpufreq_info->freq_table);
+
+#ifdef CONFIG_REGULATOR
+	regulator_put(cpufreq_info->vddcore_reg);
+#endif
 
 	return 0;
 }
