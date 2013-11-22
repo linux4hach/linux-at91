@@ -26,6 +26,7 @@
 #include <asm/mach/irq.h>
 
 #include <mach/at91_pmc.h>
+#include <mach/at91_pio.h>
 #include <mach/cpu.h>
 
 #include "at91_aic.h"
@@ -199,6 +200,91 @@ extern void at91_slow_clock(void __iomem *pmc, void __iomem *ramc0,
 extern u32 at91_slow_clock_sz;
 #endif
 
+#define SAMA5D3_PM_DEBUG
+
+#ifdef SAMA5D3_PM_DEBUG
+
+#define	AT91C_BASE_PIOA		0xfffff200
+#define	AT91C_BASE_PIOB		0xfffff400
+#define	AT91C_BASE_PIOC		0xfffff600
+#define	AT91C_BASE_PIOD		0xfffff800
+#define	AT91C_BASE_PIOE		0xfffffa00
+
+#define AT91_VA_BASE_PIOA        AT91_IO_P2V(AT91C_BASE_PIOA)
+#define AT91_VA_BASE_PIOB        AT91_IO_P2V(AT91C_BASE_PIOB)
+#define AT91_VA_BASE_PIOC        AT91_IO_P2V(AT91C_BASE_PIOC)
+#define AT91_VA_BASE_PIOD        AT91_IO_P2V(AT91C_BASE_PIOD)
+#define AT91_VA_BASE_PIOE        AT91_IO_P2V(AT91C_BASE_PIOE)
+
+#define at91_pio_read(base, field) \
+	__raw_readl(base + field)
+
+static void print_pio_bank_setting(u32 base)
+{
+	pr_info("    PIO_PSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_PSR));
+	pr_info("    PIO_OSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_OSR));
+	pr_info("    PIO_IFSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_IFSR));
+	pr_info("    PIO_ODSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_ODSR));
+	pr_info("    PIO_PDSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_PDSR));
+	pr_info("    PIO_ISR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_ISR));
+	pr_info("    PIO_MDSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_MDSR));
+	pr_info("    PIO_PUSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_PUSR));
+	pr_info("    PIO_ABCDSR1: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_ABCDSR1));
+	pr_info("    PIO_ABCDSR2: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_ABCDSR2));
+	pr_info("    PIO_IFSCSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_IFSCSR));
+	pr_info("    PIO_PPDSR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_PPDSR));
+}
+
+static void debug_print_info_before_suspend(void)
+{
+	u32 base;
+
+	base = (u32)AT91_VA_BASE_PIOA;
+	pr_info("\nPIOA: 0x%x Bank Register Setting\n", base);
+	print_pio_bank_setting(base);
+
+	base = (u32)AT91_VA_BASE_PIOB;
+	pr_info("\nPIOB: 0x%x Bank Register Setting\n", base);
+	print_pio_bank_setting(base);
+
+	base = (u32)AT91_VA_BASE_PIOC;
+	pr_info("\nPIOC: 0x%x Bank Register Setting\n", base);
+	print_pio_bank_setting(base);
+
+	base = (u32)AT91_VA_BASE_PIOD;
+	pr_info("\nPIOD: 0x%x Bank Register Setting\n", base);
+	print_pio_bank_setting(base);
+
+	base = (u32)AT91_VA_BASE_PIOE;
+	pr_info("\nPIOE: 0x%x Bank Register Setting\n", base);
+	print_pio_bank_setting(base);
+
+	pr_info("\nPMC System Clock Status Register: 0x%x\n",
+				__raw_readl(at91_pmc_base + AT91_PMC_SCSR));
+	pr_info("PMC Peripheral Clock Status Register0: 0x%x\n",
+				__raw_readl(at91_pmc_base + AT91_PMC_PCSR));
+	pr_info("PMC Peripheral Clock Status Register1: 0x%x\n\n",
+				__raw_readl(at91_pmc_base + AT91_PMC_PCSR1));
+}
+#else
+static void debug_print_info_before_suspend(void)
+{
+	return;
+}
+#endif
+
 static int at91_pm_enter(suspend_state_t state)
 {
 	if (of_have_populated_dt())
@@ -228,6 +314,8 @@ static int at91_pm_enter(suspend_state_t state)
 			 */
 			if (!at91_pm_verify_clocks())
 				goto error;
+
+			debug_print_info_before_suspend();
 
 			/*
 			 * Enter slow clock mode by switching over to clk32k and
