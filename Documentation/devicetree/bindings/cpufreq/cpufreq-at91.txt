@@ -1,0 +1,49 @@
+AT91 cpufreq driver
+-------------------
+
+AT91 SoC cpufreq driver for CPU frequency scaling.
+
+Required properties:
+- operating-points: Table of frequencies and voltage CPU could be transitioned into,
+	in the increasing order. Frequency should be in KHz units and voltage
+	should be in microvolts.
+
+- atmel,cpufreq_regs_setting:An array of 4-tuples items, and each item consists
+	of frequency, ddram controller refresh timer register, pmc PLLA register
+	and pmc master clock register setting
+	like <freq-kHz ddramc_rtr ckgr_plla pmc_mckr>
+		freq: clock frequency in kHz
+
+Optional properties:
+- clock-latency: Clock monitor latency in microsecond.
+
+All the required listed above must be defined under node cpufreq.
+
+Example:
+--------
+/ {
+	<...>
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a5";
+			reg = <0x0>;
+			operating-points = <
+				/* kHz    uV */
+				528000  1300000
+				396000	1200000
+				264000	1100000
+			>;
+			clock-latency = <100000>;
+			atmel,cpufreq_regs_setting = <
+				/* kHz      rtr      pllar  mckr */
+				528000 0x300080 0x20ac3f01 0x200
+				396000 0x300080 0x21043f01 0x1300
+				264000 0x300080 0x20ac3f01 0x1100
+			>;
+		};
+	};
+};
