@@ -15,6 +15,18 @@
 
 	ahb {
 		apb {
+			i2c1: i2c@f0018000 {
+				qt1070: keyboard@1b {
+					compatible = "qt1070";
+					reg = <0x1b>;
+					interrupt-parent = <&pioE>;
+					interrupts = <31 0x0>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_qt1070_irq>;
+					wakeup-source;
+				};
+			};
+
 			spi0: spi@f0004000 {
 				status = "okay";
 			};
@@ -47,6 +59,11 @@
 				board {
 					pinctrl_key_gpio: key_gpio_0 {
 						atmel,pins = <AT91_PIOE 27 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* PE27 gpio */
+					};
+
+					pinctrl_qt1070_irq: qt1070_irq {
+						atmel,pins =
+							<AT91_PIOE 31 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PE31 GPIO with pull up deglith */
 					};
 				};
 			};
