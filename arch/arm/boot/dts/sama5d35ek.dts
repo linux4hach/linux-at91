@@ -42,6 +42,14 @@
 			macb1: ethernet@f802c000 {
 				status = "okay";
 			};
+
+			pinctrl@fffff200 {
+				board {
+					pinctrl_key_gpio: key_gpio_0 {
+						atmel,pins = <AT91_PIOE 27 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* PE27 gpio */
+					};
+				};
+			};
 		};
 	};
 
@@ -59,6 +67,8 @@
 			gpios = <&pioE 27 GPIO_ACTIVE_HIGH>;
 			linux,code = <0x100>;
 			gpio-key,wakeup;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_key_gpio>;
 		};
 	};
 };
