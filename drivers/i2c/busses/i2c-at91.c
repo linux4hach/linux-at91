@@ -32,6 +32,9 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/platform_data/dma-atmel.h>
+#include <linux/cpufreq.h>
+
+extern unsigned long clk_get_master_clock(void);
 
 #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
 #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
@@ -103,6 +106,10 @@ struct at91_twi_dev {
 	struct at91_twi_pdata *pdata;
 	bool use_dma;
 	struct at91_twi_dma dma;
+
+#ifdef CONFIG_CPU_FREQ
+	struct notifier_block	freq_transition;
+#endif
 };
 
 static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
@@ -152,7 +159,7 @@ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
 	int offset = pdata->clk_offset;
 	int max_ckdiv = pdata->clk_max_div;
 
-	div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
+	div = max(0, (int)DIV_ROUND_UP(clk_get_master_clock(),
 				       2 * twi_clk) - offset);
 	ckdiv = fls(div >> 8);
 	cdiv = div >> ckdiv;
@@ -703,6 +710,62 @@ static struct at91_twi_pdata *at91_twi_get_driver_data(
 	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver_data;
 }
 
+#ifdef CONFIG_CPU_FREQ
+static int at91_twi_cpufreq_transition(struct notifier_block *nb,
+					unsigned long val, void *data)
+{
+	struct at91_twi_dev *twi_dev;
+
+	twi_dev = container_of(nb, struct at91_twi_dev, freq_transition);
+
+	if (IS_ERR(twi_dev->clk))
+		goto exit;
+
+	if (val == CPUFREQ_PRECHANGE) {
+		/*
+		 * we should really shut the twi down whilst the
+		 * frequency change is in progress.
+		 */
+		wait_for_completion_interruptible_timeout(
+			&twi_dev->cmd_complete,	twi_dev->adapter.timeout);
+
+		clk_disable(twi_dev->clk);
+	} else if (val == CPUFREQ_POSTCHANGE) {
+		clk_enable(twi_dev->clk);
+
+		at91_calc_twi_clock(twi_dev, TWI_CLK_HZ);
+		at91_init_twi_bus(twi_dev);
+	}
+
+exit:
+	return 0;
+}
+
+static inline int at91_twi_cpufreq_register(struct at91_twi_dev *twi_dev)
+{
+	twi_dev->freq_transition.notifier_call = at91_twi_cpufreq_transition;
+
+	return cpufreq_register_notifier(&twi_dev->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+
+static inline void at91_twi_cpufreq_unregister(struct at91_twi_dev *twi_dev)
+{
+	cpufreq_unregister_notifier(&twi_dev->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+#else
+static inline int at91_twi_cpufreq_register(struct at91_twi_dev *twi_dev)
+{
+	return 0;
+}
+
+static inline void at91_twi_cpufreq_unregister(struct at91_twi_dev *twi_dev)
+{
+	return;
+}
+#endif
+
 static int at91_twi_probe(struct platform_device *pdev)
 {
 	struct at91_twi_dev *dev;
@@ -777,6 +840,9 @@ static int at91_twi_probe(struct platform_device *pdev)
 
 	of_i2c_register_devices(&dev->adapter);
 
+	if (at91_twi_cpufreq_register(dev) < 0)
+		dev_err(&pdev->dev, "failed to add cpufreq notifier\n");
+
 	dev_info(dev->dev, "AT91 i2c bus driver.\n");
 	return 0;
 }
@@ -787,6 +853,7 @@ static int at91_twi_remove(struct platform_device *pdev)
 
 	i2c_del_adapter(&dev->adapter);
 	clk_disable_unprepare(dev->clk);
+	at91_twi_cpufreq_unregister(dev);
 
 	return 0;
 }
