@@ -84,6 +84,34 @@ static struct cpufreq_regs_setting at91_freqs[] = {
 };
 #endif
 
+void led_red_off(void)
+{
+	gpio_direction_output(AT91_PIN_PE24, 0);
+}
+
+void led_red_on(void)
+{
+	gpio_direction_output(AT91_PIN_PE24, 1);
+}
+
+void led_blue_on(void)
+{
+	gpio_direction_output(AT91_PIN_PE25, 0);
+}
+
+void led_blue_off(void)
+{
+	gpio_direction_output(AT91_PIN_PE25, 1);
+}
+
+void led_init(void)
+{
+	gpio_request(AT91_PIN_PE24, "Red LED");
+	gpio_request(AT91_PIN_PE25, "Blue LED");
+	led_red_off();
+	led_blue_off();
+}
+
 static void (*update_cpu_clock)(void __iomem *pmc,
 				u32 pllar_mul,
 				u32 mckr_mdiv,
@@ -194,11 +222,18 @@ static int at91_cpufreq_target(struct cpufreq_policy *policy,
 
 	local_irq_save(flags);
 	set_cpu_freq(freqs.new);
+
+	led_red_on();
+	led_blue_off();
+
 	local_irq_restore(flags);
 
 	cpufreq_info->cur_frequency = freqs.new;
 
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
+
+	led_red_off();
+	led_blue_on();
 
 #ifdef CONFIG_REGULATOR
 	rcu_read_lock();
@@ -247,6 +282,8 @@ static int at91_cpufreq_init(struct cpufreq_policy *policy)
 	cpufreq_frequency_table_get_attr(cpufreq_info->freq_table, policy->cpu);
 
 	dev_info(cpufreq_info->dev, "CPUFREQ support for AT91 initialized\n");
+
+	led_init();
 
 	return 0;
 }

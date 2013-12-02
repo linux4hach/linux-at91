@@ -13,6 +13,7 @@
 #include <mach/hardware.h>
 #include <mach/at91_pmc.h>
 #include <mach/at91_ramc.h>
+#include <mach/at91_pio.h>
 
 #define MCKRDY_TIMEOUT		50000
 #define PLLALOCK_TIMEOUT	50000
@@ -71,6 +72,37 @@ tmp1		.req	r6
 2:
 	.endm
 
+#define AT91_PINE_ADDR	0xfefffa00
+
+	.macro led_red_on
+	mov	tmp, #0x01
+	mov	tmp1, tmp, lsl #24
+	ldr     tmp, =(AT91_PINE_ADDR)
+	str	tmp1, [tmp, #PIO_SODR]
+	.endm
+
+	.macro led_red_off
+	mov	tmp, #0x01
+	mov	tmp1, tmp, lsl #24
+	ldr	tmp, =(AT91_PINE_ADDR)
+	str	tmp1, [tmp, #PIO_CODR]
+	.endm
+
+	.macro led_blue_on
+	mov	tmp, #0x01
+	mov	tmp1, tmp, lsl #25
+	ldr     tmp, =(AT91_PINE_ADDR)
+	str	tmp1, [tmp, #PIO_CODR]
+	.endm
+
+	.macro led_blue_off
+	mov	tmp, #0x01
+	mov	tmp1, tmp, lsl #25
+	ldr	tmp, =(AT91_PINE_ADDR)
+	str	tmp1, [tmp, #PIO_SODR]
+	.endm
+
+
 #define DDR_ADDR	0xC0000000
 
 /*
@@ -80,6 +112,9 @@ tmp1		.req	r6
 ENTRY(__update_cpu_clock)
 	/* Save registers on stack */
 	stmfd	sp!, {r4 - r12, lr}
+
+	led_red_on
+	led_blue_on
 
 	/* Make DDRAM enter self-refresh mode */
 	ldr tmp, =(DDR_ADDR)
@@ -202,6 +237,9 @@ ENTRY(__update_cpu_clock)
 	ldr	tmp1, .saved_data_of_ddr
 	ldr tmp, =(DDR_ADDR)
 	str	tmp1, [tmp]
+
+	led_red_off
+	led_blue_off
 
 	/* Restore registers, and return */
 	ldmfd	sp!, {r4 - r12, pc}
