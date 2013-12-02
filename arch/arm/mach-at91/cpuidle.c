@@ -36,6 +36,9 @@ static int at91_enter_idle(struct cpuidle_device *dev,
 		at91rm9200_standby();
 	else if (cpu_is_at91sam9g45())
 		at91sam_ddramc_standby(2);
+	else if (cpu_is_at91sam9x5()
+		|| cpu_is_at91sam9n12())
+		at91sam_ddramc_standby(1);
 	else if (cpu_is_at91sam9263())
 		at91sam9263_standby();
 	else
