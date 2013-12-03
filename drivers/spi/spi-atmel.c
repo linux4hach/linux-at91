@@ -23,9 +23,12 @@
 #include <linux/platform_data/atmel.h>
 #include <linux/platform_data/dma-atmel.h>
 #include <linux/of.h>
+#include <linux/cpufreq.h>
 
 #include <linux/io.h>
 #include <linux/gpio.h>
+
+extern unsigned long clk_get_master_clock(void);
 
 /* SPI register offsets */
 #define SPI_CR					0x0000
@@ -241,6 +244,10 @@ struct atmel_spi {
 	bool			use_pdc;
 	/* dmaengine data */
 	struct atmel_spi_dma	dma;
+
+#ifdef CONFIG_CPU_FREQ
+	struct notifier_block	freq_transition;
+#endif
 };
 
 /* Controller-specific per-slave state */
@@ -1296,7 +1303,7 @@ static int atmel_spi_setup(struct spi_device *spi)
 	}
 
 	/* v1 chips start out at half the peripheral bus speed. */
-	bus_hz = clk_get_rate(as->clk);
+	bus_hz = clk_get_master_clock();
 	if (!atmel_spi_is_v2(as))
 		bus_hz /= 2;
 
@@ -1496,6 +1503,59 @@ static void atmel_get_caps(struct atmel_spi *as)
 	as->caps.has_dma_support = version >= 0x212;
 }
 
+#ifdef CONFIG_CPU_FREQ
+static int atmel_spi_cpufreq_transition(struct notifier_block *nb,
+					unsigned long val, void *data)
+{
+	struct atmel_spi *as;
+
+	as = container_of(nb, struct atmel_spi, freq_transition);
+
+	if (IS_ERR(as->clk))
+		goto exit;
+
+	if (val == CPUFREQ_PRECHANGE) {
+		/*
+		 * we should really shut the spi down whilst the
+		 * frequency change is in progress.
+		 */
+		while (!(spi_readl(as, SR) & SPI_BIT(TXEMPTY)))
+			cpu_relax();
+
+		clk_disable(as->clk);
+	} else if (val == CPUFREQ_POSTCHANGE) {
+		clk_enable(as->clk);
+	}
+
+exit:
+	return 0;
+}
+
+static inline int atmel_spi_cpufreq_register(struct atmel_spi *as)
+{
+	as->freq_transition.notifier_call = atmel_spi_cpufreq_transition;
+
+	return cpufreq_register_notifier(&as->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+
+static inline void atmel_spi_cpufreq_unregister(struct atmel_spi *as)
+{
+	cpufreq_unregister_notifier(&as->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+#else
+static inline int atmel_spi_cpufreq_register(struct atmel_spi *as)
+{
+	return 0;
+}
+
+static inline void atmel_spi_cpufreq_unregister(struct atmel_spi *as)
+{
+	return;
+}
+#endif
+
 /*-------------------------------------------------------------------------*/
 
 static int atmel_spi_probe(struct platform_device *pdev)
@@ -1604,6 +1664,9 @@ static int atmel_spi_probe(struct platform_device *pdev)
 	dev_info(&pdev->dev, "Atmel SPI Controller at 0x%08lx (irq %d)\n",
 			(unsigned long)regs->start, irq);
 
+	if (atmel_spi_cpufreq_register(as) < 0)
+		dev_err(&pdev->dev, "failed to add cpufreq notifier\n");
+
 	ret = spi_register_master(master);
 	if (ret)
 		goto out_free_dma;
@@ -1672,6 +1735,8 @@ static int atmel_spi_remove(struct platform_device *pdev)
 	clk_put(as->clk);
 	free_irq(as->irq, master);
 	iounmap(as->regs);
+
+	atmel_spi_cpufreq_unregister(as);
 
 	spi_unregister_master(master);
 
