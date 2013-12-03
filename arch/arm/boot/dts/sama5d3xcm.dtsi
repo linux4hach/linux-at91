@@ -91,4 +91,10 @@
 			linux,default-trigger = "heartbeat";
 		};
 	};
+
+	cpus {
+		cpu@0 {
+			vddcore-supply = <&vcc_1v2_reg>;
+		};
+	};
 };
