@@ -26,6 +26,7 @@
 #include <linux/syscore_ops.h>
 #include <linux/ftrace.h>
 #include <trace/events/power.h>
+#include <linux/regulator/machine.h>
 
 #include "power.h"
 
@@ -347,12 +348,22 @@ static int enter_state(suspend_state_t state)
 
 	pr_debug("PM: Entering %s sleep\n", pm_states[state]);
 	pm_restrict_gfp_mask();
+
+#ifdef CONFIG_REGULATOR_ACT8865
+	regulator_suspend_prepare(state);
+#endif
+
 	error = suspend_devices_and_enter(state);
 	pm_restore_gfp_mask();
 
  Finish:
 	pr_debug("PM: Finishing wakeup.\n");
 	suspend_finish();
+
+#ifdef CONFIG_REGULATOR_ACT8865
+	regulator_suspend_finish();
+#endif
+
  Unlock:
 	mutex_unlock(&pm_mutex);
 	return error;
