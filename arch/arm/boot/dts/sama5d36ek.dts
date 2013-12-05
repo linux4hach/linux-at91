@@ -17,19 +17,19 @@
 	ahb {
 		apb {
 			spi0: spi@f0004000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			ssc0: ssc@f0008000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			can0: can@f000c000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			i2c0: i2c@f0014000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			i2c1: i2c@f0018000 {
@@ -37,11 +37,11 @@
 			};
 
 			macb0: ethernet@f0028000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			macb1: ethernet@f802c000 {
-				status = "okay";
+				status = "disabled";
 			};
 		};
 	};
@@ -54,7 +54,7 @@
 	};
 
 	sound {
-		status = "okay";
+		status = "disabled";
 	};
 };
 

@@ -14,7 +14,7 @@
 
 			/* ISI VSYNC/HSYNC Conflict with i2c0 */
 			isi: isi@f0034000 {
-				status = "okay";
+				status = "disabled";
 			};
 		};
 	};
