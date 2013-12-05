@@ -426,6 +426,33 @@ static int at91_cpufreq_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_REGULATOR
+int regulator_cpufreq_suspend_finish(void)
+{
+	struct opp *opp;
+	u32	volt;
+
+	rcu_read_lock();
+	opp = opp_find_freq_exact(cpufreq_info->dev,
+				  cpufreq_info->cur_frequency * 1000, true);
+	if (IS_ERR(opp)) {
+		rcu_read_unlock();
+		dev_err(cpufreq_info->dev, "failed to find OPP for %d\n",
+			cpufreq_info->cur_frequency * 1000);
+		return -EINVAL;
+	}
+
+	volt = opp_get_voltage(opp);
+	rcu_read_unlock();
+
+	pr_info("Vddcore suspend finish voltage %dmV\n", volt / 1000);
+	if (cpufreq_info->vddcore_reg)
+		regulator_set_voltage(cpufreq_info->vddcore_reg, volt, volt);
+
+	return 0;
+}
+#endif
+
 static struct platform_driver at91_cpufreq_platdrv = {
 	.driver = {
 		.name	= "at91-cpufreq",

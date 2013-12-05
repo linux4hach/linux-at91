@@ -30,6 +30,8 @@
 
 #include "power.h"
 
+extern int regulator_cpufreq_suspend_finish(void);
+
 const char *const pm_states[PM_SUSPEND_MAX] = {
 	[PM_SUSPEND_FREEZE]	= "freeze",
 	[PM_SUSPEND_STANDBY]	= "standby",
@@ -362,6 +364,9 @@ static int enter_state(suspend_state_t state)
 
 #ifdef CONFIG_REGULATOR_ACT8865
 	regulator_suspend_finish();
+#ifdef CONFIG_CPU_FREQ
+	regulator_cpufreq_suspend_finish();
+#endif
 #endif
 
  Unlock:
