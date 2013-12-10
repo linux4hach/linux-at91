@@ -40,6 +40,8 @@
 #define PLLBLOCK_TIMEOUT	1000
 #define UPLLLOCK_TIMEOUT	1000
 
+#define CLOCK_512HZ_SUPPORT
+
 pmc	.req	r0
 sdramc	.req	r1
 ramc1	.req	r2
@@ -258,6 +260,17 @@ sdr_sr_done:
 	str	tmp1, [pmc, #AT91_PMC_MCKR]
 
 	wait_mckrdy
+
+#ifdef CLOCK_512HZ_SUPPORT
+	/* 32768Hz / 64 = 512Hz */
+	bic	tmp1, tmp1, #AT91_PMC_ALT_PRES
+	orr	tmp1, tmp1, #AT91_PMC_ALT_PRES_64
+	bic	tmp1, tmp1, #AT91_PMC_MDIV
+	bic	tmp1, tmp1, #AT91_PMC_PLLADIV2
+	str	tmp1, [pmc, #AT91_PMC_MCKR]
+
+	wait_mckrdy
+#endif
 
 #ifdef SLOWDOWN_MASTER_CLOCK
 	/*
