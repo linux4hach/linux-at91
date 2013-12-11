@@ -10,7 +10,9 @@
 #include <linux/io.h>
 #include <linux/platform_device.h>
 #include <linux/atmel_tc.h>
+#include <linux/cpufreq.h>
 
+extern unsigned long clk_get_master_clock(void);
 
 /*
  * We're configured to use a specific TC block, one that's not hooked
@@ -253,6 +255,99 @@ static void __init tcb_setup_single_chan(struct atmel_tc *tc, int mck_divisor_id
 	__raw_writel(ATMEL_TC_SYNC, tcaddr + ATMEL_TC_BCR);
 }
 
+#ifdef CONFIG_CPU_FREQ
+static int tcb_clksrc_update_rate(struct atmel_tc *tc)
+{
+	u32 rate, divided_rate = 0;
+	int best_divisor_idx = -1;
+	int clk32k_divisor_idx = -1;
+	unsigned long	flags;
+	unsigned int	i;
+
+	/* How fast will we be counting?  Pick something over 5 MHz.  */
+	rate = clk_get_master_clock() / 2;
+	for (i = 0; i < 5; i++) {
+		unsigned divisor = atmel_tc_divisors[i];
+		unsigned tmp;
+
+		/* remember 32 KiHz clock for later */
+		if (!divisor) {
+			clk32k_divisor_idx = i;
+			continue;
+		}
+
+		tmp = rate / divisor;
+		if (best_divisor_idx > 0) {
+			if (tmp < 5 * 1000 * 1000)
+				continue;
+		}
+		divided_rate = tmp;
+		best_divisor_idx = i;
+	}
+
+	raw_local_irq_save(flags);
+
+	__raw_writel(best_divisor_idx		/* likely divide-by-8 */
+			| ATMEL_TC_WAVE
+			| ATMEL_TC_WAVESEL_UP,		/* free-run */
+			tcaddr + ATMEL_TC_REG(0, CMR));
+	__raw_writel(0xff, tcaddr + ATMEL_TC_REG(0, IDR));	/* no irqs */
+	__raw_writel(ATMEL_TC_CLKEN, tcaddr + ATMEL_TC_REG(0, CCR));
+
+	/* then reset all the timers */
+	__raw_writel(ATMEL_TC_SYNC, tcaddr + ATMEL_TC_BCR);
+
+	clocksource_unregister(&clksrc);
+	clocksource_register_hz(&clksrc, divided_rate);
+
+	raw_local_irq_restore(flags);
+
+	return 0;
+}
+
+static int tcb_clksrc_cpufreq_transition(struct notifier_block *nb,
+					unsigned long val, void *data)
+{
+	struct atmel_tc *tc;
+
+	tc = container_of(nb, struct atmel_tc, freq_transition);
+
+	if (val == CPUFREQ_PRECHANGE) {
+		/* disable the tcb channel */
+		__raw_writel(0xff, tcaddr + ATMEL_TC_REG(0, IDR));
+		__raw_writel(ATMEL_TC_CLKDIS, tcaddr + ATMEL_TC_REG(0, CCR));
+	} else if (val == CPUFREQ_POSTCHANGE) {
+		tcb_clksrc_update_rate(tc);
+	}
+
+	return 0;
+}
+
+static inline int tcb_clksrc_cpufreq_register(struct atmel_tc *tc)
+{
+	tc->freq_transition.notifier_call = tcb_clksrc_cpufreq_transition;
+
+	return cpufreq_register_notifier(&tc->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+
+static inline void tcb_clksrc_cpufreq_unregister(struct atmel_tc *tc)
+{
+	cpufreq_unregister_notifier(&tc->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+}
+#else
+static inline int tcb_clksrc_cpufreq_register(struct atmel_tc *tc)
+{
+	return 0;
+}
+
+static inline void tcb_clksrc_cpufreq_unregister(struct atmel_tc *tc)
+{
+	return;
+}
+#endif
+
 static int __init tcb_clksrc_init(void)
 {
 	static char bootinfo[] __initdata
@@ -326,6 +421,10 @@ static int __init tcb_clksrc_init(void)
 		/* setup both channel 0 & 1 */
 		tcb_setup_dual_chan(tc, best_divisor_idx);
 	}
+
+	ret = tcb_clksrc_cpufreq_register(tc);
+	if (ret < 0)
+		dev_err(&pdev->dev, "failed to add cpufreq notifier\n");
 
 	/* and away we go! */
 	clocksource_register_hz(&clksrc, divided_rate);

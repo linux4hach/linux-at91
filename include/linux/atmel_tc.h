@@ -12,6 +12,7 @@
 
 #include <linux/compiler.h>
 #include <linux/list.h>
+#include <linux/cpufreq.h>
 
 /*
  * Many 32-bit Atmel SOCs include one or more TC blocks, each of which holds
@@ -67,6 +68,10 @@ struct atmel_tc {
 	int			irq[3];
 	struct clk		*clk[3];
 	struct list_head	node;
+
+#ifdef CONFIG_CPU_FREQ
+	struct notifier_block	freq_transition;
+#endif
 };
 
 extern struct atmel_tc *atmel_tc_alloc(unsigned block, const char *name);
