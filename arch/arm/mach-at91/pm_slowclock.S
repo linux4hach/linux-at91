@@ -40,7 +40,7 @@
 #define PLLBLOCK_TIMEOUT	1000
 #define UPLLLOCK_TIMEOUT	1000
 
-#define CLOCK_512HZ_SUPPORT
+#undef	CLOCK_750KHZ_SUPPORT
 
 pmc	.req	r0
 sdramc	.req	r1
@@ -59,6 +59,20 @@ tmp2	.req	r5
 	beq	2f
 	ldr	tmp1, [pmc, #AT91_PMC_SR]
 	tst	tmp1, #AT91_PMC_MCKRDY
+	beq	1b
+2:
+	.endm
+
+/*
+ * Wait until master oscillator has stabilized.
+ */
+	.macro wait_moscrcrdy
+	mov	tmp2, #MOSCRDY_TIMEOUT
+1:	sub	tmp2, tmp2, #1
+	cmp	tmp2, #0
+	beq	2f
+	ldr	tmp1, [pmc, #AT91_PMC_SR]
+	tst	tmp1, #AT91_PMC_MOSCRCS
 	beq	1b
 2:
 	.endm
@@ -257,20 +271,28 @@ sdr_sr_done:
 	 * Set the Master clock source to slow clock
 	 */
 	bic	tmp1, tmp1, #AT91_PMC_CSS
+
+#ifdef CLOCK_750KHZ_SUPPORT
+	orr	tmp1, tmp1, #AT91_PMC_CSS_MAIN
+#endif
 	str	tmp1, [pmc, #AT91_PMC_MCKR]
 
 	wait_mckrdy
 
-#ifdef CLOCK_512HZ_SUPPORT
 	/* 32768Hz / 64 = 512Hz */
 	bic	tmp1, tmp1, #AT91_PMC_ALT_PRES
 	orr	tmp1, tmp1, #AT91_PMC_ALT_PRES_64
+
+#ifdef CLOCK_750KHZ_SUPPORT
+	/* 12MHz / 16 = 750KHz */
+	bic	tmp1, tmp1, #AT91_PMC_ALT_PRES
+	orr	tmp1, tmp1, #AT91_PMC_ALT_PRES_16
+#endif
 	bic	tmp1, tmp1, #AT91_PMC_MDIV
 	bic	tmp1, tmp1, #AT91_PMC_PLLADIV2
 	str	tmp1, [pmc, #AT91_PMC_MCKR]
 
 	wait_mckrdy
-#endif
 
 #ifdef SLOWDOWN_MASTER_CLOCK
 	/*
@@ -308,6 +330,22 @@ sdr_sr_done:
 	bic	tmp1, tmp1, #AT91_PMC_UPLLEN
 	str	tmp1, [pmc, #AT91_CKGR_UCKR]
 
+#ifdef CLOCK_750KHZ_SUPPORT
+	/* Turn on 12MHz RC */
+	ldr	tmp1, [pmc, #AT91_CKGR_MOR]
+	orr	tmp1, tmp1, #AT91_PMC_MOSCRCEN
+	orr	tmp1, tmp1, #AT91_PMC_KEY
+	str	tmp1, [pmc, #AT91_CKGR_MOR]
+
+	wait_moscrcrdy
+
+	/* Switch from external to internal 12MHz RC */
+	ldr	tmp1, [pmc, #AT91_CKGR_MOR]
+	bic	tmp1, tmp1, #AT91_PMC_MOSCSEL
+	orr	tmp1, tmp1, #AT91_PMC_KEY
+	str	tmp1, [pmc, #AT91_CKGR_MOR]
+#endif
+
 	/* Turn off the main oscillator */
 	ldr	tmp1, [pmc, #AT91_CKGR_MOR]
 	bic	tmp1, tmp1, #AT91_PMC_MOSCEN
@@ -324,6 +362,20 @@ sdr_sr_done:
 	str	tmp1, [pmc, #AT91_CKGR_MOR]
 
 	wait_moscrdy
+
+#ifdef CLOCK_750KHZ_SUPPORT
+	/* Switch from internal 12MHz RC to external 12MHz crystal*/
+	ldr	tmp1, [pmc, #AT91_CKGR_MOR]
+	orr	tmp1, tmp1, #AT91_PMC_MOSCSEL
+	orr	tmp1, tmp1, #AT91_PMC_KEY
+	str	tmp1, [pmc, #AT91_CKGR_MOR]
+
+	/* Turn off internal 12MHz RC */
+	ldr	tmp1, [pmc, #AT91_CKGR_MOR]
+	bic	tmp1, tmp1, #AT91_PMC_MOSCRCEN
+	orr	tmp1, tmp1, #AT91_PMC_KEY
+	str	tmp1, [pmc, #AT91_CKGR_MOR]
+#endif
 
 	/* Restore PLLB setting */
 	ldr	tmp1, .saved_pllbr
