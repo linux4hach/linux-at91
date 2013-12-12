@@ -2048,6 +2048,23 @@ static void wm8904_handle_pdata(struct snd_soc_codec *codec)
 				     ARRAY_SIZE(wm8904_eq_controls));
 }
 
+static int wm8904_suspend(struct snd_soc_codec *codec)
+{
+	wm8904_set_bias_level(codec, SND_SOC_BIAS_OFF);
+
+	return 0;
+}
+
+static int wm8904_resume(struct snd_soc_codec *codec)
+{
+	struct wm8904_priv *wm8904 = snd_soc_codec_get_drvdata(codec);
+
+	regcache_sync(wm8904->regmap);
+
+	wm8904_set_bias_level(codec, SND_SOC_BIAS_STANDBY);
+
+	return 0;
+}
 
 static int wm8904_probe(struct snd_soc_codec *codec)
 {
@@ -2094,6 +2111,8 @@ static int wm8904_remove(struct snd_soc_codec *codec)
 static struct snd_soc_codec_driver soc_codec_dev_wm8904 = {
 	.probe =	wm8904_probe,
 	.remove =	wm8904_remove,
+	.suspend =	wm8904_suspend,
+	.resume =	wm8904_resume,
 	.set_bias_level = wm8904_set_bias_level,
 	.idle_bias_off = true,
 };
