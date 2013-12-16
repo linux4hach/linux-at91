@@ -51,7 +51,14 @@
 							regulator-name = "DCDC_REG1";
 							regulator-min-microvolt = <1800000>;
 							regulator-max-microvolt = <1800000>;
+							regulator-suspend-mem-microvolt = <1800000>;
+							regulator-suspend-standby-microvolt = <1800000>;
 							regulator-always-on;
+							valid_modes_mask = <0x06>;		/* REGULATOR_MODE_NORMAL(0x02) | REGULATOR_MODE_IDLE(0x04) */
+							regulator-initial-mode = <0x02>;	/* REGULATOR_MODE_NORMAL = 0x02
+												 * REGULATOR_MODE_IDLE = 0x04 */
+							regulator-suspend-mem-mode = <0x04>;
+							regulator-suspend-standy-mode = <0x04>;
 						};
 
 						vcc_1v2_reg: DCDC_REG2 {
@@ -61,13 +68,25 @@
 							regulator-suspend-mem-microvolt = <1150000>;
 							regulator-suspend-standby-microvolt = <1150000>;
 							regulator-always-on;
+							valid_modes_mask = <0x06>;		/* REGULATOR_MODE_NORMAL(0x02) | REGULATOR_MODE_IDLE(0x04) */
+							regulator-initial-mode = <0x02>;	/* REGULATOR_MODE_NORMAL = 0x02
+												 * REGULATOR_MODE_IDLE = 0x04 */
+							regulator-suspend-mem-mode = <0x04>;
+							regulator-suspend-standy-mode = <0x04>;
 						};
 
 						vcc_3v3_reg: DCDC_REG3 {
 							regulator-name = "DCDC_REG3";
 							regulator-min-microvolt = <3300000>;
 							regulator-max-microvolt = <3300000>;
+							regulator-suspend-mem-microvolt = <3300000>;
+							regulator-suspend-standby-microvolt = <3300000>;
 							regulator-always-on;
+							valid_modes_mask = <0x06>;		/* REGULATOR_MODE_NORMAL(0x02) | REGULATOR_MODE_IDLE(0x04) */
+							regulator-initial-mode = <0x02>;	/* REGULATOR_MODE_NORMAL = 0x02
+												 * REGULATOR_MODE_IDLE = 0x04 */
+							regulator-suspend-mem-mode = <0x04>;
+							regulator-suspend-standy-mode = <0x04>;
 						};
 
 						vddfuse_reg: LDO_REG4 {
