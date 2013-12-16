@@ -3809,6 +3809,20 @@ int regulator_suspend_finish(void)
 			if (error)
 				ret = error;
 		}
+
+		if (rdev->constraints->initial_mode) {
+			if (!ops->set_mode) {
+				rdev_err(rdev, "no set_mode operation\n");
+				ret = -EINVAL;
+				goto unlock;
+			}
+
+			ret = ops->set_mode(rdev, rdev->constraints->initial_mode);
+			if (ret < 0) {
+				rdev_err(rdev, "failed to set initial mode: %d\n", ret);
+				goto unlock;
+			}
+		}
 unlock:
 		mutex_unlock(&rdev->mutex);
 	}
