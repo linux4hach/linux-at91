@@ -24,6 +24,7 @@ static void of_get_regulation_constraints(struct device_node *np,
 	const __be32 *valid_modes_mask;
 	const __be32 *state_disk_uV, *state_mem_uV, *state_standby_uV;
 	const __be32 *state_disk_mode, *state_mem_mode, *state_standby_mode;
+	const __be32 *initial_mode;
 	struct property *prop;
 	struct regulation_constraints *constraints = &(*init_data)->constraints;
 
@@ -131,6 +132,11 @@ static void of_get_regulation_constraints(struct device_node *np,
 					= be32_to_cpu(*state_standby_mode);
 		constraints->valid_ops_mask |= REGULATOR_CHANGE_MODE;
 	}
+
+	/* mode to set on startup */
+	initial_mode = of_get_property(np, "regulator-initial-mode", NULL);
+	if (initial_mode)
+		constraints->initial_mode = be32_to_cpu(*initial_mode);
 }
 
 /**
