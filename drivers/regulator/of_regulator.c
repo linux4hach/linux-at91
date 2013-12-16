@@ -21,6 +21,7 @@ static void of_get_regulation_constraints(struct device_node *np,
 {
 	const __be32 *min_uV, *max_uV, *uV_offset;
 	const __be32 *min_uA, *max_uA, *ramp_delay;
+	const __be32 *valid_modes_mask;
 	const __be32 *state_disk_uV, *state_mem_uV, *state_standby_uV;
 	struct property *prop;
 	struct regulation_constraints *constraints = &(*init_data)->constraints;
@@ -75,6 +76,12 @@ static void of_get_regulation_constraints(struct device_node *np,
 			constraints->ramp_disable = true;
 	}
 
+	valid_modes_mask = of_get_property(np, "regulator-valid-modes",
+					NULL);
+	if (valid_modes_mask) {
+		constraints->valid_modes_mask = be32_to_cpu(*valid_modes_mask);
+		constraints->valid_ops_mask |= REGULATOR_CHANGE_MODE;
+	}
 	/* regulator state for suspend to disk */
 	state_disk_uV = of_get_property(np, "regulator-suspend-disk-microvolt",
 					NULL);

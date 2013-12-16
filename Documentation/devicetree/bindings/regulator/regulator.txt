@@ -10,6 +10,7 @@ Optional properties:
 - regulator-always-on: boolean, regulator should never be disabled
 - regulator-boot-on: bootloader/firmware enabled regulator
 - regulator-allow-bypass: allow the regulator to go into bypass mode
+- regulator-valid-modes: valid modes may set
 - regulator-suspend-disk-microvolt: voltage applied when entering S2D
 - regulator-suspend-disk-disabled: turn off when entering S2D
 - regulator-suspend-mem-microvolt: voltage applied when entering S2M
