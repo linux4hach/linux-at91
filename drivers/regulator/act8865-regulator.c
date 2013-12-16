@@ -57,6 +57,14 @@
 #define ACT8865_ENA		0x80  /* ON - [7] */
 #define ACT8865_VSEL_MASK	0x3F  /* VSET - [5:0] */
 
+/*
+ * DC/DC MODE bit
+ */
+#define ACT8865_MODE_MASK	0x20
+#define ACT8865_MODE_NORMAL	0x20
+#define ACT8865_MODE_IDLE	0x00
+
+
 struct act8865 {
 	struct regulator_dev	*rdev[ACT8865_REG_NUM];
 	struct regmap		*regmap;
@@ -87,6 +95,104 @@ static const u32 act8865_voltages_table[] = {
 	3600000,	3700000,	3800000,	3900000,
 };
 
+static int act8865_read_byte(struct act8865 *act8865, u8 addr, u8 *data)
+{
+	int ret;
+	unsigned int val;
+
+	ret = regmap_read(act8865->regmap, addr, &val);
+	if (ret < 0)
+		return ret;
+
+	*data = (u8)val;
+	return 0;
+}
+
+static inline int act8865_update_bits(struct act8865 *act8865, u8 addr,
+				unsigned int mask, u8 data)
+{
+	return regmap_update_bits(act8865->regmap, addr, mask, data);
+}
+
+static int act8865_set_mode(struct regulator_dev *rdev, unsigned mode)
+{
+	u8 addr, value, mask = ACT8865_MODE_MASK;
+	int id = rdev_get_id(rdev);
+	struct act8865 *act8865 = rdev_get_drvdata(rdev);
+
+	switch (id) {
+	case ACT8865_DCDC1:
+		addr = ACT8865_DCDC1_CTRL;
+		break;
+	case ACT8865_DCDC2:
+		addr = ACT8865_DCDC2_CTRL;
+		break;
+	case ACT8865_DCDC3:
+		addr = ACT8865_DCDC3_CTRL;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	switch (mode) {
+	case REGULATOR_MODE_NORMAL:
+		value = ACT8865_MODE_NORMAL;
+		break;
+	case REGULATOR_MODE_IDLE:
+		value = ACT8865_MODE_IDLE;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return act8865_update_bits(act8865, addr, mask, value);
+}
+
+static unsigned act8865_get_mode(struct regulator_dev *rdev)
+{
+	u8 addr, value, mask = ACT8865_MODE_MASK;
+	int id = rdev_get_id(rdev);
+	struct act8865 *act8865 = rdev_get_drvdata(rdev);
+	int ret;
+
+	switch (id) {
+	case ACT8865_DCDC1:
+		addr = ACT8865_DCDC1_CTRL;
+		break;
+	case ACT8865_DCDC2:
+		addr = ACT8865_DCDC2_CTRL;
+		break;
+	case ACT8865_DCDC3:
+		addr = ACT8865_DCDC3_CTRL;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	ret = act8865_read_byte(act8865, addr, &value);
+	if (ret)
+		return ret;
+
+	return value & mask ? REGULATOR_MODE_NORMAL : REGULATOR_MODE_IDLE;
+}
+
+static int act8865_get_status(struct regulator_dev *rdev)
+{
+	int ret = regulator_is_enabled_regmap(rdev);
+
+	if (ret == 0) {
+		ret = REGULATOR_STATUS_OFF;
+	} else if (ret > 0) {
+		ret = act8865_get_mode(rdev);
+		if (ret > 0)
+			ret = regulator_mode_to_status(ret);
+		else if (ret == 0)
+			ret = -EIO;
+	}
+
+	return ret;
+}
+
 static int act8865_set_suspend_voltage(struct regulator_dev *rdev, int uV)
 {
 	u32	selector;
@@ -96,6 +202,12 @@ static int act8865_set_suspend_voltage(struct regulator_dev *rdev, int uV)
 	return regulator_set_voltage_sel_regmap(rdev, selector);
 }
 
+static int act8865_set_suspend_mode(struct regulator_dev *rdev,
+							unsigned mode)
+{
+	return act8865_set_mode(rdev, mode);
+}
+
 static struct regulator_ops act8865_ops = {
 	.list_voltage		= regulator_list_voltage_table,
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
@@ -103,9 +215,13 @@ static struct regulator_ops act8865_ops = {
 	.enable			= regulator_enable_regmap,
 	.disable		= regulator_disable_regmap,
 	.is_enabled		= regulator_is_enabled_regmap,
+	.set_mode		= act8865_set_mode,
+	.get_mode		= act8865_get_mode,
+	.get_status		= act8865_get_status,
 	.set_suspend_voltage	= act8865_set_suspend_voltage,
 	.set_suspend_enable	= regulator_enable_regmap,
 	.set_suspend_disable	= regulator_disable_regmap,
+	.set_suspend_mode	= act8865_set_suspend_mode,
 };
 
 static const struct regulator_desc act8865_reg[] = {
