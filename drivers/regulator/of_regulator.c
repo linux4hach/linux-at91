@@ -23,6 +23,7 @@ static void of_get_regulation_constraints(struct device_node *np,
 	const __be32 *min_uA, *max_uA, *ramp_delay;
 	const __be32 *valid_modes_mask;
 	const __be32 *state_disk_uV, *state_mem_uV, *state_standby_uV;
+	const __be32 *state_disk_mode, *state_mem_mode, *state_standby_mode;
 	struct property *prop;
 	struct regulation_constraints *constraints = &(*init_data)->constraints;
 
@@ -91,6 +92,12 @@ static void of_get_regulation_constraints(struct device_node *np,
 	}
 	if (of_find_property(np, "regulator-suspend-disk-disabled", NULL))
 		constraints->state_disk.disabled = true;
+	state_disk_mode = of_get_property(np, "regulator-suspend-disk-mode",
+					NULL);
+	if (state_disk_mode) {
+		constraints->state_disk.mode = be32_to_cpu(*state_disk_mode);
+		constraints->valid_ops_mask |= REGULATOR_CHANGE_MODE;
+	}
 
 	/* regulator state for suspend to RAM */
 	state_mem_uV = of_get_property(np, "regulator-suspend-mem-microvolt",
@@ -101,6 +108,12 @@ static void of_get_regulation_constraints(struct device_node *np,
 	}
 	if (of_find_property(np, "regulator-suspend-mem-disabled", NULL))
 		constraints->state_mem.disabled = true;
+	state_mem_mode = of_get_property(np, "regulator-suspend-mem-mode",
+					NULL);
+	if (state_mem_mode) {
+		constraints->state_mem.mode = be32_to_cpu(*state_mem_mode);
+		constraints->valid_ops_mask |= REGULATOR_CHANGE_MODE;
+	}
 
 	/* regulator state for standby */
 	state_standby_uV = of_get_property(np,
@@ -111,6 +124,13 @@ static void of_get_regulation_constraints(struct device_node *np,
 	}
 	if (of_find_property(np, "regulator-suspend-standby-disabled", NULL))
 		constraints->state_standby.disabled = true;
+	state_standby_mode = of_get_property(np,
+				"regulator-suspend-standy-mode", NULL);
+	if (state_standby_mode) {
+		constraints->state_standby.mode
+					= be32_to_cpu(*state_standby_mode);
+		constraints->valid_ops_mask |= REGULATOR_CHANGE_MODE;
+	}
 }
 
 /**
