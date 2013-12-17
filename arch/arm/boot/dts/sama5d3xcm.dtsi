@@ -55,7 +55,7 @@
 							regulator-suspend-standby-microvolt = <1800000>;
 							regulator-always-on;
 							valid_modes_mask = <0x06>;		/* REGULATOR_MODE_NORMAL(0x02) | REGULATOR_MODE_IDLE(0x04) */
-							regulator-initial-mode = <0x02>;	/* REGULATOR_MODE_NORMAL = 0x02
+							regulator-initial-mode = <0x04>;	/* REGULATOR_MODE_NORMAL = 0x02
 												 * REGULATOR_MODE_IDLE = 0x04 */
 							regulator-suspend-mem-mode = <0x04>;
 							regulator-suspend-standy-mode = <0x04>;
@@ -69,7 +69,7 @@
 							regulator-suspend-standby-microvolt = <1150000>;
 							regulator-always-on;
 							valid_modes_mask = <0x06>;		/* REGULATOR_MODE_NORMAL(0x02) | REGULATOR_MODE_IDLE(0x04) */
-							regulator-initial-mode = <0x02>;	/* REGULATOR_MODE_NORMAL = 0x02
+							regulator-initial-mode = <0x04>;	/* REGULATOR_MODE_NORMAL = 0x02
 												 * REGULATOR_MODE_IDLE = 0x04 */
 							regulator-suspend-mem-mode = <0x04>;
 							regulator-suspend-standy-mode = <0x04>;
@@ -83,7 +83,7 @@
 							regulator-suspend-standby-microvolt = <3300000>;
 							regulator-always-on;
 							valid_modes_mask = <0x06>;		/* REGULATOR_MODE_NORMAL(0x02) | REGULATOR_MODE_IDLE(0x04) */
-							regulator-initial-mode = <0x02>;	/* REGULATOR_MODE_NORMAL = 0x02
+							regulator-initial-mode = <0x04>;	/* REGULATOR_MODE_NORMAL = 0x02
 												 * REGULATOR_MODE_IDLE = 0x04 */
 							regulator-suspend-mem-mode = <0x04>;
 							regulator-suspend-standy-mode = <0x04>;

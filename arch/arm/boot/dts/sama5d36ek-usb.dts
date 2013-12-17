@@ -47,26 +47,6 @@
 				status = "disabled";
 			};
 
-			lcd_bus@f0030000 {
-				status = "okay";
-
-				lcd@f0030000 {
-					status = "okay";
-				};
-
-				lcdovl1@f0030140 {
-					status = "disabled";
-				};
-
-				lcdovl2@f0030240 {
-					status = "disabled";
-				};
-
-				lcdheo1@f0030340 {
-					status = "disabled";
-				};
-			};
-
 			pinctrl@fffff200 {
 				board {
 					pinctrl_key_gpio: key_gpio_0 {
@@ -74,6 +54,14 @@
 					};
 				};
 			};
+		};
+
+		usb1: ohci@00600000 {
+			status = "okay";
+		};
+
+		usb2: ehci@00700000 {
+			status = "okay";
 		};
 	};
 
