@@ -120,6 +120,18 @@ tmp3	.req	r6
 2:
 	.endm
 
+#define WAIT_TIME_COUNT	0x100000
+
+	.macro wait_time
+	ldr	tmp1, =WAIT_TIME_COUNT
+1:	sub	tmp1, tmp1, #1
+	cmp	tmp1, #0
+	bne	1b
+2:
+	.endm
+
+#define DDR_ADDR	0xC0000000
+
 /*
  * Put the processor to enter into Standby mode, wait for interrupt to wakeup
  */
@@ -136,6 +148,64 @@ tmp3	.req	r6
 	mcr	p15, 0, tmp1, c7, c0, 4
 #endif
 
+	.endm
+
+/*
+ * Issue Refresh Command
+ */
+	.macro do_refresh_cmd
+
+	/*
+	 * Issue an "All Banks Precharge" command previously
+	 * to issue an "Auto-Refresh" command.
+	 */
+	ldr	tmp1, =(AT91_DDRSDRC_MODE_PRECHARGE)
+	str	tmp1, [sdramc, #AT91_DDRSDRC_MR]
+
+	mov	tmp2, #0x0
+	ldr	tmp1, =DDR_ADDR
+	str	tmp2, [tmp1]
+
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+
+	/*
+	 * Issue an "Auto-Refresh" command
+	 */
+	ldr	tmp1, =(AT91_DDRSDRC_MODE_REFRESH)
+	str	tmp1, [sdramc, #AT91_DDRSDRC_MR]
+
+	mov	tmp2, #0x0
+	ldr	tmp1, =DDR_ADDR
+	str	tmp2, [tmp1]
+
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	.endm
+
+/*
+ * Issue NOP command
+ */
+	.macro do_NOP_cmd
+
+	ldr	tmp1, =(AT91_DDRSDRC_MODE_NOP)
+	str	tmp1, [sdramc, #AT91_DDRSDRC_MR]
+
+	mov	tmp2, #0x0
+	ldr	tmp1, =DDR_ADDR
+	str	tmp2, [tmp1]
 	.endm
 
 	.text
@@ -180,6 +250,10 @@ ddr_sr_enable:
 	bne	sdr_sr_enable
 
 	/* prepare for DDRAM self-refresh mode */
+	ldr 	tmp1, =DDR_ADDR
+	ldr	tmp2, [tmp1]
+	str	tmp2, .saved_data_ddr
+
 	ldr	tmp1, [sdramc, #AT91_DDRSDRC_LPR]
 	str	tmp1, .saved_sam9_lpr
 	bic	tmp1, #AT91_DDRSDRC_LPCB
@@ -195,6 +269,14 @@ ddr_sr_enable:
 	/* Enable DDRAM self-refresh mode */
 	str	tmp1, [sdramc, #AT91_DDRSDRC_LPR]
 	strne	tmp2, [ramc1, #AT91_DDRSDRC_LPR]
+
+	wait_time
+
+	/*
+	 * A NOP command must be driven in the clock cycle
+	 * following SELF REFRESH command.
+	 */
+	do_NOP_cmd
 
 	b	sdr_sr_done
 
@@ -356,6 +438,7 @@ sdr_sr_done:
 3:
 	wait_pllalock
 4:
+
 #ifdef SLOWDOWN_MASTER_CLOCK
 	/*
 	 * First set PRES if it was not 0,
@@ -392,6 +475,13 @@ sdr_sr_done:
 	 */
 	cmp	memctrl, #AT91_MEMCTRL_DDRSDR
 	bne	sdr_en_restore
+
+	do_refresh_cmd
+
+	do_refresh_cmd
+
+	do_refresh_cmd
+
 	/* Restore LPR on AT91 with DDRAM */
 	ldr	tmp1, .saved_sam9_lpr
 	str	tmp1, [sdramc, #AT91_DDRSDRC_LPR]
@@ -400,6 +490,21 @@ sdr_sr_done:
 	cmp	ramc1, #0
 	ldrne	tmp2, .saved_sam9_lpr1
 	strne	tmp2, [ramc1, #AT91_DDRSDRC_LPR]
+
+	wait_time
+
+	/*
+	 * NOP commands be registered on each rising clock edge during tXSR.
+	 */
+	do_NOP_cmd
+
+	do_NOP_cmd
+
+	do_NOP_cmd
+
+	ldr	tmp1, .saved_data_ddr
+	ldr	tmp2, =DDR_ADDR
+	str	tmp1, [tmp2]
 
 	b	ram_restored
 
@@ -412,6 +517,7 @@ sdr_en_restore:
 	str	tmp1, [sdramc, #AT91_SDRAMC_LPR]
 
 ram_restored:
+
 	/* Restore registers, and return */
 	ldmfd	sp!, {r4 - r12, pc}
 
@@ -426,6 +532,9 @@ ram_restored:
 	.word 0
 
 .saved_sam9_lpr1:
+	.word 0
+
+.saved_data_ddr:
 	.word 0
 
 ENTRY(at91_slow_clock_sz)
