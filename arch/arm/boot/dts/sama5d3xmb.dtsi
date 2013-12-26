@@ -41,6 +41,13 @@
 				wm8904: wm8904@1a {
 					compatible = "wm8904";
 					reg = <0x1a>;
+
+					DCVDD-supply = <&vcc_1v8_reg>;
+					DBVDD-supply = <&vddana_reg>;
+					AVDD-supply = <&vcc_1v8_reg>;
+					CPVDD-supply = <&vcc_1v8_reg>;
+					MICVDD-supply = <&vddana_reg>;
+
 				};
 			};
 
