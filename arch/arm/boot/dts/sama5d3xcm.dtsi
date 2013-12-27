@@ -89,14 +89,14 @@
 							regulator-suspend-standy-mode = <0x04>;
 						};
 
-						vddfuse_reg: LDO_REG4 {
+						vddana_reg: LDO_REG4 {
 							regulator-name = "LDO_REG4";
 							regulator-min-microvolt = <3300000>;
 							regulator-max-microvolt = <3300000>;
 							regulator-always-on;
 						};
 
-						vddana_reg: LDO_REG5 {
+						vddfuse_reg: LDO_REG5 {
 							regulator-name = "LDO_REG5";
 							regulator-min-microvolt = <2500000>;
 							regulator-max-microvolt = <2500000>;
