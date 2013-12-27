@@ -41,9 +41,7 @@ struct at91_cpufreq_data {
 	u32	regs_setting_count;
 	struct device *dev;
 
-#ifdef CONFIG_REGULATOR
 	struct regulator *vddcore_reg;
-#endif
 };
 
 static struct at91_cpufreq_data	*cpufreq_info;
@@ -359,9 +357,7 @@ static int of_init_cpufreq_regs_setting_table(void)
 static int at91_cpufreq_probe(struct platform_device *pdev)
 {
 	struct device_node *np;
-#ifdef CONFIG_REGULATOR
 	static struct regulator *vddcore = NULL;
-#endif
 	int ret = -EINVAL;
 
 	np = pdev->dev.of_node;
@@ -432,7 +428,11 @@ static int at91_cpufreq_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(cpufreq_info->dev,
 			"%s: failed to register cpufreq driver\n", __func__);
+#ifdef CONFIG_REGULATOR
 		goto err_put_regulator;
+#else
+		goto err_free_table;
+#endif
 	}
 
 	of_node_put(np);
