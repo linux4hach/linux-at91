@@ -48,7 +48,7 @@
 
 					regulators {
 						vcc_1v8_reg: DCDC_REG1 {
-							regulator-name = "DCDC_REG1";
+							regulator-name = "VCC_1V8";
 							regulator-min-microvolt = <1800000>;
 							regulator-max-microvolt = <1800000>;
 							regulator-suspend-mem-microvolt = <1800000>;
@@ -62,7 +62,7 @@
 						};
 
 						vcc_1v2_reg: DCDC_REG2 {
-							regulator-name = "DCDC_REG2";
+							regulator-name = "VCC_1V2";
 							regulator-min-microvolt = <1100000>;
 							regulator-max-microvolt = <1300000>;
 							regulator-suspend-mem-microvolt = <1150000>;
@@ -76,7 +76,7 @@
 						};
 
 						vcc_3v3_reg: DCDC_REG3 {
-							regulator-name = "DCDC_REG3";
+							regulator-name = "VCC_3V3";
 							regulator-min-microvolt = <3300000>;
 							regulator-max-microvolt = <3300000>;
 							regulator-suspend-mem-microvolt = <3300000>;
@@ -89,15 +89,15 @@
 							regulator-suspend-standy-mode = <0x04>;
 						};
 
-						vddana_reg: LDO_REG4 {
-							regulator-name = "LDO_REG4";
+						vddana_reg: LDO_REG1 {
+							regulator-name = "VDDANA";
 							regulator-min-microvolt = <3300000>;
 							regulator-max-microvolt = <3300000>;
 							regulator-always-on;
 						};
 
-						vddfuse_reg: LDO_REG5 {
-							regulator-name = "LDO_REG5";
+						vddfuse_reg: LDO_REG2 {
+							regulator-name = "FUSE_2V5";
 							regulator-min-microvolt = <2500000>;
 							regulator-max-microvolt = <2500000>;
 						};
