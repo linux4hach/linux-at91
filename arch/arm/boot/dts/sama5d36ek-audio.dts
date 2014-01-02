@@ -25,7 +25,7 @@
 			};
 
 			ssc0: ssc@f0008000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			can0: can@f000c000 {
@@ -33,7 +33,7 @@
 			};
 
 			i2c0: i2c@f0014000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			i2c1: i2c@f0018000 {
@@ -88,4 +88,4 @@
 	};
 };
 
-/include/ "sama5d3xmb_isi.dtsi"
+/* /include/ "sama5d3xmb_isi.dtsi"*/
