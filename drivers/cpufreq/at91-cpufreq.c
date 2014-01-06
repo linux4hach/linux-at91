@@ -250,7 +250,7 @@ static int at91_cpufreq_target(struct cpufreq_policy *policy,
 	if (cpufreq_info->vddcore_reg)
 		regulator_set_voltage(cpufreq_info->vddcore_reg, volt, volt);
 
-	pr_info("\nNow, running on the frequency / volatage: %dMHz / %dmV\n",
+	pr_info("\nNow, running on the frequency / voltage: %dMHz / %dmV\n",
 						freqs.new / 1000, volt / 1000);
 #else
 	pr_info("\nNow, running on the frequency: %d MHz\n", freqs.new / 1000);
