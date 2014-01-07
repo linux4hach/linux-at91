@@ -16,6 +16,22 @@
 
 	ahb {
 		apb {
+			usart1: serial@f0020000 {
+				status = "disabled";
+			};
+
+			mmc1: mmc@f8000000 {
+				status = "disabled";
+			};
+
+			watchdog@fffffe40 {
+				status = "disabled";
+			};
+
+			adc0: adc@f8018000 {
+				status = "disabled";
+			};
+
 			spi0: spi@f0004000 {
 				status = "disabled";
 			};
@@ -47,6 +63,26 @@
 				status = "disabled";
 			};
 
+			lcd_bus@f0030000 {
+				status = "disabled";
+
+				lcd@f0030000 {
+					status = "disabled";
+				};
+
+				lcdovl1@f0030140 {
+					status = "disabled";
+				};
+
+				lcdovl2@f0030240 {
+					status = "disabled";
+				};
+
+				lcdheo1@f0030340 {
+					status = "disabled";
+				};
+			};
+
 			pinctrl@fffff200 {
 				board {
 					pinctrl_key_gpio: key_gpio_0 {
@@ -54,6 +90,10 @@
 					};
 				};
 			};
+		};
+
+		usb0: gadget@00500000 {
+			status = "disabled";
 		};
 
 		usb1: ohci@00600000 {
