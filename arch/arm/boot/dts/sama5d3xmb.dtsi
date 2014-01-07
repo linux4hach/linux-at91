@@ -16,7 +16,7 @@
 			mmc0: mmc@f0000000 {
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_mmc0_clk_cmd_dat0 &pinctrl_mmc0_dat1_3 &pinctrl_mmc0_cd>;
-				status = "disabled";
+				status = "okay";
 				slot@0 {
 					reg = <0>;
 					bus-width = <4>;
@@ -60,13 +60,14 @@
 					AVDD-supply = <&vcc_1v8_reg>;
 					CPVDD-supply = <&vcc_1v8_reg>;
 					MICVDD-supply = <&vddana_reg>;
+
 				};
 			};
 
 			usart1: serial@f0020000 {
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>;
-				status = "disabled";
+				status = "okay";
 			};
 
 			isi: isi@f0034000 {
@@ -77,7 +78,7 @@
 			mmc1: mmc@f8000000 {
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_mmc1_clk_cmd_dat0 &pinctrl_mmc1_dat1_3 &pinctrl_mmc1_cd>;
-				status = "disabled";
+				status = "okay";
 				slot@0 {
 					reg = <0>;
 					bus-width = <4>;
@@ -95,7 +96,7 @@
 					&pinctrl_adc0_ad3
 					&pinctrl_adc0_ad4
 					>;
-				status = "disabled";
+				status = "okay";
 			};
 
 			macb1: ethernet@f802c000 {
@@ -141,7 +142,7 @@
 			};
 
 			watchdog@fffffe40 {
-				status = "disabled";
+				status = "okay";
 			};
 		};
 
@@ -149,7 +150,7 @@
 			atmel,vbus-gpio = <&pioD 29 GPIO_ACTIVE_HIGH>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_usba_vbus>;
-			status = "disabled";
+			status = "okay";
 		};
 
 		usb1: ohci@00600000 {
@@ -158,11 +159,11 @@
 					   &pioD 26 GPIO_ACTIVE_LOW
 					   &pioD 27 GPIO_ACTIVE_LOW
 					  >;
-			status = "disabled";
+			status = "okay";
 		};
 
 		usb2: ehci@00700000 {
-			status = "disabled";
+			status = "okay";
 		};
 	};
 

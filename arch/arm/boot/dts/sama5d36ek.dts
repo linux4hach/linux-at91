@@ -17,19 +17,19 @@
 	ahb {
 		apb {
 			spi0: spi@f0004000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			ssc0: ssc@f0008000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			can0: can@f000c000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			i2c0: i2c@f0014000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			i2c1: i2c@f0018000 {
@@ -40,31 +40,11 @@
 			};
 
 			macb0: ethernet@f0028000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			macb1: ethernet@f802c000 {
-				status = "disabled";
-			};
-
-			lcd_bus@f0030000 {
 				status = "okay";
-
-				lcd@f0030000 {
-					status = "okay";
-				};
-
-				lcdovl1@f0030140 {
-					status = "disabled";
-				};
-
-				lcdovl2@f0030240 {
-					status = "disabled";
-				};
-
-				lcdheo1@f0030340 {
-					status = "disabled";
-				};
 			};
 
 			pinctrl@fffff200 {
@@ -85,7 +65,7 @@
 	};
 
 	sound {
-		status = "disabled";
+		status = "okay";
 	};
 
 	gpio_keys {
@@ -104,4 +84,4 @@
 	};
 };
 
-/include/ "sama5d3xmb_isi.dtsi"
+/* /include/ "sama5d3xmb_isi.dtsi" */
