@@ -72,6 +72,7 @@ tmp1		.req	r6
 2:
 	.endm
 
+#ifdef CPUFRE_DEBUG
 #define AT91_PINE_ADDR	0xfefffa00
 
 	.macro led_red_on
@@ -101,7 +102,7 @@ tmp1		.req	r6
 	ldr	tmp, =(AT91_PINE_ADDR)
 	str	tmp1, [tmp, #PIO_SODR]
 	.endm
-
+#endif
 
 #define DDR_ADDR	0xC0000000
 
@@ -113,8 +114,10 @@ ENTRY(__update_cpu_clock)
 	/* Save registers on stack */
 	stmfd	sp!, {r4 - r12, lr}
 
+#ifdef CPUFRE_DEBUG
 	led_red_on
 	led_blue_on
+#endif
 
 	/* Make DDRAM enter self-refresh mode */
 	ldr tmp, =(DDR_ADDR)
@@ -238,8 +241,10 @@ ENTRY(__update_cpu_clock)
 	ldr tmp, =(DDR_ADDR)
 	str	tmp1, [tmp]
 
+#ifdef CPUFRE_DEBUG
 	led_red_off
 	led_blue_off
+#endif
 
 	/* Restore registers, and return */
 	ldmfd	sp!, {r4 - r12, pc}

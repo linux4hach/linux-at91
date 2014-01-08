@@ -82,6 +82,7 @@ static struct cpufreq_regs_setting at91_freqs[] = {
 };
 #endif
 
+#ifdef CPUFRE_DEBUG
 void led_red_off(void)
 {
 	gpio_direction_output(AT91_PIN_PE24, 0);
@@ -109,6 +110,7 @@ void led_init(void)
 	led_red_off();
 	led_blue_off();
 }
+#endif
 
 static void (*update_cpu_clock)(void __iomem *pmc,
 				u32 pllar_mul,
@@ -221,8 +223,10 @@ static int at91_cpufreq_target(struct cpufreq_policy *policy,
 	local_irq_save(flags);
 	set_cpu_freq(freqs.new);
 
+#ifdef CPUFRE_DEBUG
 	led_red_on();
 	led_blue_off();
+#endif
 
 	local_irq_restore(flags);
 
@@ -230,8 +234,10 @@ static int at91_cpufreq_target(struct cpufreq_policy *policy,
 
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
 
+#ifdef CPUFRE_DEBUG
 	led_red_off();
 	led_blue_on();
+#endif
 
 #ifdef CONFIG_REGULATOR
 	rcu_read_lock();
@@ -281,7 +287,9 @@ static int at91_cpufreq_init(struct cpufreq_policy *policy)
 
 	dev_info(cpufreq_info->dev, "CPUFREQ support for AT91 initialized\n");
 
+#ifdef CPUFRE_DEBUG
 	led_init();
+#endif
 
 	return 0;
 }
