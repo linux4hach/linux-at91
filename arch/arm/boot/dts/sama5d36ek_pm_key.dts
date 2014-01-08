@@ -1,0 +1,87 @@
+/*
+ * sama5d35ek.dts - Device Tree file for SAMA5D36-EK board
+ *
+ *  Copyright (C) 2013 Atmel,
+ *                2013 Josh Wu <josh.wu@atmel.com>
+ *
+ * Licensed under GPLv2 or later.
+ */
+/dts-v1/;
+#include "sama5d3xmb.dtsi"
+#include "sama5d3xdm.dtsi"
+
+/ {
+	model = "Atmel SAMA5D36-EK";
+	compatible = "atmel,sama5d36ek", "atmel,sama5d3xmb", "atmel,sama5d3xcm", "atmel,sama5d3", "atmel,sama5";
+
+	ahb {
+		apb {
+			spi0: spi@f0004000 {
+				status = "okay";
+			};
+
+			ssc0: ssc@f0008000 {
+				status = "okay";
+			};
+
+			can0: can@f000c000 {
+				status = "okay";
+			};
+
+			i2c0: i2c@f0014000 {
+				status = "okay";
+			};
+
+			i2c1: i2c@f0018000 {
+				status = "okay";
+				pmic: act8865@5b {
+					status = "okay";
+				};
+			};
+
+			macb0: ethernet@f0028000 {
+				status = "okay";
+			};
+
+			macb1: ethernet@f802c000 {
+				status = "okay";
+			};
+
+			pinctrl@fffff200 {
+				board {
+					pinctrl_key_gpio: key_gpio_0 {
+						atmel,pins = <AT91_PIOE 27 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PE27 gpio */
+					};
+				};
+			};
+		};
+	};
+
+	leds {
+		d3 {
+			label = "d3";
+			gpios = <&pioE 24 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	sound {
+		status = "okay";
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		pb_user1 {
+			label = "pb_user1";
+			gpios = <&pioE 27 GPIO_ACTIVE_LOW>;
+			linux,code = <0x100>;
+			gpio-key,wakeup;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_key_gpio>;
+		};
+	};
+};
+
+/* /include/ "sama5d3xmb_isi.dtsi" */
