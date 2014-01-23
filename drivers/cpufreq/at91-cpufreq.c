@@ -46,42 +46,6 @@ struct at91_cpufreq_data {
 
 static struct at91_cpufreq_data	*cpufreq_info;
 
-#if 0
-static struct cpufreq_frequency_table at91_freqs_table[] = {
-	{1, 528000},
-	{2, 498000},
-	{3, 396000},
-	{4, 300000},
-	{5, 330000},
-	{6, 264000},
-	{7, 132000},
-	{8,  66000},
-	{9,  33000},
-	{0, CPUFREQ_TABLE_END},
-};
-
-static struct cpufreq_regs_setting at91_freqs[] = {
-	{528000, 0x300080, 0x20ac3f01,
-				(AT91SAM9_PMC_MDIV_4 | AT91_PMC_ALT_PRES_1)},
-	{498000, 0x3000a1, 0x21483f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_3 | AT91_PMC_ALT_PRES_1)},
-	{396000, 0x300080, 0x21043f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_3 | AT91_PMC_ALT_PRES_1)},
-	{330000, 0x3000a1, 0x20d83f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_2 | AT91_PMC_ALT_PRES_1)},
-	{300000, 0x300062, 0x20c43f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_3 | AT91_PMC_ALT_PRES_1)},
-	{264000, 0x300080, 0x20ac3f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_2 | AT91_PMC_ALT_PRES_1)},
-	{132000, 0x300040, 0x20ac3f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_2 | AT91_PMC_ALT_PRES_2)},
-	{ 66000, 0x300020, 0x20ac3f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_2 | AT91_PMC_ALT_PRES_4)},
-	{ 33000, 0x300030, 0x20ac3f01, (AT91_PMC_PLLADIV2_ON
-				| AT91SAM9_PMC_MDIV_2 | AT91_PMC_ALT_PRES_8)},
-};
-#endif
-
 #ifdef CPUFRE_DEBUG
 void led_red_off(void)
 {
