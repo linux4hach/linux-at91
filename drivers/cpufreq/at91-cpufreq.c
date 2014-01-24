@@ -385,7 +385,7 @@ static int at91_cpufreq_probe(struct platform_device *pdev)
 	}
 
 #ifdef CONFIG_REGULATOR
-	vddcore = regulator_get(&pdev->dev, "DCDC_REG2");
+	vddcore = regulator_get(&pdev->dev, "vddcore");
 	if (IS_ERR(vddcore)) {
 		dev_err(cpufreq_info->dev,
 			"%s: unable to get the vddcore regulator\n", __func__);
