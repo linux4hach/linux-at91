@@ -20,6 +20,10 @@
 				status = "disabled";
 			};
 
+			mmc0: mmc@f0000000 {
+				status = "disabled";
+			};
+
 			mmc1: mmc@f8000000 {
 				status = "disabled";
 			};
