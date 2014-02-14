@@ -58,8 +58,6 @@ struct ssc_device *ssc_request(unsigned int ssc_num)
 	ssc->user++;
 	spin_unlock(&user_lock);
 
-	clk_enable(ssc->clk);
-
 	return ssc;
 }
 EXPORT_SYMBOL(ssc_request);
@@ -69,7 +67,6 @@ void ssc_free(struct ssc_device *ssc)
 	spin_lock(&user_lock);
 	if (ssc->user) {
 		ssc->user--;
-		clk_disable(ssc->clk);
 	} else {
 		dev_dbg(&ssc->pdev->dev, "device already free\n");
 	}
@@ -170,7 +167,6 @@ static int ssc_probe(struct platform_device *pdev)
 	clk_enable(ssc->clk);
 	ssc_writel(ssc->regs, IDR, -1);
 	ssc_readl(ssc->regs, SR);
-	clk_disable(ssc->clk);
 
 	ssc->irq = platform_get_irq(pdev, 0);
 	if (!ssc->irq) {
@@ -196,10 +192,34 @@ static int ssc_remove(struct platform_device *pdev)
 
 	spin_lock(&user_lock);
 	list_del(&ssc->list);
+	clk_disable(ssc->clk);
 	spin_unlock(&user_lock);
 
 	return 0;
 }
+
+#ifdef CONFIG_PM
+static int atmel_ssc_suspend(struct platform_device *pdev, pm_message_t mesg)
+{
+	struct ssc_device *ssc = platform_get_drvdata(pdev);
+
+	clk_disable(ssc->clk);
+
+	return 0;
+}
+
+static int atmel_ssc_resume(struct platform_device *pdev)
+{
+	struct ssc_device *ssc = platform_get_drvdata(pdev);
+
+	clk_enable(ssc->clk);
+
+	return 0;
+}
+#else
+#define	atmel_ssc_suspend	NULL
+#define	atmel_ssc_resume	NULL
+#endif
 
 static struct platform_driver ssc_driver = {
 	.driver		= {
@@ -210,6 +230,8 @@ static struct platform_driver ssc_driver = {
 	.id_table	= atmel_ssc_devtypes,
 	.probe		= ssc_probe,
 	.remove		= ssc_remove,
+	.suspend	= atmel_ssc_suspend,
+	.resume		= atmel_ssc_resume,
 };
 module_platform_driver(ssc_driver);
 
