@@ -61,6 +61,8 @@ static int gpio_banks;
 #define DEGLITCH	(1 << 2)
 #define PULL_DOWN	(1 << 3)
 #define DIS_SCHMIT	(1 << 4)
+#define OUTPUT_0	(1 << 5)
+#define OUTPUT_1	(1 << 6)
 #define DEBOUNCE	(1 << 16)
 #define DEBOUNCE_VAL_SHIFT	17
 #define DEBOUNCE_VAL	(0x3fff << DEBOUNCE_VAL_SHIFT)
@@ -151,6 +153,10 @@ struct at91_pinctrl_mux_ops {
 	void (*set_pulldown)(void __iomem *pio, unsigned mask, bool in_on);
 	bool (*get_schmitt_trig)(void __iomem *pio, unsigned pin);
 	void (*disable_schmitt_trig)(void __iomem *pio, unsigned mask);
+	bool (*get_gpio_output0)(void __iomem *pio, unsigned mask);
+	void (*set_gpio_output0)(void __iomem *pio, unsigned mask);
+	bool (*get_gpio_output1)(void __iomem *pio, unsigned mask);
+	void (*set_gpio_output1)(void __iomem *pio, unsigned mask);
 	/* irq */
 	int (*irq_type)(struct irq_data *d, unsigned type);
 };
@@ -463,6 +469,30 @@ static bool at91_mux_pio3_get_schmitt_trig(void __iomem *pio, unsigned pin)
 	return (__raw_readl(pio + PIO_SCHMITT) >> pin) & 0x1;
 }
 
+static bool at91_mux_pio3_get_gpio_output0(void __iomem *pio, unsigned pin)
+{
+	return !((__raw_readl(pio + PIO_ODSR) >> pin) & 0x1);
+}
+
+static void at91_mux_pio3_set_gpio_output0(void __iomem *pio, unsigned mask)
+{
+	writel_relaxed(mask, pio + PIO_PER);
+	writel_relaxed(mask, pio + PIO_OER);
+	writel_relaxed(mask, pio + PIO_CODR);
+}
+
+static bool at91_mux_pio3_get_gpio_output1(void __iomem *pio, unsigned pin)
+{
+	return ((__raw_readl(pio + PIO_ODSR) >> pin) & 0x1);
+}
+
+static void at91_mux_pio3_set_gpio_output1(void __iomem *pio, unsigned mask)
+{
+	writel_relaxed(mask, pio + PIO_PER);
+	writel_relaxed(mask, pio + PIO_OER);
+	writel_relaxed(mask, pio + PIO_SODR);
+}
+
 static struct at91_pinctrl_mux_ops at91rm9200_ops = {
 	.get_periph	= at91_mux_get_periph,
 	.mux_A_periph	= at91_mux_set_A_periph,
@@ -486,6 +516,10 @@ static struct at91_pinctrl_mux_ops at91sam9x5_ops = {
 	.set_pulldown	= at91_mux_pio3_set_pulldown,
 	.get_schmitt_trig = at91_mux_pio3_get_schmitt_trig,
 	.disable_schmitt_trig = at91_mux_pio3_disable_schmitt_trig,
+	.get_gpio_output0	= at91_mux_pio3_get_gpio_output0,
+	.set_gpio_output0	= at91_mux_pio3_set_gpio_output0,
+	.get_gpio_output1	= at91_mux_pio3_get_gpio_output1,
+	.set_gpio_output1	= at91_mux_pio3_set_gpio_output1,
 	.irq_type	= alt_gpio_irq_type,
 };
 
@@ -732,6 +766,11 @@ static int at91_pinconf_get(struct pinctrl_dev *pctldev,
 	if (info->ops->get_schmitt_trig && info->ops->get_schmitt_trig(pio, pin))
 		*config |= DIS_SCHMIT;
 
+	if (info->ops->get_gpio_output0 && info->ops->get_gpio_output0(pio, pin))
+		*config |= OUTPUT_0;
+	if (info->ops->get_gpio_output1 && info->ops->get_gpio_output1(pio, pin))
+		*config |= OUTPUT_1;
+
 	return 0;
 }
 
@@ -760,7 +799,10 @@ static int at91_pinconf_set(struct pinctrl_dev *pctldev,
 		info->ops->set_pulldown(pio, mask, config & PULL_DOWN);
 	if (info->ops->disable_schmitt_trig && config & DIS_SCHMIT)
 		info->ops->disable_schmitt_trig(pio, mask);
-
+	if (info->ops->set_gpio_output0 && config & OUTPUT_0)
+		info->ops->set_gpio_output0(pio, mask);
+	if (info->ops->set_gpio_output1 && config & OUTPUT_1)
+		info->ops->set_gpio_output1(pio, mask);
 	return 0;
 }
 
