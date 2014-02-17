@@ -200,7 +200,7 @@ extern void at91_slow_clock(void __iomem *pmc, void __iomem *ramc0,
 extern u32 at91_slow_clock_sz;
 #endif
 
-#undef SAMA5D3_PM_DEBUG
+#define SAMA5D3_PM_DEBUG
 
 #ifdef SAMA5D3_PM_DEBUG
 
