@@ -318,6 +318,10 @@ sdr_sr_done:
 	mov 	tmp1, #(1 << 2)
 	str	tmp1, [pmc, #AT91_PMC_SCDR]
 
+	/* Disable MPDDRC Clock*/
+	mov 	tmp1, #(1 << 17)
+	str	tmp1, [pmc, #AT91_PMC_PCDR1]
+
 	/* Save PLLB setting and disable it */
 	ldr	tmp1, [pmc, #AT91_CKGR_PLLBR]
 	str	tmp1, .saved_pllbr
@@ -399,6 +403,10 @@ sdr_sr_done:
 	/* Enable DDRCK (SAMA5D3) */
 	mov 	tmp1, #(1 << 2)
 	str	tmp1, [pmc, #AT91_PMC_SCER]
+
+	/* Enable MPDDRC Clock*/
+	mov 	tmp1, #(1 << 17)
+	str	tmp1, [pmc, #AT91_PMC_PCER1]
 
 	/* Restore PLLA setting */
 	ldr	tmp1, .saved_pllar
