@@ -167,6 +167,25 @@ static int ehci_atmel_drv_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_PM
+static int ehci_atmel_suspend(struct platform_device *pdev, pm_message_t mesg)
+{
+	atmel_stop_ehci(pdev);
+
+	return 0;
+}
+
+static int ehci_atmel_resume(struct platform_device *pdev)
+{
+	atmel_start_ehci(pdev);
+
+	return 0;
+}
+#else
+#define ehci_atmel_suspend	NULL
+#define ehci_atmel_resume	NULL
+#endif
+
 #ifdef CONFIG_OF
 static const struct of_device_id atmel_ehci_dt_ids[] = {
 	{ .compatible = "atmel,at91sam9g45-ehci" },
@@ -180,6 +199,8 @@ static struct platform_driver ehci_atmel_driver = {
 	.probe		= ehci_atmel_drv_probe,
 	.remove		= ehci_atmel_drv_remove,
 	.shutdown	= usb_hcd_platform_shutdown,
+	.suspend	= ehci_atmel_suspend,
+	.resume		= ehci_atmel_resume,
 	.driver		= {
 		.name	= "atmel-ehci",
 		.of_match_table	= of_match_ptr(atmel_ehci_dt_ids),
