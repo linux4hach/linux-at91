@@ -121,6 +121,7 @@ static int ks8737_config_intr(struct phy_device *phydev)
 
 static int kszphy_config_init(struct phy_device *phydev)
 {
+	genphy_resume(phydev);
 	return 0;
 }
 
@@ -128,6 +129,7 @@ static int ksz8021_config_init(struct phy_device *phydev)
 {
 	int rc;
 	const u16 val = KSZPHY_OMSO_B_CAST_OFF | KSZPHY_OMSO_RMII_OVERRIDE;
+	genphy_resume(phydev);
 	phy_write(phydev, MII_KSZPHY_OMSO, val);
 	rc = ksz_config_flags(phydev);
 	return rc < 0 ? rc : 0;
