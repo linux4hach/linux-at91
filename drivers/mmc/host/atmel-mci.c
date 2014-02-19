@@ -2587,6 +2587,9 @@ static int atmci_suspend(struct device *dev)
 		} else {
 			set_bit(ATMCI_SUSPENDED, &slot->flags);
 		}
+
+		if (gpio_is_valid(slot->detect_pin))
+			disable_irq(gpio_to_irq(slot->detect_pin));
 	}
 
 	return 0;
@@ -2612,6 +2615,10 @@ static int atmci_resume(struct device *dev)
 		slot = host->slot[i];
 		if (!slot)
 			continue;
+
+		if (gpio_is_valid(slot->detect_pin))
+			enable_irq(gpio_to_irq(slot->detect_pin));
+
 		if (!test_bit(ATMCI_SUSPENDED, &slot->flags))
 			continue;
 		err = mmc_resume_host(slot->mmc);
