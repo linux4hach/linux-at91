@@ -74,6 +74,58 @@
 				algo = "crc32";
 			};
 		};
+
+		/* rev.C MB */
+		fdt_sama5d31ek_revc@1 {
+			description = "Flattened Device Tree blob for SAMA5D31EK rev.C";
+			data = /incbin/("./sama5d31ek_revc.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash@1 {
+				algo = "crc32";
+			};
+		};
+		fdt_sama5d33ek_revc@1 {
+			description = "Flattened Device Tree blob for SAMA5D33EK rev.C";
+			data = /incbin/("./sama5d33ek_revc.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash@1 {
+				algo = "crc32";
+			};
+		};
+		fdt_sama5d34ek_revc@1 {
+			description = "Flattened Device Tree blob for SAMA5D34EK rev.C";
+			data = /incbin/("./sama5d34ek_revc.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash@1 {
+				algo = "crc32";
+			};
+		};
+		fdt_sama5d35ek_revc@1 {
+			description = "Flattened Device Tree blob for SAMA5D35EK rev.C";
+			data = /incbin/("./sama5d35ek_revc.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash@1 {
+				algo = "crc32";
+			};
+		};
+		fdt_sama5d36ek_revc@1 {
+			description = "Flattened Device Tree blob for SAMA5D36EK rev.C";
+			data = /incbin/("./sama5d36ek_revc.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash@1 {
+				algo = "crc32";
+			};
+		};
 	};
 
 	configurations {
@@ -103,6 +155,33 @@
 			description = "Boot Linux kernel with SAMA5D36EK FDT blob";
 			kernel = "kernel@1";
 			fdt = "fdt_sama5d36ek@1";
+		};
+
+		/* rev.C MB */
+		conf@sama5d31ek_revc {
+			description = "Boot Linux kernel with SAMA5D31EK rev.C FDT blob";
+			kernel = "kernel@1";
+			fdt = "fdt_sama5d31ek_revc@1";
+		};
+		conf@sama5d33ek_revc {
+			description = "Boot Linux kernel with SAMA5D33EK rev.C FDT blob";
+			kernel = "kernel@1";
+			fdt = "fdt_sama5d33ek_revc@1";
+		};
+		conf@sama5d34ek_revc {
+			description = "Boot Linux kernel with SAMA5D34EK rev.C FDT blob";
+			kernel = "kernel@1";
+			fdt = "fdt_sama5d34ek_revc@1";
+		};
+		conf@sama5d35ek_revc {
+			description = "Boot Linux kernel with SAMA5D35EK rev.C FDT blob";
+			kernel = "kernel@1";
+			fdt = "fdt_sama5d35ek_revc@1";
+		};
+		conf@sama5d36ek_revc {
+			description = "Boot Linux kernel with SAMA5D36EK rev.C FDT blob";
+			kernel = "kernel@1";
+			fdt = "fdt_sama5d36ek_revc@1";
 		};
 	};
 };
