@@ -231,8 +231,8 @@ static void print_pio_bank_setting(u32 base)
 		at91_pio_read((const volatile void *)base, PIO_ODSR));
 	pr_info("    PIO_PDSR: 0x%x\n",
 		at91_pio_read((const volatile void *)base, PIO_PDSR));
-	pr_info("    PIO_ISR: 0x%x\n",
-		at91_pio_read((const volatile void *)base, PIO_ISR));
+	pr_info("    PIO_IMR: 0x%x\n",
+		at91_pio_read((const volatile void *)base, PIO_IMR));
 	pr_info("    PIO_MDSR: 0x%x\n",
 		at91_pio_read((const volatile void *)base, PIO_MDSR));
 	pr_info("    PIO_PUSR: 0x%x\n",
