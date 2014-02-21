@@ -48,6 +48,7 @@ ramc1	.req	r2
 memctrl	.req	r3
 tmp1	.req	r4
 tmp2	.req	r5
+tmp3	.req	r6
 
 /*
  * Wait until master clock is ready (after switching master clock source)
@@ -331,8 +332,13 @@ sdr_sr_done:
 
 	/* Disable UTMI PLL */
 	ldr	tmp1, [pmc, #AT91_CKGR_UCKR]
+	tst	tmp1, #AT91_PMC_UPLLEN
+	beq	1f
+	mov	tmp3, #1
 	bic	tmp1, tmp1, #AT91_PMC_UPLLEN
 	str	tmp1, [pmc, #AT91_CKGR_UCKR]
+1:
+	mov	tmp3, #0
 
 #ifdef CLOCK_750KHZ_SUPPORT
 	/* Turn on 12MHz RC */
@@ -394,12 +400,15 @@ sdr_sr_done:
 2:
 
 	/* Turn on UTMI PLL */
+	tst	tmp3, #1
+	beq	3f
 	ldr	tmp1, [pmc, #AT91_CKGR_UCKR]
 	orr	tmp1, tmp1, #AT91_PMC_UPLLEN
 	str	tmp1, [pmc, #AT91_CKGR_UCKR]
 
 	wait_uplllock
 
+3:
 	/* Enable DDRCK (SAMA5D3) */
 	mov 	tmp1, #(1 << 2)
 	str	tmp1, [pmc, #AT91_PMC_SCER]
