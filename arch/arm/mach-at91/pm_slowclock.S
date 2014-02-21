@@ -107,20 +107,6 @@ tmp3	.req	r6
 	.endm
 
 /*
- * Wait until PLLB has locked.
- */
-	.macro wait_pllblock
-	mov	tmp2, #PLLBLOCK_TIMEOUT
-1:	sub	tmp2, tmp2, #1
-	cmp	tmp2, #0
-	beq	2f
-	ldr	tmp1, [pmc, #AT91_PMC_SR]
-	tst	tmp1, #AT91_PMC_LOCKB
-	beq	1b
-2:
-	.endm
-
-/*
  * Wait until UTMI PLL has locked.
  */
 	.macro wait_uplllock
@@ -323,13 +309,6 @@ sdr_sr_done:
 	mov 	tmp1, #(1 << 17)
 	str	tmp1, [pmc, #AT91_PMC_PCDR1]
 
-	/* Save PLLB setting and disable it */
-	ldr	tmp1, [pmc, #AT91_CKGR_PLLBR]
-	str	tmp1, .saved_pllbr
-
-	mov	tmp1, #AT91_PMC_PLLCOUNT
-	str	tmp1, [pmc, #AT91_CKGR_PLLBR]
-
 	/* Disable UTMI PLL */
 	ldr	tmp1, [pmc, #AT91_CKGR_UCKR]
 	tst	tmp1, #AT91_PMC_UPLLEN
@@ -386,18 +365,6 @@ sdr_sr_done:
 	orr	tmp1, tmp1, #AT91_PMC_KEY
 	str	tmp1, [pmc, #AT91_CKGR_MOR]
 #endif
-
-	/* Restore PLLB setting */
-	ldr	tmp1, .saved_pllbr
-	str	tmp1, [pmc, #AT91_CKGR_PLLBR]
-
-	tst	tmp1, #(AT91_PMC_MUL &  0xff0000)
-	bne	1f
-	tst	tmp1, #(AT91_PMC_MUL & ~0xff0000)
-	beq	2f
-1:
-	wait_pllblock
-2:
 
 	/* Turn on UTMI PLL */
 	tst	tmp3, #1
@@ -492,9 +459,6 @@ ram_restored:
 	.word 0
 
 .saved_pllar:
-	.word 0
-
-.saved_pllbr:
 	.word 0
 
 .saved_sam9_lpr:
