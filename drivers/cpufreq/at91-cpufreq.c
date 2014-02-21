@@ -454,9 +454,10 @@ int regulator_cpufreq_suspend_finish(void)
 	volt = opp_get_voltage(opp);
 	rcu_read_unlock();
 
-	pr_info("Vddcore suspend finish voltage %dmV\n", volt / 1000);
-	if (cpufreq_info->vddcore_reg)
-		regulator_set_voltage(cpufreq_info->vddcore_reg, volt, volt);
+	if ((cpufreq_info->vddcore_reg)
+		&& (!regulator_set_voltage(cpufreq_info->vddcore_reg,
+								volt, volt)))
+		pr_info("Vddcore suspend finish voltage %dmV\n", volt / 1000);
 
 	return 0;
 }

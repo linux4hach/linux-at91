@@ -2487,9 +2487,6 @@ int regulator_set_voltage(struct regulator *regulator, int min_uV, int max_uV)
 	 * should be a noop (some cpufreq implementations use the same
 	 * voltage for multiple frequencies, for example).
 	 */
-	if (regulator->min_uV == min_uV && regulator->max_uV == max_uV)
-		goto out;
-
 	/* sanity check */
 	if (!rdev->desc->ops->set_voltage &&
 	    !rdev->desc->ops->set_voltage_sel) {
