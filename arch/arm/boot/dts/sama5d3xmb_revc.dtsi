@@ -41,6 +41,12 @@
 				wm8904: wm8904@1a {
 					compatible = "wm8904";
 					reg = <0x1a>;
+
+					DCVDD-supply = <&wm8904_1v8_power>;
+					DBVDD-supply = <&wm8904_3v3_power>;
+					AVDD-supply = <&wm8904_1v8_power>;
+					CPVDD-supply = <&wm8904_1v8_power>;
+					MICVDD-supply = <&wm8904_3v3_power>;
 				};
 			};
 
@@ -164,5 +170,21 @@
 		atmel,ssc-controller = <&ssc0>;
 		atmel,audio-codec = <&wm8904>;
 		status = "disabled";
+	};
+
+	wm8904_3v3_power: wm8904_3v3_reg {
+		compatible = "regulator-fixed";
+		regulator-name = "wm8904_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	wm8904_1v8_power: wm8904_1v8_reg {
+		compatible = "regulator-fixed";
+		regulator-name = "wm8904_1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
 	};
 };
