@@ -121,6 +121,13 @@ struct atmel_isi {
 
 	struct soc_camera_device	*icd;
 	struct soc_camera_host		soc_host;
+
+#ifdef CONFIG_PM
+	/* Two pin states - default, sleep */
+	struct pinctrl		*pinctrl;
+	struct pinctrl_state	*pins_default;
+	struct pinctrl_state	*pins_sleep;
+#endif
 };
 
 static void isi_writel(struct atmel_isi *isi, u32 reg, u32 val)
@@ -1038,7 +1045,6 @@ static int atmel_isi_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct soc_camera_host *soc_host;
 	struct isi_platform_data *pdata;
-	struct pinctrl *pinctrl;
 
 	pdata = dev->platform_data;
 	if (!pdata || !pdata->data_width_flags || !pdata->mck_hz) {
@@ -1047,17 +1053,31 @@ static int atmel_isi_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
-	if (IS_ERR(pinctrl)) {
-		dev_err(&pdev->dev, "Failed to request pinctrl\n");
-		return PTR_ERR(pinctrl);
-	}
-
 	isi = devm_kzalloc(&pdev->dev, sizeof(struct atmel_isi), GFP_KERNEL);
 	if (!isi) {
 		dev_err(&pdev->dev, "Can't allocate interface!\n");
 		return -ENOMEM;
 	}
+
+#ifdef CONFIG_PM
+	isi->pinctrl = devm_pinctrl_get(&pdev->dev);
+	if (IS_ERR(isi->pinctrl))
+		return PTR_ERR(isi->pinctrl);
+
+	isi->pins_default = pinctrl_lookup_state(isi->pinctrl,
+						 PINCTRL_STATE_DEFAULT);
+	if (IS_ERR(isi->pins_default)) {
+		dev_err(&pdev->dev, "could not get default pinstate\n");
+	} else {
+		if (pinctrl_select_state(isi->pinctrl, isi->pins_default))
+			dev_dbg(&pdev->dev, "could not set default pinstate\n");
+	}
+
+	isi->pins_sleep = pinctrl_lookup_state(isi->pinctrl,
+					       PINCTRL_STATE_SLEEP);
+	if (IS_ERR(isi->pins_sleep))
+		dev_dbg(&pdev->dev, "could not get sleep pinstate\n");
+#endif
 
 	isi->pclk = devm_clk_get(&pdev->dev, "isi_clk");
 	if (IS_ERR(isi->pclk))
@@ -1179,6 +1199,14 @@ static int atmel_isi_suspend(struct platform_device *pdev, pm_message_t mesg)
 	struct soc_camera_host *soc_host = to_soc_camera_host(&pdev->dev);
 	struct atmel_isi *isi = container_of(soc_host,
 					struct atmel_isi, soc_host);
+	int ret;
+
+	if (!IS_ERR(isi->pins_sleep)) {
+		ret = pinctrl_select_state(isi->pinctrl, isi->pins_sleep);
+		if (ret)
+			dev_err(&pdev->dev,
+				"could not set pins to sleep state\n");
+	}
 
 	return 0;
 }
@@ -1188,6 +1216,15 @@ static int atmel_isi_resume(struct platform_device *pdev)
 	struct soc_camera_host *soc_host = to_soc_camera_host(&pdev->dev);
 	struct atmel_isi *isi = container_of(soc_host,
 					struct atmel_isi, soc_host);
+	int ret;
+
+	/* First go to the default state */
+	if (!IS_ERR(isi->pins_default)) {
+		ret = pinctrl_select_state(isi->pinctrl, isi->pins_default);
+		if (ret)
+			dev_err(&pdev->dev,
+				"could not set pins to default state\n");
+	}
 
 	return 0;
 }
