@@ -44,6 +44,14 @@
 				status = "okay";
 			};
 		};
+
+		usb1: ohci@00600000 {
+			status = "disabled";
+		};
+
+		usb2: ehci@00700000 {
+			status = "disabled";
+		};
 	};
 
 	leds {

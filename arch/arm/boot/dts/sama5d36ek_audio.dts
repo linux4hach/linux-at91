@@ -49,7 +49,7 @@
 			};
 
 			i2c0: i2c@f0014000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			i2c1: i2c@f0018000 {
@@ -135,5 +135,3 @@
 		};
 	};
 };
-
-/* /include/ "sama5d3xmb_isi.dtsi"*/

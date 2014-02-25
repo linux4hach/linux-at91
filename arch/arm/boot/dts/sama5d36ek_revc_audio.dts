@@ -7,7 +7,7 @@
  * Licensed under GPLv2 or later.
  */
 /dts-v1/;
-#include "sama5d3xmb.dtsi"
+#include "sama5d3xmb_revc.dtsi"
 #include "sama5d3xdm.dtsi"
 
 / {
@@ -16,8 +16,28 @@
 
 	ahb {
 		apb {
-			spi0: spi@f0004000 {
+			usart1: serial@f0020000 {
+				status = "disabled";
+			};
+
+			mmc1: mmc@f8000000 {
+				status = "disabled";
+			};
+
+			watchdog@fffffe40 {
+				status = "disabled";
+			};
+
+			adc0: adc@f8018000 {
+				status = "disabled";
+			};
+
+			mmc0: mmc@f0000000 {
 				status = "okay";
+			};
+
+			spi0: spi@f0004000 {
+				status = "disabled";
 			};
 
 			ssc0: ssc@f0008000 {
@@ -25,7 +45,7 @@
 			};
 
 			can0: can@f000c000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			i2c0: i2c@f0014000 {
@@ -40,11 +60,31 @@
 			};
 
 			macb0: ethernet@f0028000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			macb1: ethernet@f802c000 {
-				status = "okay";
+				status = "disabled";
+			};
+
+			lcd_bus@f0030000 {
+				status = "disabled";
+
+				lcd@f0030000 {
+					status = "disabled";
+				};
+
+				lcdovl1@f0030140 {
+					status = "disabled";
+				};
+
+				lcdovl2@f0030240 {
+					status = "disabled";
+				};
+
+				lcdheo1@f0030340 {
+					status = "disabled";
+				};
 			};
 
 			pinctrl@fffff200 {
@@ -54,6 +94,18 @@
 					};
 				};
 			};
+		};
+
+		usb0: gadget@00500000 {
+			status = "disabled";
+		};
+
+		usb1: ohci@00600000 {
+			status = "disabled";
+		};
+
+		usb2: ehci@00700000 {
+			status = "disabled";
 		};
 	};
 
