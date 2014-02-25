@@ -34,6 +34,9 @@
 
 			i2c1: i2c@f0018000 {
 				status = "okay";
+				pmic: act8865@5b {
+					status = "okay";
+				};
 			};
 
 			/* ISI VSYNC/HSYNC Conflict with i2c0 */
