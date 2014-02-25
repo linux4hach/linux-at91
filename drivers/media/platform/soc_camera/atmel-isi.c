@@ -1173,8 +1173,33 @@ err_clk_get_mck:
 	return ret;
 }
 
+#ifdef CONFIG_PM
+static int atmel_isi_suspend(struct platform_device *pdev, pm_message_t mesg)
+{
+	struct soc_camera_host *soc_host = to_soc_camera_host(&pdev->dev);
+	struct atmel_isi *isi = container_of(soc_host,
+					struct atmel_isi, soc_host);
+
+	return 0;
+}
+
+static int atmel_isi_resume(struct platform_device *pdev)
+{
+	struct soc_camera_host *soc_host = to_soc_camera_host(&pdev->dev);
+	struct atmel_isi *isi = container_of(soc_host,
+					struct atmel_isi, soc_host);
+
+	return 0;
+}
+#else
+#define	atmel_isi_suspend	NULL
+#define	atmel_isi_resume	NULL
+#endif
+
 static struct platform_driver atmel_isi_driver = {
 	.remove		= atmel_isi_remove,
+	.suspend	= atmel_isi_suspend,
+	.resume		= atmel_isi_resume,
 	.driver		= {
 		.name = "atmel_isi",
 		.owner = THIS_MODULE,
