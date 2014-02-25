@@ -68,5 +68,3 @@
 		status = "okay";
 	};
 };
-
-/include/ "sama5d3xmb_revc_isi.dtsi"
