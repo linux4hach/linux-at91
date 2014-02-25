@@ -79,8 +79,9 @@
 			};
 
 			isi: isi@f0034000 {
-				pinctrl-names = "default";
+				pinctrl-names = "default", "sleep";
 				pinctrl-0 = <&pinctrl_isi &pinctrl_isi_pck_as_mck &pinctrl_isi_power &pinctrl_isi_reset>;
+				pinctrl-1 = <&pinctrl_isi_sleep &pinctrl_isi_pck_as_mck_sleep>;
 			};
 
 			mmc1: mmc@f8000000 {
@@ -244,6 +245,29 @@
 							<AT91_PIOC 19 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PC19 GPIO Input */
 							 AT91_PIOC 20 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PC20 GPIO Input */
 							 AT91_PIOC 21 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;	/* PC21 GPIO Input */
+					};
+				};
+
+				isi {
+					pinctrl_isi_sleep: isi-1 {
+						atmel,pins =
+							<AT91_PIOA 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA16 GPIO Input */
+							 AT91_PIOA 17 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA17 GPIO Input */
+							 AT91_PIOA 18 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA18 GPIO Input */
+							 AT91_PIOA 19 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA19 GPIO Input */
+							 AT91_PIOA 20 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA20 GPIO Input */
+							 AT91_PIOA 21 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA21 GPIO Input */
+							 AT91_PIOA 22 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA22 GPIO Input */
+							 AT91_PIOA 23 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA23 GPIO Input */
+							 AT91_PIOC 30 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT0	/* PC30 GPIO output 0 */
+							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT1	/* PA31 GPIO output 1 */
+							 AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT1	/* PA30 GPIO output 1 */
+							 AT91_PIOC 29 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PC29 GPIO Input */
+							 AT91_PIOC 28 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT0>;	/* PC28 GPIO output 0 */
+					};
+					pinctrl_isi_pck_as_mck_sleep: isi_pck_as_mck-1 {
+						atmel,pins =
+							<AT91_PIOD 31 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT0>;	/* PD31 periph B ISI_MCK */
 					};
 				};
 
