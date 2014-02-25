@@ -319,6 +319,32 @@ static int ksz9021rn_phy_fixup(struct phy_device *phy)
 	return 0;
 }
 
+static void mmd_write_reg(struct phy_device *dev, int device, int reg, int val)
+{
+	phy_write(dev, 0x0d, device);
+	phy_write(dev, 0x0e, reg);
+	phy_write(dev, 0x0d, (1 << 14) | device);
+	phy_write(dev, 0x0e, val);
+}
+
+static int ksz9031rn_phy_fixup(struct phy_device *dev)
+{
+	/*
+	 * min rx data delay, max rx/tx clock delay,
+	 * min rx/tx control delay
+	 */
+	/*
+	mmd_write_reg(dev, 2, 4, 0);
+	mmd_write_reg(dev, 2, 5, 0);
+	mmd_write_reg(dev, 2, 8, 0x003ff);
+	*/
+	mmd_write_reg(dev, 2, 4, 0x84);
+	mmd_write_reg(dev, 2, 5, 0x4444);
+	mmd_write_reg(dev, 2, 8, 0x1ef);
+
+	return 0;
+}
+
 static void __init sama5_dt_device_init(void)
 {
 	struct device_node *np;
@@ -327,6 +353,11 @@ static void __init sama5_dt_device_init(void)
 	    IS_ENABLED(CONFIG_PHYLIB))
 		phy_register_fixup_for_uid(PHY_ID_KSZ9021, MICREL_PHY_ID_MASK,
 			ksz9021rn_phy_fixup);
+	else if (of_machine_is_compatible("atmel,sama5d3-xplained") &&
+	    IS_ENABLED(CONFIG_PHYLIB)) {
+		phy_register_fixup_for_uid(PHY_ID_KSZ9031, MICREL_PHY_ID_MASK,
+			ksz9031rn_phy_fixup);
+	}
 
 	np = of_find_compatible_node(NULL, NULL, "atmel,at91sam9g45-isi");
 	if (np) {
@@ -334,6 +365,51 @@ static void __init sama5_dt_device_init(void)
 			camera_set_gpio_pins(AT91_PIN_PE24, AT91_PIN_PE29);
 			at91_config_isi(true, "pck1");
 		}
+	}
+
+	/* Hack for PDA display modules to update lcd settings */
+	if (of_machine_is_compatible("pda,tm70xx")) {
+		__u8 manufacturer[4] = "PALM";
+		__u8 monitor[14] = "AT07";
+
+		/* set LCD configuration */
+		at91_tft_vga_modes[0].name = "PALM";
+		at91_tft_vga_modes[0].left_margin = 128;
+		at91_tft_vga_modes[0].right_margin = 0;
+		at91_tft_vga_modes[0].upper_margin = 23;
+		at91_tft_vga_modes[0].lower_margin = 22;
+		at91_tft_vga_modes[0].hsync_len = 5;
+		at91_tft_vga_modes[0].vsync_len = 5;
+
+		memcpy(at91fb_default_monspecs.manufacturer, manufacturer, 4);
+		memcpy(at91fb_default_monspecs.monitor, monitor, 14);
+
+		ek_lcdc_data.default_lcdcon2 = LCDC_LCDCFG5_MODE_OUTPUT_18BPP;
+
+		printk("LCD parameters updated for PDA7 display module\n");
+	}
+	if (of_machine_is_compatible("pda,tm43xx")) {
+		__u8 manufacturer[4] = "Inlx";
+		__u8 monitor[14] = "AT043TN24";
+
+		/* set LCD configuration */
+		at91_tft_vga_modes[0].name = "Inlx";
+		at91_tft_vga_modes[0].xres = 480;
+		at91_tft_vga_modes[0].yres = 272;
+		at91_tft_vga_modes[0].pixclock = KHZ2PICOS(9000);
+		at91_tft_vga_modes[0].left_margin = 2;
+		at91_tft_vga_modes[0].right_margin = 2;
+		at91_tft_vga_modes[0].upper_margin = 2;
+		at91_tft_vga_modes[0].lower_margin = 2;
+		at91_tft_vga_modes[0].hsync_len = 41;
+		at91_tft_vga_modes[0].vsync_len = 11;
+
+		memcpy(at91fb_default_monspecs.manufacturer, manufacturer, 4);
+		memcpy(at91fb_default_monspecs.monitor, monitor, 14);
+
+		ek_lcdc_data.smem_len = 480 * 272 * 4;
+
+		printk("LCD parameters updated for PDA4 display module\n");
 	}
 
 	of_platform_populate(NULL, of_default_bus_match_table, at91_auxdata_lookup, NULL);

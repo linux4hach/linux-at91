@@ -7,7 +7,7 @@
  * Licensed under GPLv2 or later.
  */
 /dts-v1/;
-#include "sama5d3xmb.dtsi"
+#include "sama5d3xmb_revc.dtsi"
 
 / {
 	model = "Atmel SAMA5D35-EK";
@@ -15,18 +15,6 @@
 
 	ahb {
 		apb {
-			i2c1: i2c@f0018000 {
-				qt1070: keyboard@1b {
-					compatible = "qt1070";
-					reg = <0x1b>;
-					interrupt-parent = <&pioE>;
-					interrupts = <31 0x0>;
-					pinctrl-names = "default";
-					pinctrl-0 = <&pinctrl_qt1070_irq>;
-					wakeup-source;
-				};
-			};
-
 			spi0: spi@f0004000 {
 				status = "okay";
 			};
@@ -40,15 +28,10 @@
 			};
 
 			i2c0: i2c@f0014000 {
-				status = "disabled";
-			};
-
-			i2c1: i2c@f0018000 {
 				status = "okay";
 			};
 
-			/* ISI VSYNC/HSYNC Conflict with i2c0 */
-			isi: isi@f0034000 {
+			i2c1: i2c@f0018000 {
 				status = "okay";
 			};
 
@@ -58,19 +41,6 @@
 
 			macb1: ethernet@f802c000 {
 				status = "okay";
-			};
-
-			pinctrl@fffff200 {
-				board {
-					pinctrl_key_gpio: key_gpio_0 {
-						atmel,pins = <AT91_PIOE 27 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* PE27 gpio */
-					};
-
-					pinctrl_qt1070_irq: qt1070_irq {
-						atmel,pins =
-							<AT91_PIOE 31 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PE31 GPIO with pull up deglith */
-					};
-				};
 			};
 		};
 	};
@@ -89,8 +59,8 @@
 			gpios = <&pioE 27 GPIO_ACTIVE_HIGH>;
 			linux,code = <0x100>;
 			gpio-key,wakeup;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_key_gpio>;
 		};
 	};
 };
+
+/include/ "sama5d3xmb_revc_isi.dtsi"
