@@ -126,51 +126,12 @@ tmp3	.req	r6
 	.macro _do_wfi
 
 #if defined(CONFIG_CPU_V7)
-	/*
-	 * Excute ISB instruction flushed the pipeline in the processor,
-	 * so that all instructions that come after the ISB instruction
-	 * in program order are fetched from cache or memory.
-	 */
-	isb
-
-	/*
-	 * Execute a barrier instruction to ensure that all cache,
-	 * TLB and branch predictor maintenance operations issued
-	 * by any CPU in the cluster have completed.
-	 */
 	dsb
-	dmb
 
-	/*
-	 * AT91 PMC: Switch off Processor Clock
-	 *
-	 */
 	mov	tmp1, #AT91_PMC_PCK
 	str	tmp1, [pmc, #AT91_PMC_SCDR]
 
-	/*
-	 * Execute a WFI instruction and wait until the
-	 * STANDBYWFI output is asserted to indicate that the
-	 * CPU is in idle and low power state. CPU can specualatively
-	 * prefetch the instructions so add NOPs after WFI
-	 */
 	wfi		@ Wait For Interrupt
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
 #else
 	mcr	p15, 0, tmp1, c7, c0, 4
 #endif
