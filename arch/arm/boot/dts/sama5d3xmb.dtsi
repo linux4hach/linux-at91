@@ -73,7 +73,7 @@
 			isi: isi@f0034000 {
 				pinctrl-names = "default", "sleep";
 				pinctrl-0 = <&pinctrl_isi &pinctrl_isi_pck_as_mck &pinctrl_isi_power &pinctrl_isi_reset>;
-				pinctrl-1 = <&pinctrl_isi_sleep &pinctrl_isi_pck_as_mck_sleep>;
+				pinctrl-1 = <&pinctrl_isi_sleep &pinctrl_isi_pck_as_mck_sleep &pinctrl_isi_power_sleep &pinctrl_isi_reset_sleep>;
 			};
 
 			mmc1: mmc@f8000000 {
@@ -243,14 +243,14 @@
 				isi {
 					pinctrl_isi_sleep: isi-1 {
 						atmel,pins =
-							<AT91_PIOA 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA16 GPIO Input */
-							 AT91_PIOA 17 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA17 GPIO Input */
-							 AT91_PIOA 18 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA18 GPIO Input */
-							 AT91_PIOA 19 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA19 GPIO Input */
-							 AT91_PIOA 20 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA20 GPIO Input */
-							 AT91_PIOA 21 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA21 GPIO Input */
-							 AT91_PIOA 22 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA22 GPIO Input */
-							 AT91_PIOA 23 AT91_PERIPH_GPIO AT91_PINCTRL_NONE	/* PA23 GPIO Input */
+							<AT91_PIOA 16 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA16 GPIO Input with pullup */
+							 AT91_PIOA 17 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA17 GPIO Input with pullup */
+							 AT91_PIOA 18 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA18 GPIO Input with pullup */
+							 AT91_PIOA 19 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA19 GPIO Input with pullup */
+							 AT91_PIOA 20 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA20 GPIO Input with pullup */
+							 AT91_PIOA 21 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA21 GPIO Input with pullup */
+							 AT91_PIOA 22 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA22 GPIO Input with pullup */
+							 AT91_PIOA 23 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP	/* PA23 GPIO Input with pullup */
 							 AT91_PIOC 30 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT0	/* PC30 GPIO output 0 */
 							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT1	/* PA31 GPIO output 1 */
 							 AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT1	/* PA30 GPIO output 1 */
@@ -375,9 +375,19 @@
 							<AT91_PIOE 24 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;   /* PE24 gpio */
 					};
 
+					pinctrl_isi_reset_sleep: isi_reset-1 {
+						atmel,pins =
+							<AT91_PIOE 24 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT1>;   /* PE24 GPIO output 1 */
+					};
+
 					pinctrl_isi_power: isi_power-0 {
 						atmel,pins =
 							<AT91_PIOE 29 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* PE29 gpio */
+					};
+
+					pinctrl_isi_power_sleep: isi_power-1 {
+						atmel,pins =
+							<AT91_PIOE 29 AT91_PERIPH_GPIO AT91_PINCTRL_OUTPUT1>; /* PE29 GPIO output 1 */
 					};
 
 					pinctrl_usba_vbus: usba_vbus {
