@@ -1,5 +1,5 @@
 /*
- * sama5d35ek.dts - Device Tree file for SAMA5D36-EK board
+ * sama5d35ek_lcd.dts - Device Tree file for SAMA5D36-EK board to test lcd pm
  *
  *  Copyright (C) 2013 Atmel,
  *                2013 Josh Wu <josh.wu@atmel.com>

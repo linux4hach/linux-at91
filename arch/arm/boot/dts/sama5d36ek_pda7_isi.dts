@@ -1,5 +1,5 @@
 /*
- * sama5d36ek_isi.dts - Device Tree file for SAMA5D36-EK board to test isi pm
+ * sama5d35ek_isi_pda7.dts - Device Tree file for SAMA5D36-EK with pda7 board to test isi pm
  *
  *  Copyright (C) 2013 Atmel,
  *                2013 Josh Wu <josh.wu@atmel.com>
@@ -7,8 +7,8 @@
  * Licensed under GPLv2 or later.
  */
 /dts-v1/;
-#include "sama5d3xmb_revc.dtsi"
-#include "sama5d3xdm.dtsi"
+#include "sama5d3xmb.dtsi"
+#include "sama5d3xdm_pda7.dtsi"
 
 / {
 	model = "Atmel SAMA5D36-EK";
@@ -59,6 +59,11 @@
 				};
 			};
 
+			/* ISI VSYNC/HSYNC Conflict with i2c0 */
+			isi: isi@f0034000 {
+				status = "okay";
+			};
+
 			macb0: ethernet@f0028000 {
 				status = "disabled";
 			};
@@ -93,6 +98,8 @@
 		d3 {
 			label = "d3";
 			gpios = <&pioE 24 GPIO_ACTIVE_HIGH>;
+			/* Conflict with ISI module's reset pin */
+			status = "disabled";
 		};
 	};
 
@@ -115,5 +122,3 @@
 		};
 	};
 };
-
-/include/ "sama5d3xmb_revc_isi.dtsi"
