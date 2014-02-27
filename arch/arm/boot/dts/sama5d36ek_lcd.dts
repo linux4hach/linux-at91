@@ -1,8 +1,7 @@
 /*
  * sama5d35ek_lcd.dts - Device Tree file for SAMA5D36-EK board to test lcd pm
  *
- *  Copyright (C) 2013 Atmel,
- *                2013 Josh Wu <josh.wu@atmel.com>
+ *  Copyright (C) 2013 Atmel
  *
  * Licensed under GPLv2 or later.
  */
@@ -86,14 +85,6 @@
 					status = "disabled";
 				};
 			};
-
-			pinctrl@fffff200 {
-				board {
-					pinctrl_key_gpio: key_gpio_0 {
-						atmel,pins = <AT91_PIOE 27 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PE27 gpio */
-					};
-				};
-			};
 		};
 
 		usb0: gadget@00500000 {
@@ -118,20 +109,5 @@
 
 	sound {
 		status = "disabled";
-	};
-
-	gpio_keys {
-		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		pb_user1 {
-			label = "pb_user1";
-			gpios = <&pioE 27 GPIO_ACTIVE_LOW>;
-			linux,code = <0x100>;
-			gpio-key,wakeup;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_key_gpio>;
-		};
 	};
 };
