@@ -35,8 +35,6 @@
 #include <linux/cpufreq.h>
 #include <linux/pinctrl/consumer.h>
 
-extern unsigned long clk_get_master_clock(void);
-
 #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
 #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
 #define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
@@ -167,7 +165,7 @@ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
 	int offset = pdata->clk_offset;
 	int max_ckdiv = pdata->clk_max_div;
 
-	div = max(0, (int)DIV_ROUND_UP(clk_get_master_clock(),
+	div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
 				       2 * twi_clk) - offset);
 	ckdiv = fls(div >> 8);
 	cdiv = div >> ckdiv;
