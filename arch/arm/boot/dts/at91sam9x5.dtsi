@@ -809,6 +809,8 @@
 					atmel,can-dma;
 					atmel,can-isoc;
 				};
+
+         
 			};
 
 			watchdog@fffffe40 {
@@ -831,6 +833,21 @@
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
+               lcd@f803000 {
+               compatible "atmel, at91sam9x5-lcd";
+               reg = <0xf8038000 0xff
+                     0xf8038400 0xff>;
+               interrupts = <25 4 3>;
+               status = "disabled";
+            };
+
+            lcdovl1@f8038100 {
+               compatible = "atmel,at91sam9x5-lcd";
+               reg = <0xf8038100 0xff
+                      0xf8038800 0x3ff>;
+            };
+
+
 		};
 
 		nand0: nand@40000000 {
