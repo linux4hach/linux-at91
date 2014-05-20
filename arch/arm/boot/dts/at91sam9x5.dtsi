@@ -69,14 +69,14 @@
 				reg = <0xf8038000 0xff
 				       0xf8038400 0x3ff>;
 				interrupts = <25 4 3>;
-				status = "okay";
+				status = "enabled";
 			};
 
 			lcdovl1@f8038100 {
 				compatible = "atmel,at91sam9x5-lcd";
 				reg = <0xf8038100 0xff
 				       0xf8038800 0x3ff>;
-				status = "disabled";
+				status = "enabled";
 			};
          };
 

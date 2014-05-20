@@ -37,11 +37,11 @@
 			};
 
                 lcd@f8038000 {
-				status = "okay";
+				status = "enable";
 			};
 
 			lcdovl1@f8038100 {
-				status = "okay";
+				status = "enable";
 			};
 
 
