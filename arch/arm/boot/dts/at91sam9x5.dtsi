@@ -10,6 +10,12 @@
  */
 
 #include "skeleton.dtsi"
+#include <dt-bindings/dma/at91.h>
+#include <dt-bindings/pinctrl/at91.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/gpio/gpio.h>
+
+
 
 / {
    model = "Atmel AT91SAM9x5 family SoC";
@@ -31,10 +37,14 @@
       i2c1 = &i2c1;
       i2c2 = &i2c2;
       ssc0 = &ssc0;
+      pwm0=&pwm0;
    };
    cpus {
-      cpu@0 {
-         compatible = "arm,arm926ejs";
+      #address-cells = <0>;
+      #size-cells = <0>;
+      cpu {
+         compatible = "arm,arm926ej-s";
+         device_type="cpu";
       };
    };
 
@@ -50,8 +60,8 @@
 
       apb {
          compatible = "simple-bus";
-#address-cells = <1>;
-#size-cells = <1>;
+         #address-cells = <1>;
+         #size-cells = <1>;
          ranges;
 
 spi0: spi@f0000000 {
