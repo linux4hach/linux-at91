@@ -33,7 +33,7 @@ macb0: ethernet@f802c000 {
           phy-mode = "rmii";
           status = "okay";
        };
-       lcd@f8038000 {
+   lcd@f8038000 {
           status = "okay";
        };
 
