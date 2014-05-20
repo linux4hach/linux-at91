@@ -809,8 +809,6 @@
 					atmel,can-dma;
 					atmel,can-isoc;
 				};
-
-         
 			};
 
 			watchdog@fffffe40 {
@@ -833,7 +831,6 @@
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
-
 		};
 
 		nand0: nand@40000000 {
