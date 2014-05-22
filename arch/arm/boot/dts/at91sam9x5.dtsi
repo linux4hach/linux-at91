@@ -65,7 +65,7 @@
          
          lcd_bus@f803800 {
        	lcd@f8038000 {
-				compatible = "atmel,at91sam9x5-lcd";
+				compatible = "atmel,at91sam9x5-lcd-bus";
 				reg = <0xf8038000 0xff
 				       0xf8038400 0x3ff>;
 				interrupts = <25 4 3>;
@@ -73,7 +73,7 @@
 			};
 
 			lcdovl1@f8038100 {
-				compatible = "atmel,at91sam9x5-lcd";
+				compatible = "atmel,at91sam9x5-lcd-bus";
 				reg = <0xf8038100 0xff
 				       0xf8038800 0x3ff>;
 				status = "enabled";
