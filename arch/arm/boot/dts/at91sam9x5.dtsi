@@ -904,14 +904,14 @@
 			watchdog@fffffe40 {
 				compatible = "atmel,at91sam9260-wdt";
 				reg = <0xfffffe40 0x10>;
-				status = "disabled";
+				status = "okay";
 			};
 
 			rtc@fffffeb0 {
 				compatible = "atmel,at91sam9x5-rtc";
 				reg = <0xfffffeb0 0x40>;
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-				status = "disabled";
+				status = "okay";
 			};
 
 			pwm0: pwm@f8034000 {
@@ -919,7 +919,7 @@
 				reg = <0xf8034000 0x300>;
 				interrupts = <18 IRQ_TYPE_LEVEL_HIGH 4>;
 				#pwm-cells = <3>;
-				status = "disabled";
+				status = "okay";
 			};
 		};
 
