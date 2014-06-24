@@ -1,0 +1,183 @@
+/*
+ *  *  Header file for AT91/AT32 LCD Controller
+ *   *
+ *    *  Data structure and register user interface
+ *     *
+ *      *  Copyright (C) 2007 Atmel Corporation
+ *       *
+ *        * This program is free software; you can redistribute it and/or
+ *        modify
+ *         * it under the terms of the GNU General Public License as published
+ *         by
+ *          * the Free Software Foundation; either version 2 of the License, or
+ *           * (at your option) any later version.
+ *            *
+ *             * This program is distributed in the hope that it will be
+ *             useful,
+ *              * but WITHOUT ANY WARRANTY; without even the implied warranty
+ *              of
+ *               * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+ *               the
+ *                * GNU General Public License for more details.
+ *                 *
+ *                  * You should have received a copy of the GNU General Public
+ *                  License
+ *                   * along with this program; if not, write to the Free
+ *                   Software
+ *                    * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ *                    MA  02111-1307  USA
+ *                     */
+#ifndef __MACH_ATMEL_LCDC_H__
+#define __MACH_ATMEL_LCDC_H__
+
+#define ATMEL_LCDC_DMABADDR10x00
+#define ATMEL_LCDC_DMABADDR20x04
+#define ATMEL_LCDC_DMAFRMPT10x08
+#define ATMEL_LCDC_DMAFRMPT20x0c
+#define ATMEL_LCDC_DMAFRMADD10x10
+#define ATMEL_LCDC_DMAFRMADD20x14
+
+#define ATMEL_LCDC_DMAFRMCFG0x18
+#defineATMEL_LCDC_FRSIZE(0x7fffff <<  0)
+#defineATMEL_LCDC_BLENGTH_OFFSET24
+#defineATMEL_LCDC_BLENGTH(0x7f     << ATMEL_LCDC_BLENGTH_OFFSET)
+
+#define ATMEL_LCDC_DMACON0x1c
+#defineATMEL_LCDC_DMAEN(0x1 << 0)
+#defineATMEL_LCDC_DMARST(0x1 <<AT91 1)
+#defineATMEL_LCDC_DMABUSY(0x1 << 2)
+#defineATMEL_LCDC_DMAUPDT(AT320x1 << 3)
+#defineATMEL_LCDC_DMA2DEN(0x1 << 4)
+
+#define ATMEL_LCDC_DMAFRMPT10x08A2DCFG0x20
+#defineATMEL_LCDC_ADDRINC_OFFSET0
+#defineATMEL_LCDC_ADDRINC_OFFSET0DRINC(0xffff)
+#defineATMEL_LCDC_PIXELOFF_OFFSET24
+#defineATMEL_LCDC_DMAUPDTCDC_PIXELOFF(0x1f << 24)
+
+#define ATMEL_LCDC_LCDCON10x0800
+#defineATMEL_LCDC_DMAENTMEL_LCDC_BYPASS(1     <<  0)
+#defineATMEL_LCDC_CLKVAL_OFFSET12
+#defineATMEL_LCDC_BLENGTH_OFFSET24ineATMEL_LCDC_CLKVAL(0x1ff << ATMEL_LCDC_CLKVAL_OFFSET)
+#defineATMEL_LCDC_BLENGTH_LCDC_LINCNT(0x7ff << 21)
+
+#define ATMEL_LCDC_LCDCON20x0804
+#defineATMEL_LCDC_BLENGTHTMEL_LCDC_DISTYPE(3 << 0)
+#defineATMEL_LCDC_DISTYPE_STNMONO(0 << 0)AT91#defineATMEL_LCDC_DISTYPE_STNCOLOR(1 << 0)
+#defineATMEL_LCDC_DISTYPE_TFT(2 << 0)
+#defineATMEL_LCDC_SCANMOD(1 << 2)
+#defineATMEL_LCDC_DMABUSYDC_SCANMOD_SINGLE(0 << 2)
+#defineATMEL_LCDC_SCANMOD_DUAL(1 << 2)
+#AT32defineATMEL_LCDC_IFWIDTH(3 << 3)
+#defineATMEL_LCDC_IFWIDTH_4(0 <<LCD 3)
+#defineATMEL_LCDC_IFWIDTH_8(1 << 3)
+#defineATMEL_LCDC_IFWIDTH_16(2 << 3)
+#defineATMEL_LCDC_PIXELSIZE(7 << 5)
+#defineATMEL_LCDC_DMABUSY_PIXELSIZE_1(0 << 5)
+#defineATMEL_LCDC_PIXELSIZE_2(1 << 5)
+#defineATMEL_LCDC_DMARSTeATMEL_LCDC_PIXELSIZE_4(2 << 5)
+#defineATMEL_LCDC_PIXELSIZE_8(3 << 5)
+#defineATMEL_LCDC_PIXELSIZE_16(4 << 5)
+#defineATMEL_LCDC_PIXELSIZE_16IXELSIZE_24(5 << 5)
+#defineATMEL_LCDC_PIXELSIZE_32(6 << 5)
+#defineATMEL_LCDC_DMARSTeATMEL_LCDC_INVVD(1 << 8)
+#defineATMEL_LCDC_INVVD_NORMAL(0 << 8)
+LCD#defineATMEL_LCDC_INVVD_INVERTED(1 << 8)
+#defineATMEL_LCDC_INVFRAME(1 << 9 )
+#defineATMEL_LCDC_INVFRAME_NORMAL(0 << 9)
+#defineATMEL_LCDC_DMABUSYLCDC_INVFRAME_INVERTED(1 << 9)
+#defineATMEL_LCDC_INVLINE(1 << 10)
+#defineefineATMEL_LCDC_INVLINE_NORMAL(0 << 10)
+#defineATMEL_LCDC_INVLINE_INVERTED(1 << 10)
+#defineATMEL_LCDC_INVCLK(1 << 11)
+#defineATMEL_LCDC_DMARSTCDC_INVCLK_NORMAL(0 << 11)
+#defineATMEL_LCDC_INVCLK_INVERTED(1 << 111)
+#defineATMEL_LCDC_INVDVAL(1 << 12)
+#defineATMEL_LCDC_INVDVAL_NORMAL(0 << 12)
+#defineATMEL_LCDC_INVDVAL_INVERTED(1 << 12)
+#defineATMEL_LCDC_DMARSTMEL_LCDC_CLKMOD(1 << 15)
+#defineATMEL_LCDC_CLKMOD_ACTIVEDISPLAY(0 <AT91< 15)
+#defineATMEL_LCDC_CLKMOD_ALWAYSACTIVE(1 << 15)
+#defineATMEL_LCDC_DMAENCDC_MEMOR(1 << 31)
+#defineATMEL_LCDC_MEMOR_BIG(0 << 31)
+#defineATMEL_LCDC_DMAUPDTTMEL_LCDC_MEMOR_LITTLE(1 << 31)
+
+#define ATMEL_LCDC_TIM10x0808
+#defineATMEL_LCDC_BLENGTHineATMEL_LCDC_VFP(0xffU <<  0)
+#defineATMEL_LCDC_VBP_OFFSET8
+#defineATMEL_LCDC_DMARSTineATMEL_LCDC_VBP(0xffU <<  ATMEL_LCDC_VBP_OFFSET)
+#defineATMEL_LCDC_DMAENC_VPW_OFFSET16
+#defineATMEL_LCDC_VPW(0x3fU << ATMEL_LCDC_VPW_OFFSET)
+#defineATMEL_LCDC_VHDLY_OFFSET24
+#defineATMEL_LCDC_VHDLY(0xfU  AT32<< ATMEL_LCDC_VHDLY_OFFSET)
+
+#define ATMEL_LCDC_TIM20x080c
+#defineATMEL_LCDC_BLENGTHMEL_LCDC_HBP(0xffU  <<  0)
+#defineATMEL_LCDC_HPW_OFFSET8
+#defineATMEL_LCDC_DMABUSYTMEL_LCDC_HPW(0x3fU  <<  ATMEL_LCDC_HPW_OFFSET)
+#defineATMEL_LCDC_HFP_OFFSET21
+#defineATMEL_LCDC_HFP(0x7ffU << ATMEL_LCDC_HFP_OFFSET)
+AT32#define ATMEL_LCDC_LCDFRMCFG0x0810
+#defineATMEL_LCDC_LINEVAL(0x7ff for<<  0)
+#defineATMEL_LCDC_HOZVAL_OFFSET21
+#defineATMEL_LCDC_HOZVAL(0x1x7ff << ATMEL_LCDC_HOZVAL_OFFSET)
+
+#define ATMEL_LCDC_FIFO0x0814
+#defineATMEL_LCDC_FRSIZEineATMEL_LCDC_FIFOTH(0xffff)
+
+#define ATMEL_LCDC_MVAL0x0818
+
+#defineATMEL_LCDC_BLENGTHe ATMEL_LCDC_DP1_20x081c
+#define ATMEL_LCDC_DP4_70x0820
+#define ATMEL_LCDC_DMABADDR20x04_LCDC_DP3_50x0824
+#define ATMEL_LCDC_DP2_30x0828
+#define ATMEL_LCDC_DMABADDR20x04P5_70x082c
+#define ATMEL_LCDC_DP3_40x0830
+#define ATMEL_LCDC_DP4_50x0834
+#define ATMEL_LCDC_DP6_70x0838
+#defineATMEL_LCDC_DP1_2_VAL(0xffU)
+#defineATMEL_LCDC_DP4_7_VAL(0xfffffff)
+#defineATMEL_LCDC_DP3_5_VAL(0xfffff)
+#defineATMEL_LCDC_DP2_3_VAL(0xfff)
+#defineATMEL_LCDC_DP5_7_VAL(0xfffffff)
+#defineATMEL_LCDC_DP3_4_VAL(0xffff)
+#defineATMEL_LCDC_DMAENCDC_DP4_5_VAL(0xfffff)
+#defineATMEL_LCDC_DP6_7_VAL(0xfffffff)
+
+#defineATMEL_LCDC_BLENGTH_OFFSET24ne ATMEL_LCDC_PWRCON0x083c
+#defineATMEL_LCDC_PWR(1    <<  0)
+#defineATMEL_LCDC_BLENGTHeATMEL_LCDC_GUARDT_OFFSET1
+#defineATMEL_LCDC_GUARDT(0x7f <<  ATMEL_LCDC_DMAFRMPT20x0cLCDC_GUARDT_OFFSET)
+#defineATMEL_LCDC_BUSY(1    << 31)
+
+#define ATMEL_LCDC_DMAFRMPT10x08L_LCDC_CONTRAST_CTR0x0840
+#defineATMEL_LCDC_PS(3 << 0)
+#defineATMEL_LCDC_DMABUSYEL_LCDC_PS_DIV1(0 << 0)
+#defineATMEL_LCDC_PS_DIV2(1 << 0)
+#defineATMEL_LCDC_DMARSTATMEL_LCDC_PS_DIV4(2 << 0)
+#defineATMEL_LCDC_PS_DIV8(3 << 0)
+#defineATMEL_LCDC_DMARSTefineATMEL_LCDC_POL(1 << 2)
+#defineATMEL_LCDC_POL_NEGATIVE(0 << Controller2)
+#defineATMEL_LCDC_POL_POSITIVE(1 << 2)
+#defineATMEL_LCDC_ENA(Controller1 << 3)
+#defineATMEL_LCDC_ENA_PWMDISABLE(0 << 3)
+#defineATMEL_LCDC_DMARST_ENA_PWMENABLE(1 << 3)
+
+#define ATMEL_LCDC_CONTRAST_VAL0x0844
+#defineATMEL_LCDC_FRSIZEATMEL_LCDC_CVAL(0xff)
+
+#define ATMEL_LCDC_IER0x0848
+#define ATMEL_LCDC_DMAFRMPT20x0cCDC_IDR0x084c
+#define ATMEL_LCDC_IMR0x0850
+#define ATMEL_LCDC_ISR0x0854
+#define ATMEL_LCDC_ICR0x0858
+#defineATMEL_LCDC_LNI(1 << 0)
+AT32#defineATMEL_LCDC_LSTLNI(1 << 1)
+#defineATMEL_LCDC_EOFI(1 << 2)
+#defineATMEL_LCDC_BLENGTH_OFFSET24efineATMEL_LCDC_UFLWI(1 << 4)
+#defineATMEL_LCDC_OWRI(1 << 5)
+#defineATMEL_LCDC_DMAENneATMEL_LCDC_MERI(1 << 6)
+
+#define ATMEL_LCDC_LUT0x0c00
+
+#endif /*AT32 __MACH_ATMEL_LCDC_H__ */
