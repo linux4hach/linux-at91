@@ -7,8 +7,8 @@
  * Licensed under GPLv2 or later.
  */
 /dts-v1/;
-/include/ "at91sam9g35.dtsi"
-/include/ "at91sam9x5ek.dtsi"
+#include "at91sam9g35.dtsi"
+#include "at91sam9x5ek.dtsi"
 
 / {
 	model = "Atmel AT91SAM9G35-EK";
@@ -19,6 +19,22 @@
 			macb0: ethernet@f802c000 {
 				phy-mode = "rmii";
 				status = "okay";
+			};
+
+			lcd_bus@f8038000 {
+				status = "okay";
+
+				lcd@f8038000 {
+					status = "okay";
+				};
+
+				lcdovl1@f8038100 {
+					status = "okay";
+				};
+
+				lcdheo1@f8038280 {
+					status = "okay";
+				};
 			};
 		};
 	};
