@@ -71,6 +71,10 @@ struct atmel_nand_data {
 	u8		on_flash_bbt;		/* bbt on flash */
 	struct mtd_partition *parts;
 	unsigned int	num_parts;
+	bool		has_dma;		/* support dma transfer */
+
+	/* default is false, only for at32ap7000 chip is true */
+	bool		need_reset_workaround;
 };
 
  /* Serial */
@@ -92,6 +96,15 @@ struct at91_tsadcc_data {
 /* CAN */
 struct at91_can_data {
 	void (*transceiver_switch)(int on);
+};
+
+/* AT91 MCI (Legacy) */
+struct at91_mmc_data {
+	int             det_pin;        /* card detect IRQ */
+	unsigned        slot_b:1;       /* uses Slot B */
+	unsigned        wire4:1;        /* (SD) supports DAT0..DAT3 */
+	int             wp_pin;         /* (SD) writeprotect detect */
+	int             vcc_pin;        /* power switching (high == on) */
 };
 
 /* FIXME: this needs a better location, but gets stuff building again */
