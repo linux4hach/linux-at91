@@ -195,6 +195,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
 	CLKDEV_CON_ID("pioB", &pioB_clk),
 	CLKDEV_CON_ID("pioC", &pioC_clk),
 	CLKDEV_CON_ID("pioD", &pioD_clk),
+	CLKDEV_CON_DEV_ID(NULL, "fffc8000.pwm", &pwm_clk),
 };
 
 static struct clk_lookup usart_clocks_lookups[] = {
@@ -293,7 +294,6 @@ static void __init at91sam9rl_initialize(void)
 {
 	arm_pm_idle = at91sam9_idle;
 	arm_pm_restart = at91sam9_alt_restart;
-	at91_extern_irq = (1 << AT91SAM9RL_ID_IRQ0);
 
 	at91_sysirq_mask_rtc(AT91SAM9RL_BASE_RTC);
 	at91_sysirq_mask_rtt(AT91SAM9RL_BASE_RTT);
@@ -347,6 +347,7 @@ static unsigned int at91sam9rl_default_irq_priority[NR_AIC_IRQS] __initdata = {
 AT91_SOC_START(at91sam9rl)
 	.map_io = at91sam9rl_map_io,
 	.default_irq_priority = at91sam9rl_default_irq_priority,
+	.extern_irq = (1 << AT91SAM9RL_ID_IRQ0),
 	.ioremap_registers = at91sam9rl_ioremap_registers,
 	.register_clocks = at91sam9rl_register_clocks,
 	.init = at91sam9rl_initialize,
