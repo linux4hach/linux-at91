@@ -32,8 +32,8 @@
 #define SAMA5D3_ID_USART1	13	/* USART1 */
 #define SAMA5D3_ID_USART2	14	/* USART2 */
 #define SAMA5D3_ID_USART3	15	/* USART3 */
-#define SAMA5D3_ID_UART0	16	/* UART 0 */
-#define SAMA5D3_ID_UART1	17	/* UART 1 */
+#define SAMA5D3_ID_UART0	16	/* UART0 */
+#define SAMA5D3_ID_UART1	17	/* UART1 */
 #define SAMA5D3_ID_TWI0		18	/* Two-Wire Interface 0 */
 #define SAMA5D3_ID_TWI1		19	/* Two-Wire Interface 1 */
 #define SAMA5D3_ID_TWI2		20	/* Two-Wire Interface 2 */
@@ -68,6 +68,14 @@
  * System Peripherals
  */
 #define SAMA5D3_BASE_RTC	0xfffffeb0
+
+/*
+ * User Peripheral physical base addresses.
+ */
+#define SAMA5D3_BASE_USART0	0xf001c000
+#define SAMA5D3_BASE_USART1	0xf0020000
+#define SAMA5D3_BASE_USART2	0xf8020000
+#define SAMA5D3_BASE_USART3	0xf8024000
 
 /*
  * Internal Memory

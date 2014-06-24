@@ -177,25 +177,24 @@ static struct clk udphs_clk = {
 	.pid		= SAMA5D3_ID_UDPHS,
 	.type		= CLK_TYPE_PERIPHERAL,
 };
-/* gmac only for sama5d33, sama5d34, sama5d35 */
+/* gmac only for sama5d33, sama5d34, sama5d35, sama5d36 */
 static struct clk macb0_clk = {
 	.name		= "macb0_clk",
 	.pid		= SAMA5D3_ID_GMAC,
 	.type		= CLK_TYPE_PERIPHERAL,
 };
-/* emac only for sama5d31, sama5d35 */
+/* emac only for sama5d31, sama5d35, sama5d36 */
 static struct clk macb1_clk = {
 	.name		= "macb1_clk",
 	.pid		= SAMA5D3_ID_EMAC,
 	.type		= CLK_TYPE_PERIPHERAL,
 };
-/* lcd only for sama5d31, sama5d33, sama5d34 */
+/* lcd only for sama5d31, sama5d33, sama5d34, sama5d36 */
 static struct clk lcdc_clk = {
 	.name		= "lcdc_clk",
 	.pid		= SAMA5D3_ID_LCDC,
 	.type		= CLK_TYPE_PERIPHERAL,
 };
-/* isi only for sama5d33, sama5d35 */
 static struct clk isi_clk = {
 	.name		= "isi_clk",
 	.pid		= SAMA5D3_ID_ISI,
@@ -241,6 +240,11 @@ static struct clk tdes_clk = {
 	.pid		= SAMA5D3_ID_TDES,
 	.type		= CLK_TYPE_PERIPHERAL,
 };
+static struct clk pwm_clk = {
+	.name		= "pwm_clk",
+	.pid		= SAMA5D3_ID_PWM,
+	.type		= CLK_TYPE_PERIPHERAL,
+};
 
 static struct clk *periph_clocks[] __initdata = {
 	&pioA_clk,
@@ -281,6 +285,7 @@ static struct clk *periph_clocks[] __initdata = {
 	&sha_clk,
 	&aes_clk,
 	&tdes_clk,
+	&pwm_clk,
 };
 
 static struct clk pck0 = {
@@ -316,6 +321,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
 	CLKDEV_CON_DEV_ID("usart", "f0020000.serial", &usart1_clk),
 	CLKDEV_CON_DEV_ID("usart", "f8020000.serial", &usart2_clk),
 	CLKDEV_CON_DEV_ID("usart", "f8024000.serial", &usart3_clk),
+	CLKDEV_CON_DEV_ID("usart", "f0024000.serial", &uart0_clk),
+	CLKDEV_CON_DEV_ID("usart", "f8028000.serial", &uart1_clk),
 	CLKDEV_CON_DEV_ID(NULL, "f0014000.i2c", &twi0_clk),
 	CLKDEV_CON_DEV_ID(NULL, "f0018000.i2c", &twi1_clk),
 	CLKDEV_CON_DEV_ID(NULL, "f801c000.i2c", &twi2_clk),
@@ -345,6 +352,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
 	CLKDEV_CON_DEV_ID("sha_clk", "f8034000.sha", &sha_clk),
 	CLKDEV_CON_DEV_ID("aes_clk", "f8038000.aes", &aes_clk),
 	CLKDEV_CON_DEV_ID("tdes_clk", "f803c000.tdes", &tdes_clk),
+	CLKDEV_CON_DEV_ID(NULL, "f002c000.pwm", &pwm_clk),
 };
 
 static void __init sama5d3_register_clocks(void)
