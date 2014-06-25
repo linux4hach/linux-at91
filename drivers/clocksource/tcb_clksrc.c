@@ -200,9 +200,21 @@ static int __init setup_clkevents(struct atmel_tc *tc, int clk32k_divisor_idx)
 	clkevt.clk = t2_clk;
 	tc_irqaction.dev_id = &clkevt;
 
-	timer_clock = clk32k_divisor_idx;
+	timer_clock = clk32k_divisor_idx; // I left this in this is the original...change back to the original by deleting the next line cpf
 
-	clkevt.clkevt.cpumask = cpumask_of(0);
+	timer_clock = divisor_idx;  // Delete this to get to the original line
+
+	
+
+	clkevt.clkevt.cpumask = cpumask_of(0); // The following if block has been added....delete it to get back to this value
+
+	if (!divisor)
+		clkevt.freq = 32768;
+	else
+		clkevt.freq = clk_get_rate(t2_clk)/divisor;
+	clkevt.clkevt.cpumask = cpupmask_of(0);
+   
+
 
 	ret = setup_irq(irq, &tc_irqaction);
 	if (ret)
