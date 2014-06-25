@@ -212,7 +212,7 @@ static int __init setup_clkevents(struct atmel_tc *tc, int clk32k_divisor_idx)
 		clkevt.freq = 32768;
 	else
 		clkevt.freq = clk_get_rate(t2_clk)/divisor;
-	clkevt.clkevt.cpumask = cpupmask_of(0);
+	clkevt.clkevt.cpumask = cpumask_of(0);
    
 
 
