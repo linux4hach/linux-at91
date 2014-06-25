@@ -31,6 +31,7 @@
 #include "at91_aic.h"
 #include "generic.h"
 #include "pm.h"
+#include "board.h"
 
 /*
  * Show the reason for the previous system reset.
