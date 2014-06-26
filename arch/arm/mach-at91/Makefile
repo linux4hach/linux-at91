@@ -30,7 +30,7 @@ obj-$(CONFIG_ARCH_AT91SAM9261)	+= at91sam9261_devices.o
 obj-$(CONFIG_ARCH_AT91SAM9263)	+= at91sam9263_devices.o
 obj-$(CONFIG_ARCH_AT91SAM9RL)	+= at91sam9rl_devices.o
 obj-$(CONFIG_ARCH_AT91SAM9G45)	+= at91sam9g45_devices.o
-obj-$(CONFIG_ARCH_AT91SAM9x5)	+= at91sam9x5_devices.o
+obj-$(CONFIG_ARCH_AT91SAM9X5)	+= at91sam9x5_devices.o
 obj-$(CONFIG_ARCH_AT91X40)	+= at91x40.o at91x40_time.o
 
 # AT91RM9200 board-specific support
