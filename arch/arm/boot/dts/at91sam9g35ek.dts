@@ -20,25 +20,7 @@
 				phy-mode = "rmii";
 				status = "okay";
 			};
-			pinctrl@fffff400 {
-				board {
-					pinctrl_pa8a25: pa8a25 {
-						atmel,pins = <AT91_PIOA 8 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH
-							      AT91_PIOA 25 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
-					};
-				};
-				pwm0 {
-					pinctrl_pwm_leds: pwm-led {
-						atmel,pins =
-							<AT91_PIOC 18  AT91_PERIPH_C AT91_PINCTRL_PULL_UP	/* PC18 periph C */
-							 AT91_PIOC 19  AT91_PERIPH_C AT91_PINCTRL_PULL_UP	/* PC19 periph C */
-							 AT91_PIOC 20  AT91_PERIPH_C AT91_PINCTRL_PULL_UP	/* PC20 periph C */
-							 AT91_PIOC 21 AT91_PERIPH_C AT91_PINCTRL_PULL_UP>;	/* PC21 periph C */
-					};
-				};
-			};
-			/* enable LCD */
-			lcd_bus@f8038000 {
+			 lcd_bus@f8038000 {
 				status = "okay";
 
 				lcd@f8038000 {
@@ -54,15 +36,7 @@
 				};
 			};
 
-			/* enable the pwm0 */
-			pwm0: pwm@f8034000 {
-
-				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_pwm_leds>;
-				/* status = "okay"; */
-				status = "disabled";
-			};
-			/* enable the qtouch keypad */
+		/* enable the qtouch keypad */
 			i2c0: i2c@f8010000 {
 				status = "okay";
 				qt1070: qt1070@1b {
@@ -72,98 +46,6 @@
 				};
 			};
 		};
-	};
-	/* use tcb0 for pwm wave output */
-	tc_pwm0 {
-        	compatible = "atmel,tcb-pwm";
-        	#pwm-cells = <3>;
-  		tc-block = <0>;
-        	pinctrl-names = "default";
-        	pinctrl-0 = <&pinctrl_tcb0_tioa0
-			&pinctrl_tcb0_tioa1
-			&pinctrl_tcb0_tioa2
-			&pinctrl_tcb0_tiob0
-			&pinctrl_tcb0_tiob1
-			&pinctrl_tcb0_tiob2>;
-
-		/* status = "okay"; */
-		status = "disabled";
-	};
-	/* use tcb1 for pwm wave output */
-	tc_pwm1 {
-        	compatible = "atmel,tcb-pwm";
-        	#pwm-cells = <3>;
-  		tc-block = <1>;
-        	pinctrl-names = "default";
-        	pinctrl-0 = <&pinctrl_tcb1_tioa0
-			&pinctrl_tcb1_tioa1
-			&pinctrl_tcb1_tioa2
-			&pinctrl_tcb1_tiob0
-			&pinctrl_tcb1_tiob1
-			&pinctrl_tcb1_tiob2>;
-
-		/* status = "okay"; */
-		status = "disabled";
-	};
-	/* use pwm output to drive leds  */
-	pwm_leds {
-		compatible = "pwm-leds";
-
-		light {
-			label = "led-source";
-			pwms = <&pwm0 1 1000000 0>; /* use pwm channel 1 and 1000000 ns of period */
-			max-brightness = <255>;
-			linux,default-trigger = "none";
-			/* status = "okay"; */	
-			status = "disabled";
-
-		};
-
-	};
-	/* use gpio output to drive leds */
-	gpio_leds {
-		compatible = "gpio-leds";
-
-		remote_alarm_led {
-			label = "remote_alarm_led";
-			gpios = <&pioA 27 GPIO_ACTIVE_HIGH>;	
-			linux,default-trigger = "heartbeat";
-		};
-		remote_alert_led {
-			label = "remote_alert_led";
-			gpios = <&pioA 28 GPIO_ACTIVE_HIGH>;	
-			linux,default-trigger = "heartbeat";
-		};
-
-	};
-	/* use gpio input for keys */
-	gpio_keys {
-		compatible = "gpio-keys";
-
-		enter_key {
-			label = "Enter";
-			gpios = <&pioA 24 GPIO_ACTIVE_LOW>;
-			linux,code = <0x100>;
-			gpio-key,wakeup;
-		};
-		back_key {
-			label = "Back";
-			gpios = <&pioA 26 GPIO_ACTIVE_LOW>;
-			linux,code = <0x101>;
-			gpio-key,wakeup;
-		};
-
-	};
-	/* my hello example for my driver experiment */
-	hellokeys {
-		compatible = "hach,hellokeys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_pa8a25>;
-		gpios = <&pioA 8 GPIO_ACTIVE_LOW
-			 &pioA 25 GPIO_ACTIVE_HIGH
-			 0 
-			>;
-
 	};
 
 };
