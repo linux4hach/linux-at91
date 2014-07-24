@@ -33,7 +33,8 @@
 #include <linux/interrupt.h>
 #include <linux/jiffies.h>
 #include <linux/delay.h>
-
+#include <linux/of_gpio.h>
+#include <asm/gpio.h>
 /* Address for each register */
 #define CHIP_ID            0x00
 #define QT1070_CHIP_ID     0x2E
@@ -55,10 +56,18 @@
 
 /* AT42QT1070 support up to 7 keys */
 static const unsigned short qt1070_key2code[] = {
-	KEY_0, KEY_1, KEY_2, KEY_3,
+	KEY_TAB, KEY_RETURN, KEY_A, KEY_B,
 	KEY_4, KEY_5, KEY_6,
 };
-
+static const char * qt1070_key2name[] = {
+	"TAB", 
+	"RETURN",
+	"A", 
+	"B",
+	"KEY 4",
+	"KEY 5", 
+	"KEY 6",
+};
 struct qt1070_data {
 	struct i2c_client *client;
 	struct input_dev *input;
@@ -130,8 +139,15 @@ static irqreturn_t qt1070_interrupt(int irq, void *dev_id)
 
 	for (i = 0; i < ARRAY_SIZE(qt1070_key2code); i++) {
 		keyval = new_keys & mask;
-		if ((data->last_keys & mask) != keyval)
+		if ((data->last_keys & mask) != keyval) {
 			input_report_key(input, data->keycodes[i], keyval);
+			//if(keyval) { //pressed
+			//	printk( "QTouch key %s is pressed\n", qt1070_key2name[i]);
+			//}
+			//else {//released
+			//	printk( "QTouch key %s is released\n", qt1070_key2name[i]);
+			//}
+		}
 		mask <<= 1;
 	}
 	input_sync(input);
@@ -139,13 +155,19 @@ static irqreturn_t qt1070_interrupt(int irq, void *dev_id)
 	data->last_keys = new_keys;
 	return IRQ_HANDLED;
 }
+static const struct of_device_id qt1070_dt_ids[] = {
+         { .compatible = "atmel,qt1070", },
+         { /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, qt1070_dt_ids);
 
 static int qt1070_probe(struct i2c_client *client,
 				const struct i2c_device_id *id)
 {
 	struct qt1070_data *data;
 	struct input_dev *input;
-	int i;
+	struct device_node *np;
+	int i,gpio;
 	int err;
 
 	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
@@ -154,7 +176,16 @@ static int qt1070_probe(struct i2c_client *client,
 			dev_driver_string(&client->adapter->dev));
 		return -ENODEV;
 	}
+	/* get the gpio from dt */
+	np = of_find_matching_node(NULL, qt1070_dt_ids);
+	if (!np) return -EINVAL;
+	gpio = of_get_gpio(np, 0);
+	of_node_put(np);
+	//gpio = 7; //A7 pin
+	printk("The gpio pin for QTouch is %d\n", gpio);
+	gpio_direction_input(gpio);
 
+	client->irq = gpio_to_irq(gpio);
 	if (!client->irq) {
 		dev_err(&client->dev, "please assign the irq to this device\n");
 		return -EINVAL;
@@ -186,7 +217,7 @@ static int qt1070_probe(struct i2c_client *client,
 	input->keycodemax = ARRAY_SIZE(qt1070_key2code);
 
 	__set_bit(EV_KEY, input->evbit);
-
+	//__clear_bit(EV_REP, input->evbit);
 	for (i = 0; i < ARRAY_SIZE(qt1070_key2code); i++) {
 		data->keycodes[i] = qt1070_key2code[i];
 		__set_bit(qt1070_key2code[i], input->keybit);
@@ -246,7 +277,8 @@ static int qt1070_remove(struct i2c_client *client)
 #ifdef CONFIG_PM_SLEEP
 static int qt1070_suspend(struct device *dev)
 {
-	struct qt1070_data *data = dev_get_drvdata(dev);
+	struct i2c_client *client = to_i2c_client(dev);
+	struct qt1070_data *data = i2c_get_clientdata(client);
 
 	if (device_may_wakeup(dev))
 		enable_irq_wake(data->irq);
@@ -256,7 +288,8 @@ static int qt1070_suspend(struct device *dev)
 
 static int qt1070_resume(struct device *dev)
 {
-	struct qt1070_data *data = dev_get_drvdata(dev);
+	struct i2c_client *client = to_i2c_client(dev);
+	struct qt1070_data *data = i2c_get_clientdata(client);
 
 	if (device_may_wakeup(dev))
 		disable_irq_wake(data->irq);
@@ -268,16 +301,19 @@ static int qt1070_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
 
 static const struct i2c_device_id qt1070_id[] = {
-	{ "qt1070", 0 },
+	{ "atmel,qt1070", 0 },
 	{ },
 };
 MODULE_DEVICE_TABLE(i2c, qt1070_id);
+
+
 
 static struct i2c_driver qt1070_driver = {
 	.driver	= {
 		.name	= "qt1070",
 		.owner	= THIS_MODULE,
 		.pm	= &qt1070_pm_ops,
+		.of_match_table = qt1070_dt_ids,
 	},
 	.id_table	= qt1070_id,
 	.probe		= qt1070_probe,
