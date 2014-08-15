@@ -31,11 +31,20 @@
 			};
 
 			pwm0: pwm@f8034000 {
-				status = "okay";:q
+				status = "okay";
 			};
+     i2c0 {
+       at1070: qt1070@1b {
+       compatible = "atmel, qt1070";
+     reg = <0x1b>; 
+     gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
+     };
+  };
+
+
 		};
 	};
-
+  
 	bl_reg: backlight_regulator {
 		status = "okay";
 	};
