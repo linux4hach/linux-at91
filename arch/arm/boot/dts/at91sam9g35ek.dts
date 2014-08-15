@@ -39,7 +39,7 @@
        compatible = "atmel, qt1070";
        reg = <0x1b>; 
        gpio = <&pioA 7 GPIO_ACTIVE_LOW>;
-       status = "okay"
+       status = "okay";
      };
   };
 
