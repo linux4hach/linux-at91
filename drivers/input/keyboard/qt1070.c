@@ -58,6 +58,17 @@ static const unsigned short qt1070_key2code[] = {
 	KEY_4, KEY_5, KEY_6,
 };
 
+static const char * qt1070_key2name[] = {
+	"TAB",
+	"RETURN",
+	"A",
+	"B",
+	"KEY 4",
+	"KEY 5",
+	"KEY 6"
+}
+
+
 struct qt1070_data {
 	struct i2c_client *client;
 	struct input_dev *input;
