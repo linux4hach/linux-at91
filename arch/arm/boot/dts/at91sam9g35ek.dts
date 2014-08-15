@@ -31,7 +31,7 @@
 			};
 
 			pwm0: pwm@f8034000 {
-				status = "okay";
+				status = "okay";:q
 			};
 		};
 	};
@@ -51,4 +51,21 @@
 	panel: panel {
 		status = "okay";
 	};
+
+  /* use gpio input for keys */
+  gpio_keys {
+    compatible = "gpio-keys";
+    enter_key {
+       label = "Enter";
+       gpios = <&pioA 24 GPIO_ACTIVE_LOW>;
+       linux,code = <0x100>;
+       gpio-key,wakeup;
+    };
+    back_key {
+       label = "Back";
+       gpios = <&pioA 26 GPIO_ACTIVE_LOW>;
+       linux,code = <0x101>;
+       gpio-key,wakeup;
+    };
+  };  
 };
