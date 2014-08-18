@@ -156,7 +156,7 @@ static irqreturn_t qt1070_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 static const struct of_device_id qt1070_dt_ids[] = {
-         { .compatible = "atmel,qt1070", },
+         { .compatible = "qt1070", },
          { /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, qt1070_dt_ids);
@@ -301,7 +301,7 @@ static int qt1070_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
 
 static const struct i2c_device_id qt1070_id[] = {
-	{ "atmel,qt1070", 0 },
+	{ "qt1070", 0 },
 	{ },
 };
 MODULE_DEVICE_TABLE(i2c, qt1070_id);
