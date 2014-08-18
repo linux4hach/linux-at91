@@ -63,14 +63,12 @@
 				wm8731: wm8731@1a {
 					compatible = "wm8731";
 					reg = <0x1a>;
-          status = "okay";
 				}; 
         
         qt1070: qt1070@1b {
-                  compatible = "atmel, qt1070";
+                  compatible = "qt1070";
                   reg = <0x1b>;
-                  gpio = <&pioA 7 GPIO_ACTIVE_LOW>;
-                  status = "okay";
+                  gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
 			  };
       };
 

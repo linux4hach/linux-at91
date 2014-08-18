@@ -53,6 +53,10 @@
 	panel: panel {
 		status = "okay";
 	};
+  
+  rtc {
+    status = "okay";
+  };
 
      
 };
