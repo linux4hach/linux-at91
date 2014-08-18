@@ -56,12 +56,12 @@
 
 /* AT42QT1070 support up to 7 keys */
 static const unsigned short qt1070_key2code[] = {
-	KEY_TAB, KEY_RETURN, KEY_A, KEY_B,
+	KEY_TAB, KEY_ENTER, KEY_A, KEY_B,
 	KEY_4, KEY_5, KEY_6,
 };
 static const char * qt1070_key2name[] = {
 	"TAB", 
-	"RETURN",
+	"ENTER",
 	"A", 
 	"B",
 	"KEY 4",
