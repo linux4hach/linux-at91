@@ -31,7 +31,7 @@
 			};
 
 			pwm0: pwm@f8034000 {
-	/*			status = "okay";  */
+				status = "okay";
 			};
     };
 
@@ -47,7 +47,7 @@
 	};
 
 	backlight: backlight {
-/*		status = "okay"; */
+		status = "okay";
 	};
 
 	panel: panel {
