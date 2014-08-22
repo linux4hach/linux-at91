@@ -30,9 +30,9 @@
 				status = "okay";
 			};
 
-			pwm0: pwm@f8034000 {
-				status = "okay";
-			};
+/*			pwm0: pwm@f8034000 {
+				status = "okay";  
+			}; */
     };
 
 		};
