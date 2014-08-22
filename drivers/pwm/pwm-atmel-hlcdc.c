@@ -70,8 +70,8 @@ static int atmel_hlcdc_pwm_config(struct pwm_chip *c,
 		do_div(clk_period_ns, clk_freq);
 	}
 
-	for (pres = 0; pres <= ATMEL_HLCDC_PWMPS_MAX; pres++) {
-		if ((clk_period_ns << pres) >= period_ns)
+	for (pres = ATMEL_HLCDC_PWMPS_MAX; pres >= 0; pres--) {
+		if ((clk_period_ns << pres) <= period_ns)
 			break;
 	}
 
