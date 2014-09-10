@@ -128,7 +128,8 @@ static int atmel_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 			return -EINVAL;
 		}
 	}
-
+	/* Need to reduce the prescaler by 1 here */
+	pres--;
 	/* Calculate the duty cycles */
 	prd = div;
 	div *= duty_ns;
