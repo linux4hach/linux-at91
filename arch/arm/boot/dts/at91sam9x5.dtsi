@@ -1206,7 +1206,7 @@
 				compatible = "atmel,at91sam9x5-rtc";
 				reg = <0xfffffeb0 0x40>;
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-				status = "okay";
+				status = "disabled";
 			};
 
 			pwm0: pwm@f8034000 {

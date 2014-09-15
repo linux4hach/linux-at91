@@ -27,12 +27,12 @@
 			};
 
 			adc0: adc@f804c000 {
-				status = "disabled";
+				status = "okay";
 			};
 
-			pwm0: pwm@f8034000 {
+/*			pwm0: pwm@f8034000 {
 				status = "okay";  
-			}; 
+			}; */
     };
 
 		};
@@ -54,9 +54,5 @@
 		status = "okay";
 	};
   
-  rtc {
-    status = "okay";
-  };
-
      
 };
