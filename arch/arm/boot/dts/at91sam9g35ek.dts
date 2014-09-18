@@ -58,21 +58,21 @@
       debounce_interval = <50>;
       label = "button 0";
       gpios = <&pioC 16 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_TAB>;
+      linux,code = <15>;
       gpio-key,wakeup;
     };
    button_1 {
       debounce_interval = <50>;
       label = "button 1";
       gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_A>;
+      linux,code = <16>;
       gpio-key,wakeup;
     };
     button_2 {
       debounce_interval = <50>;
       label = "button 2";
       gpios = <&pioC 18 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_B>;
+      linux,code = <17>;
       gpio-key,wakeup;
     };
 
@@ -80,7 +80,7 @@
       debounce_interval = <50>;
       label = "button 3";
       gpios = <&pioC 19 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_C>;
+      linux,code = <19>;
       gpio-key,wakeup;
     };
 
@@ -88,28 +88,28 @@
       debounce_interval = <50>;
       label = "button 4";
       gpios = <&pioC 20 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_D>;
+      linux,code = <20>;
       gpio-key,wakeup;
     };
     button_5 {
       debounce_interval = <50>;
       label = "button 5";
       gpios = <&pioC 21 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_E>;
+      linux,code = <21>;
       gpio-key,wakeup;
     };
     button_6 {
       debounce_interval = <50>;
       label = "button 6";
       gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_F>;
+      linux,code = <22>;
       gpio-key,wakeup;
     };
     button_7 {
       debounce_interval = <50>;
       label = "button 7";
       gpios = <&pioC 23 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_E>;
+      linux,code = <24>;
       gpio-key,wakeup;
     };
     button_8 {
@@ -117,7 +117,7 @@
 
       label = "button 8";
       gpios = <&pioC 24 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_F>;
+      linux,code = <25>;
       gpio-key,wakeup;
     };
 
@@ -125,7 +125,7 @@
       debounce_interval = <50>;
       label = "button 9";
       gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
-      linux,code = <KEY_G>;
+      linux,code = <26>;
       gpio-key,wakeup;
     };
 
