@@ -58,21 +58,21 @@
 
       label = "button 0";
       gpios = <&pioC 16 GPIO_ACTIVE_LOW>;
-      linux,code = <256>;
+      linux,code = <KEY_TAB>;
       gpio-key,wakeup;
     };
    button_1 {
 
       label = "button 1";
       gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
-      linux,code = <257>;
+      linux,code = <KEY_A>;
       gpio-key,wakeup;
     };
     button_2 {
 
       label = "button 2";
       gpios = <&pioC 18 GPIO_ACTIVE_LOW>;
-      linux,code = <258>;
+      linux,code = <KEY_B>;
       gpio-key,wakeup;
     };
 
@@ -80,7 +80,7 @@
 
       label = "button 3";
       gpios = <&pioC 19 GPIO_ACTIVE_LOW>;
-      linux,code = <259>;
+      linux,code = <KEY_C>;
       gpio-key,wakeup;
     };
 
@@ -88,35 +88,35 @@
 
       label = "button 4";
       gpios = <&pioC 20 GPIO_ACTIVE_LOW>;
-      linux,code = <260>;
+      linux,code = <KEY_D>;
       gpio-key,wakeup;
     };
     button_5 {
 
       label = "button 5";
       gpios = <&pioC 21 GPIO_ACTIVE_LOW>;
-      linux,code = <261>;
+      linux,code = <KEY_E>;
       gpio-key,wakeup;
     };
     button_6 {
 
       label = "button 6";
       gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
-      linux,code = <262>;
+      linux,code = <KEY_F>;
       gpio-key,wakeup;
     };
     button_7 {
 
       label = "button 7";
       gpios = <&pioC 23 GPIO_ACTIVE_LOW>;
-      linux,code = <263>;
+      linux,code = <KEY_E>;
       gpio-key,wakeup;
     };
     button_8 {
 
       label = "button 8";
       gpios = <&pioC 24 GPIO_ACTIVE_LOW>;
-      linux,code = <264>;
+      linux,code = <KEY_F>;
       gpio-key,wakeup;
     };
 
@@ -124,7 +124,7 @@
 
       label = "button 9";
       gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
-      linux,code = <264>;
+      linux,code = <KEY_G>;
       gpio-key,wakeup;
     };
 
