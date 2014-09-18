@@ -63,7 +63,6 @@
     };
    button_1 {
       debounce_interval = <50>;
-
       label = "button 1";
       gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_A>;
@@ -71,7 +70,6 @@
     };
     button_2 {
       debounce_interval = <50>;
-
       label = "button 2";
       gpios = <&pioC 18 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_B>;
@@ -80,7 +78,6 @@
 
     button_3 {
       debounce_interval = <50>;
-
       label = "button 3";
       gpios = <&pioC 19 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_C>;
@@ -88,8 +85,7 @@
     };
 
     button_4 {
-     debounce_interval = <50>;
-
+      debounce_interval = <50>;
       label = "button 4";
       gpios = <&pioC 20 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_D>;
@@ -97,7 +93,6 @@
     };
     button_5 {
       debounce_interval = <50>;
-
       label = "button 5";
       gpios = <&pioC 21 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_E>;
@@ -105,7 +100,6 @@
     };
     button_6 {
       debounce_interval = <50>;
-
       label = "button 6";
       gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_F>;
@@ -113,7 +107,6 @@
     };
     button_7 {
       debounce_interval = <50>;
-
       label = "button 7";
       gpios = <&pioC 23 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_E>;
@@ -130,7 +123,6 @@
 
      button_9 {
       debounce_interval = <50>;
-
       label = "button 9";
       gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_G>;
