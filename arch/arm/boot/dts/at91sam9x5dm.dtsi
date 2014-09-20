@@ -8,14 +8,14 @@
  *
  * Licensed under GPLv2 or later.
  */
-
+#include "at91sam9x5_lcd.dtsi"
 / {
 	ahb {
 		apb {
 			hlcdc: hlcdc@f8038000 {
 				hlcdc-display-controller {
 					pinctrl-names = "default";
-					pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb888>;
+					pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb565>;
 
 					port@0 {
 						hlcdc_panel_output: endpoint@0 {
