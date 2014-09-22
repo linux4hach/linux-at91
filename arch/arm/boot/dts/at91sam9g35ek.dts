@@ -116,25 +116,10 @@
       debounce_interval = <50>;
 
       label = "button 8";
-      gpios = <&pioC 24 GPIO_ACTIVE_LOW>;
+      gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
       linux,code = <25>;
       gpio-key,wakeup;
     };
-
-     button_9 {
-      debounce_interval = <50>;
-      label = "button 9";
-      gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
-      linux,code = <26>;
-      gpio-key,wakeup;
-    };
-
-
-
-
-
-
-
 
 
   };
