@@ -27,7 +27,7 @@
 			};
 
 			adc0: adc@f804c000 {
-				status = "disabled";
+				status = "okay";
 			};
 
 			pwm0: pwm@f8034000 {
@@ -38,9 +38,8 @@
   			};
     		};
 
-	};
-
-  
+   	};
+ 
 	bl_reg: backlight_regulator {
 		status = "okay";
 	};
@@ -56,6 +55,80 @@
 	panel: panel {
 		status = "okay";
 	};
+
+
+  gpio_keys {
+    compatible = "gpio-keys";
+
+    button_0 {
+      debounce_interval = <50>;
+      label = "button 0";
+      gpios = <&pioC 16 GPIO_ACTIVE_LOW>;
+      linux,code = <15>;
+      gpio-key,wakeup;
+    };
+   button_1 {
+      debounce_interval = <50>;
+      label = "button 1";
+      gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
+      linux,code = <16>;
+      gpio-key,wakeup;
+    };
+    button_2 {
+      debounce_interval = <50>;
+      label = "button 2";
+      gpios = <&pioC 18 GPIO_ACTIVE_LOW>;
+      linux,code = <17>;
+      gpio-key,wakeup;
+    };
+
+    button_3 {
+      debounce_interval = <50>;
+      label = "button 3";
+      gpios = <&pioC 19 GPIO_ACTIVE_LOW>;
+      linux,code = <19>;
+      gpio-key,wakeup;
+    };
+
+    button_4 {
+      debounce_interval = <50>;
+      label = "button 4";
+      gpios = <&pioC 20 GPIO_ACTIVE_LOW>;
+      linux,code = <20>;
+      gpio-key,wakeup;
+    };
+    button_5 {
+      debounce_interval = <50>;
+      label = "button 5";
+      gpios = <&pioC 21 GPIO_ACTIVE_LOW>;
+      linux,code = <21>;
+      gpio-key,wakeup;
+    };
+    button_6 {
+      debounce_interval = <50>;
+      label = "button 6";
+      gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
+      linux,code = <22>;
+      gpio-key,wakeup;
+    };
+    button_7 {
+      debounce_interval = <50>;
+      label = "button 7";
+      gpios = <&pioC 23 GPIO_ACTIVE_LOW>;
+      linux,code = <24>;
+      gpio-key,wakeup;
+    };
+    button_8 {
+      debounce_interval = <50>;
+
+      label = "button 8";
+      gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
+      linux,code = <25>;
+      gpio-key,wakeup;
+    };
+
+
+  };
   
      
 };

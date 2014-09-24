@@ -8,7 +8,6 @@
  *
  * Licensed under GPLv2 or later.
  */
-
 / {
 	ahb {
 		apb {

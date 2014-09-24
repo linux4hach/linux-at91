@@ -111,6 +111,10 @@
 				status = "okay";
 			};
 
+      rtc@fffffeb0 {
+        status = "okay";
+      };
+
 			ssc0: ssc@f0010000 {
 				status = "okay";
 			};
