@@ -230,12 +230,12 @@ static void atmel_hlcdc_rgb_encoder_dpms(struct drm_encoder *encoder,
 		       !(status & ATMEL_HLCDC_PIXEL_CLK))
 			cpu_relax();
 
-
+		/*
 		regmap_write(regmap, ATMEL_HLCDC_EN, ATMEL_HLCDC_SYNC);
 		while (!regmap_read(regmap, ATMEL_HLCDC_SR, &status) &&
 		       !(status & ATMEL_HLCDC_SYNC))
 			cpu_relax();
-
+		*/
 		regmap_write(regmap, ATMEL_HLCDC_EN, ATMEL_HLCDC_DISP);
 		while (!regmap_read(regmap, ATMEL_HLCDC_SR, &status) &&
 		       !(status & ATMEL_HLCDC_DISP))

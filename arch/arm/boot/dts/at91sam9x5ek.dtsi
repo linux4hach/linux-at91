@@ -47,11 +47,11 @@
 			dbgu: serial@fffff200 {
 				status = "okay";
 			};
-
+			
 			usart0: serial@f801c000 {
-				status = "okay";
+				status = "disabled";
 			};
-
+			
 			usb2: gadget@f803c000 {
 				atmel,vbus-gpio = <&pioB 16 GPIO_ACTIVE_HIGH>;
 				status = "okay";
@@ -64,14 +64,15 @@
 					compatible = "wm8731";
 					reg = <0x1a>;
 				}; 
-        
-        qt1070: qt1070@1b {
-                  compatible = "qt1070";
-                  reg = <0x1b>;
-                  gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
-			  };
-      };
-
+                        /*
+        			qt1070: qt1070@1b {
+                  			compatible = "qt1070";
+                  			reg = <0x1b>;
+                  			gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
+			  	};
+			*/
+      			};
+			
 			pinctrl@fffff400 {
 				mmc0 {
 					pinctrl_board_mmc0: mmc0-board {
@@ -90,14 +91,22 @@
 
 			spi0: spi@f0000000 {
 				/*status = "okay";*/
-				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
+				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>; /* SPI0_NPCS0 */
 				m25p80@0 {
 					compatible = "atmel,at25df321a";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
 			};
-
+			spi1: spi@f0004000 {
+				status = "okay";
+				cs-gpios = <0>, <&pioA 0 0>, <0>, <0>; /* SPI1_NPCS1 */
+				LTC2498@1 {
+					compatible = "spidev";
+					spi-max-frequency = <50000000>;
+					reg = <0>;
+				};
+			};
 			watchdog@fffffe40 {
 				status = "okay";
 			};

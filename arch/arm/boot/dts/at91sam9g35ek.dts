@@ -33,9 +33,12 @@
 			pwm0: pwm@f8034000 {
 				status = "okay";  
 			}; 
-    };
+ 			rtc@fffffeb0 {
+    				status = "okay";
+  			};
+    		};
 
-		};
+	};
 
   
 	bl_reg: backlight_regulator {
@@ -54,9 +57,5 @@
 		status = "okay";
 	};
   
-  rtc {
-    status = "okay";
-  };
-
      
 };
