@@ -238,7 +238,10 @@ static int atmel_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 	}
 
 	atmel_pwm_writel(atmel_pwm, PWM_ENA, 1 << pwm->hwpwm);
-
+	while (!(atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm->hwpwm)) ) {
+		atmel_pwm_writel(atmel_pwm, PWM_ENA, 1 << pwm->hwpwm);	
+		cpu_relax();
+	}
 	return 0;
 }
 
@@ -247,7 +250,10 @@ static void atmel_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 	struct atmel_pwm_chip *atmel_pwm = to_atmel_pwm_chip(chip);
 
 	atmel_pwm_writel(atmel_pwm, PWM_DIS, 1 << pwm->hwpwm);
-
+	while (atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm->hwpwm)) {
+		atmel_pwm_writel(atmel_pwm, PWM_DIS, 1 << pwm->hwpwm);	
+		cpu_relax();
+	}	
 	clk_disable(atmel_pwm->clk);
 }
 
