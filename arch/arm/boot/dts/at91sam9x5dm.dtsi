@@ -38,7 +38,7 @@
 
 			pwm0: pwm@f8034000 {
 				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_pwm0_pwm0_0>;
+				pinctrl-0 = <&pinctrl_pwm0_pwm0_0 &pinctrl_pwm0_pwm1_0 &pinctrl_pwm0_pwm2_0 &pinctrl_pwm0_pwm3_0>;
 			};
 		};
 	};
