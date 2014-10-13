@@ -142,17 +142,6 @@
     };
 
 
-    /* Currently NOT WORKING */
-    button_9 {
-      debounce_interval = <50>;
-
-      label = "button 9";
-      gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
-      linux,code = <25>;
-      gpio-key,wakeup;
-    };
-
-
   };
   
      
