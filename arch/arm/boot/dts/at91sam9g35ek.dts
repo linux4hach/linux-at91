@@ -93,7 +93,7 @@
       debounce_interval = <50>;
       label = "button 3";
       gpios = <&pioC 19 GPIO_ACTIVE_LOW>;
-      linux,code = <19>;
+      linux,code = <18>;
       gpio-key,wakeup;
     };
 
@@ -102,7 +102,7 @@
       debounce_interval = <50>;
       label = "button 4";
       gpios = <&pioC 20 GPIO_ACTIVE_LOW>;
-      linux,code = <20>;
+      linux,code = <19>;
       gpio-key,wakeup;
     };
 
@@ -111,7 +111,7 @@
       debounce_interval = <50>;
       label = "button 5";
       gpios = <&pioC 21 GPIO_ACTIVE_LOW>;
-      linux,code = <21>;
+      linux,code = <20>;
       gpio-key,wakeup;
     };
 
@@ -120,7 +120,7 @@
       debounce_interval = <50>;
       label = "button 6";
       gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
-      linux,code = <22>;
+      linux,code = <21>;
       gpio-key,wakeup;
     };
 
@@ -132,6 +132,15 @@
       linux,code = <24>;
       gpio-key,wakeup;
     };
+  /* Currently KEY_O */
+    button_8 {
+      debounce_interval = <50>;
+      label = "button 8";
+      gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
+      linux,code = <25>;
+      gpio-key,wakeup;
+    };
+
 
 
     /* Currently NOT WORKING */
