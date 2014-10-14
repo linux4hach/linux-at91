@@ -70,13 +70,14 @@
       gpio-key,wakeup;
     };
 
-    /* Currently KEY_ENTER */
-    /* Keypad button is DIAG */
+    
+    /* Currently KEY_O */
+    /* Keypad button is ENTER */
   button_1 {
       debounce_interval = <50>;
       label = "button 1";
       gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
-      linux,code = <28>;
+      linux,code = <111>;
       gpio-key,wakeup;
     };
 
