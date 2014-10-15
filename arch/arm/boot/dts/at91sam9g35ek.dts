@@ -77,7 +77,7 @@
       debounce_interval = <50>;
       label = "button 1";
       gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
-      linux,code = <111>;
+      linux,code = <24>;
       gpio-key,wakeup;
     };
 
