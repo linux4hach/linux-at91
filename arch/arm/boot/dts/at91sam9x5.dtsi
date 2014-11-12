@@ -466,7 +466,10 @@
 						atmel,pins =
 							<AT91_PIOB 14 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PWM3 */
 					};
-
+					pinctrl_adc0_ad6: adc0_ad6 {
+						atmel,pins =
+							<AT91_PIOB 17 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; 
+					};
 					pinctrl_adc0_ad4_9: adc0_ad4_9 {
 						atmel,pins =
 							<AT91_PIOB 15 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
