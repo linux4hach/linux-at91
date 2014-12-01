@@ -1204,7 +1204,9 @@
 				atmel,watchdog-type = "hardware";
 				atmel,reset-type = "all";
 				atmel,dbg-halt;
+				/*
 				atmel,idle-halt;
+				*/
 				status = "disabled";
 			};
 
