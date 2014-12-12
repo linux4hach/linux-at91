@@ -46,7 +46,7 @@
 			nand-bus-width = <8>;
 			nand-ecc-mode = "hw";
 			atmel,has-pmecc;	/* Enable PMECC */
-			atmel,pmecc-cap = <2>;
+			atmel,pmecc-cap = <4>;
 			atmel,pmecc-sector-size = <512>;
 			nand-on-flash-bbt;
 			status = "okay";
