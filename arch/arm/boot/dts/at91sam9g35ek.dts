@@ -60,24 +60,21 @@
   gpio_keys {
     compatible = "gpio-keys";
 
-    /* Currently KEY_TAB */
     /* Keypad button is HOME */
     button_0 {
       debounce_interval = <50>;
       label = "button 0";
       gpios = <&pioC 16 GPIO_ACTIVE_LOW>;
-      linux,code = <15>;
+      linux,code = <102>;
       gpio-key,wakeup;
     };
 
-    
-    /* Currently KEY_O */
     /* Keypad button is ENTER */
   button_1 {
       debounce_interval = <50>;
       label = "button 1";
       gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
-      linux,code = <24>;
+      linux,code = <28>;
       gpio-key,wakeup;
     };
 
@@ -136,24 +133,24 @@
 
     /* Currently KEY_O */
     /* Keypad button MENU */
+
     button_7 {
       debounce_interval = <50>;
       label = "button 7";
-      gpios = <&pioC 24 GPIO_ACTIVE_LOW>;
+      gpios = <&pioC 23 GPIO_ACTIVE_LOW>;
       linux,code = <24>;
       gpio-key,wakeup;
     };
 
-  /* Currently NON FUNCTIONAL */
-  /* Keypad button  NON FUNCTIONAL */
+  /* Keypad button Back */
     button_8 {
       debounce_interval = <50>;
       label = "button 8";
+ 
       gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
-      linux,code = <25>;
+      linux,code = <1>;
       gpio-key,wakeup;
     };
-
 
   };
   
