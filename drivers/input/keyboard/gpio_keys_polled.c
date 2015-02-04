@@ -35,6 +35,7 @@ struct gpio_keys_button_data {
 	int count;
 	int threshold;
 	int can_sleep;
+	int cur_state;
 };
 
 struct gpio_keys_polled_dev {
@@ -55,14 +56,22 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
 	else
 		state = !!gpio_get_value(button->gpio);
 
-	if (state != bdata->last_state) {
-		unsigned int type = button->type ?: EV_KEY;
-
+	unsigned int type = button->type ?: EV_KEY;
+	if (state != bdata->last_state ) { 
+		//unsigned int type = button->type ?: EV_KEY;
+		bdata->cur_state = !!(state ^ button->active_low);
 		input_event(input, type, button->code,
-			    !!(state ^ button->active_low));
+			    bdata->cur_state);
 		input_sync(input);
 		bdata->count = 0;
 		bdata->last_state = state;
+
+	}
+	else if (bdata->cur_state) { //repeat key pressed
+		input_event(input, type, button->code, 2);
+		input_sync(input);
+		bdata->count = 0;
+
 	}
 }
 
