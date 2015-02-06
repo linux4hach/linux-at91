@@ -423,6 +423,32 @@ static const struct panel_desc nhd_4p3_480272ef_atxl = {
 	},
 	.bus_format = VIDEO_BUS_FMT_RGB565_1X16,
 };
+
+static const struct drm_display_mode az_4p3_480272ef_atxl_mode = {
+	.clock = 9000, //kHz
+	.hdisplay = 480,//width in pixels
+	.hsync_start = 480 + 5 ,
+	.hsync_end = 480 + 40 + 5,
+	.htotal = 480 + 50 ,
+	.vdisplay = 272,//height in pixels
+	.vsync_start = 272 + 8,
+	.vsync_end = 272 + 8 + 8,
+	.vtotal = 272 + 24,
+	.vrefresh = 60,
+};
+
+static const struct panel_desc az_4p3_480272ef_atxl = {
+	.modes = &az_4p3_480272ef_atxl_mode,
+	.num_modes = 1,
+	.size = {
+		.width = 98, //width in mm
+		.height = 57,//height in mm
+	},
+	.bus_format = VIDEO_BUS_FMT_RGB565_1X16,
+};
+
+
+
 static const struct drm_display_mode lg_lp129qe_mode = {
 	.clock = 285250,
 	.hdisplay = 2560,
@@ -483,6 +509,9 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "newhaven,nhd-4p3-480272ef-atxl",
 		.data = &nhd_4p3_480272ef_atxl,
+	}, {
+		.compatible = "az,az-4p3-480272ef-atxl",
+		.data = &az_4p3_480272ef_atxl,
 	}, {
 		.compatible = "lg,lp129qe",
 		.data = &lg_lp129qe,
