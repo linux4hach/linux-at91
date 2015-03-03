@@ -54,7 +54,7 @@
 				status = "okay";
 
 				wm8904: codec@1a {
-					compatible = "wm8904";
+					compatible = "wlf,wm8904";
 					reg = <0x1a>;
 					clocks = <&pck0>;
 					clock-names = "mclk";
@@ -68,10 +68,6 @@
 					pinctrl-names = "default";
 					pinctrl-0 = <&pinctrl_qt1070_irq>;
 				};
-			};
-
-			i2c1: i2c@f8014000 {
-				status = "okay";
 			};
 
 			mmc0: mmc@f0008000 {

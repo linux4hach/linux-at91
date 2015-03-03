@@ -9,6 +9,8 @@
 /dts-v1/;
 #include "sama5d36.dtsi"
 #include "sama5d3xmb.dtsi"
+#include "sama5d3xmb_audio.dtsi"
+#include "sama5d3xmb_isi_sensors.dtsi"
 #include "sama5d3xdm.dtsi"
 
 / {
@@ -29,10 +31,6 @@
 				status = "okay";
 			};
 
-			i2c0: i2c@f0014000 {
-				status = "okay";
-			};
-
 			i2c1: i2c@f0018000 {
 				status = "okay";
 			};
@@ -41,10 +39,30 @@
 				status = "okay";
 			};
 
+			hlcdc: hlcdc@f0030000 {
+				status = "okay";
+			};
+
 			macb1: ethernet@f802c000 {
 				status = "okay";
 			};
 		};
+	};
+
+	backlight: backlight {
+		status = "okay";
+	};
+
+	bl_reg: backlight_regulator {
+		status = "okay";
+	};
+
+	panel: panel {
+		status = "okay";
+	};
+
+	panel_reg: panel_regulator {
+		status = "okay";
 	};
 
 	sound {

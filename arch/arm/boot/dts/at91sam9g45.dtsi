@@ -438,6 +438,16 @@
 				      >;
 
 				/* shared pinctrl settings */
+				ac97 {
+					pinctrl_ac97: ac97-0 {
+						atmel,pins =
+							<AT91_PIOD 6 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PD6 periph A AC97_RX pin */
+							 AT91_PIOD 7 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PD7 periph A AC97_TX pin */
+							 AT91_PIOD 8 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PD8 periph A AC97_FS pin */
+							 AT91_PIOD 9 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PD9 periph A AC97_CK pin */
+					};
+				};
+
 				adc0 {
 					pinctrl_adc0_adtrg: adc0_adtrg {
 						atmel,pins = <AT91_PIOD 28 AT91_PERIPH_A AT91_PINCTRL_NONE>;
@@ -491,6 +501,36 @@
 							 AT91_PIOB 10 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PB10 periph A TWD1 */
 					};
 				};
+
+				isi {
+					pinctrl_isi_data_0_7: isi-0-data-0-7 {
+						atmel,pins =
+							<AT91_PIOB 20 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB20 periph A ISI_D0 */
+							 AT91_PIOB 21 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB21 periph A ISI_D1 */
+							 AT91_PIOB 22 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB22 periph A ISI_D2 */
+							 AT91_PIOB 23 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB23 periph A ISI_D3 */
+							 AT91_PIOB 24 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB24 periph A ISI_D4 */
+							 AT91_PIOB 25 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB25 periph A ISI_D5 */
+							 AT91_PIOB 26 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB26 periph A ISI_D6 */
+							 AT91_PIOB 27 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB27 periph A ISI_D7 */
+							 AT91_PIOB 28 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB28 periph A ISI_PCK */
+							 AT91_PIOB 29 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB29 periph A ISI_VSYNC */
+							 AT91_PIOB 30 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PB30 periph A ISI_HSYNC */
+					};
+
+					pinctrl_isi_data_8_9: isi-0-data-8-9 {
+						atmel,pins =
+							<AT91_PIOB 8 AT91_PERIPH_B AT91_PINCTRL_NONE	/* PB8 periph B ISI_D8, conflicts with TXD3 */
+							 AT91_PIOB 9 AT91_PERIPH_B AT91_PINCTRL_NONE>;	/* PB9 periph B ISI_D9, conflicts with RXD3 */
+					};
+
+					pinctrl_isi_data_10_11: isi-0-data-10-11 {
+						atmel,pins =
+							<AT91_PIOB 10 AT91_PERIPH_B AT91_PINCTRL_NONE	/* PB10 periph B ISI_D10, conflicts with TWD1 */
+							 AT91_PIOB 11 AT91_PERIPH_B AT91_PINCTRL_NONE>;	/* PB11 periph B ISI_D11, conflicts with TWCK1 */
+					};
+				};
+
 
 				usart0 {
 					pinctrl_usart0: usart0-0 {
@@ -1105,7 +1145,7 @@
 			usb2: gadget@fff78000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				compatible = "atmel,at91sam9rl-udc";
+				compatible = "atmel,at91sam9g45-udc";
 				reg = <0x00600000 0x80000
 				       0xfff78000 0x400>;
 				interrupts = <27 IRQ_TYPE_LEVEL_HIGH 0>;
@@ -1166,6 +1206,17 @@
 				};
 			};
 
+			ac97: sound@fffac000 {
+				compatible = "atmel,at91sam9263-ac97c";
+				reg = <0xfffac000 0x200>;
+				interrupts = <24 IRQ_TYPE_LEVEL_HIGH 5>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_ac97>;
+				clocks = <&ac97_clk>;
+				clock-names = "ac97_clk";
+				status = "disabled";
+			};
+
 			sckc@fffffd50 {
 				compatible = "atmel,at91sam9x5-sckc";
 				reg = <0xfffffd50 0x4>;
@@ -1192,10 +1243,24 @@
 				};
 			};
 
+			rtc@fffffd20 {
+				compatible = "atmel,at91sam9260-rtt";
+				reg = <0xfffffd20 0x10>;
+				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+				clocks = <&clk32k>;
+				status = "disabled";
+			};
+
 			rtc@fffffdb0 {
 				compatible = "atmel,at91rm9200-rtc";
 				reg = <0xfffffdb0 0x30>;
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+				status = "disabled";
+			};
+
+			gpbr: syscon@fffffd60 {
+				compatible = "atmel,at91sam9260-gpbr", "syscon";
+				reg = <0xfffffd60 0x10>;
 				status = "disabled";
 			};
 		};
@@ -1228,6 +1293,21 @@
 				 0
 				>;
 			status = "disabled";
+		};
+
+		isi: isi@fffb4000 {
+			compatible = "atmel,at91sam9g45-isi";
+			reg = <0xfffb4000 0x4000>;
+			interrupts = <26 IRQ_TYPE_LEVEL_HIGH 5>;
+			clocks = <&isi_clk>;
+			clock-names = "isi_clk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_isi_data_0_7>;
+			status = "disabled";
+			port {
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
 		};
 
 		usb0: ohci@00700000 {

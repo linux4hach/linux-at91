@@ -1,5 +1,6 @@
 /*
  * at91-sama5d4ek.dts - Device Tree file for SAMA5D4 Evaluation Kit
+ *                      EK with PDA TM70xx 7" LCD + touchscreen display
  *
  *  Copyright (C) 2014 Atmel,
  *                2014 Nicolas Ferre <nicolas.ferre@atmel.com>
@@ -9,12 +10,12 @@
  * licensing only applies to this file, and not this project as a
  * whole.
  *
- *  a) This library is free software; you can redistribute it and/or
+ *  a) This file is free software; you can redistribute it and/or
  *     modify it under the terms of the GNU General Public License as
  *     published by the Free Software Foundation; either version 2 of the
  *     License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
+ *     This file is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
@@ -78,23 +79,19 @@
 
 	ahb {
 		apb {
-			lcd_bus@f0000000 {
+			hlcdc: hlcdc@f0000000 {
 				status = "okay";
 
-				lcd@f0000000 {
-					status = "okay";
-				};
+				hlcdc-display-controller {
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb666>;
 
-				lcdovl1@f0000140 {
-					status = "okay";
-				};
-
-				lcdovl2@f0000240 {
-					status = "okay";
-				};
-
-				lcdheo1@f0000340 {
-					status = "okay";
+					port@0 {
+						hlcdc_panel_output: endpoint@0 {
+							reg = <0>;
+							remote-endpoint = <&panel_input>;
+						};
+					};
 				};
 			};
 
@@ -115,6 +112,10 @@
 				};
 			};
 
+			ssc0: ssc@f8008000 {
+				status = "okay";
+			};
+
 			spi0: spi@f8010000 {
 				cs-gpios = <&pioC 3 0>, <0>, <0>, <0>;
 				status = "okay";
@@ -127,6 +128,112 @@
 
 			i2c0: i2c@f8014000 {
 				status = "okay";
+
+				wm8904: codec@1a {
+					compatible = "wlf,wm8904";
+					reg = <0x1a>;
+					clocks = <&pck2>;
+					clock-names = "mclk";
+				};
+
+				qt1070:keyboard@1b {
+					compatible = "qt1070";
+					reg = <0x1b>;
+					interrupt-parent = <&pioE>;
+					interrupts = <25 0x0>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_qt1070_irq>;
+					wakeup-source;
+				};
+
+				ov2640: camera@0x30 {
+					compatible = "ovti,ov2640";
+					reg = <0x30>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_pck1_as_isi_mck &pinctrl_sensor_power &pinctrl_sensor_reset>;
+					resetb-gpios = <&pioB 11 GPIO_ACTIVE_LOW>;
+					pwdn-gpios = <&pioB 5 GPIO_ACTIVE_HIGH>;
+					clocks = <&pck1>;
+					clock-names = "xvclk";
+					assigned-clocks = <&pck1>;
+					assigned-clock-rates = <25000000>;
+
+					port {
+						ov2640_0: endpoint {
+							remote-endpoint = <&isi_0>;
+							bus-width = <8>;
+						};
+					};
+				};
+
+				ov5640: camera@0x3c {
+					compatible = "ovti,ov5642";
+					reg = <0x3c>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_pck1_as_isi_mck &pinctrl_sensor_power &pinctrl_sensor_reset>;
+					resetb-gpios = <&pioB 11 GPIO_ACTIVE_LOW>;
+					pwdn-gpios = <&pioB 5 GPIO_ACTIVE_HIGH>;
+					clocks = <&pck1>;
+					clock-names = "xvclk";
+					assigned-clocks = <&pck1>;
+					assigned-clock-rates = <25000000>;
+
+					port {
+						ov5640_0: endpoint {
+							remote-endpoint = <&isi_1>;
+							bus-width = <8>;
+						};
+					};
+				};
+
+				ov7740: camera@0x21 {
+					compatible = "ovti,ov7740";
+					reg = <0x21>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_pck1_as_isi_mck &pinctrl_sensor_power &pinctrl_sensor_reset>;
+					resetb-gpios = <&pioB 11 GPIO_ACTIVE_LOW>;
+					pwdn-gpios = <&pioB 5 GPIO_ACTIVE_HIGH>;
+					clocks = <&pck1>;
+					clock-names = "xvclk";
+					assigned-clocks = <&pck1>;
+					assigned-clock-rates = <25000000>;
+
+					port {
+						ov7740_0: endpoint {
+							remote-endpoint = <&isi_2>;
+							bus-width = <8>;
+						};
+					};
+				};
+
+				ov9740: camera@0x10 {
+					compatible = "ovti,ov9740";
+					reg = <0x10>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_pck1_as_isi_mck &pinctrl_sensor_power &pinctrl_sensor_reset>;
+					resetb-gpios = <&pioB 11 GPIO_ACTIVE_LOW>;
+					pwdn-gpios = <&pioB 5 GPIO_ACTIVE_HIGH>;
+					clocks = <&pck1>;
+					clock-names = "xvclk";
+					assigned-clocks = <&pck1>;
+					assigned-clock-rates = <25000000>;
+
+					port {
+						ov9740_0: endpoint {
+							remote-endpoint = <&isi_3>;
+							bus-width = <8>;
+						};
+					};
+				};
+
+				atmel_mxt_ts@4c {
+					compatible = "atmel,atmel_mxt_ts";
+					reg = <0x4c>;
+					interrupt-parent = <&pioE>;
+					interrupts = <24 0x0>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_mxt_ts>;
+				};
 			};
 
 			macb0: ethernet@f8020000 {
@@ -143,10 +250,6 @@
 					bus-width = <4>;
 					cd-gpios = <&pioE 6 0>;
 				};
-			};
-
-			usart2: serial@fc008000 {
-				status = "okay";
 			};
 
 			usart3: serial@fc00c000 {
@@ -171,6 +274,10 @@
 						atmel,pins =
 							<AT91_PIOE 6 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
 					};
+					pinctrl_mxt_ts: mxt_irq {
+						atmel,pins =
+							<AT91_PIOE 24 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
+					};
 					pinctrl_usba_vbus: usba_vbus {
 						atmel,pins =
 							<AT91_PIOE 31 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;
@@ -179,8 +286,32 @@
 						atmel,pins =
 							<AT91_PIOE 13 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PE13 gpio */
 					};
+					pinctrl_pck2_as_audio_mck: pck2_as_audio_mck {
+						atmel,pins =
+							<AT91_PIOB 10 AT91_PERIPH_B AT91_PINCTRL_NONE>;
+					};
+					pinctrl_pck1_as_isi_mck: pck1_as_isi_mck-0 {
+						atmel,pins =
+							<AT91_PIOC 4 AT91_PERIPH_C AT91_PINCTRL_NONE>;	/* PC4 periph C PCK1, conflicted with SPI0_NPCS1, MCI0_CK */
+					};
+					pinctrl_qt1070_irq: qt1070_irq {
+						atmel,pins =
+							<AT91_PIOE 25 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
+					};
+					pinctrl_sensor_reset: sensor_reset-0 {
+						atmel,pins =
+							<AT91_PIOB 11 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;   /* PB11 gpio */
+					};
+					pinctrl_sensor_power: sensor_power-0 {
+						atmel,pins =
+							<AT91_PIOB 5 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* PB5 gpio */
+					};
 				};
 			};
+		};
+
+		vdec0: vdec@00300000 {
+			status = "okay";
 		};
 
 		usb0: gadget@00400000 {
@@ -240,6 +371,48 @@
 				reg = <0x800000 0x0f800000>;
 			};
 		};
+
+		isi: isi@f0008000 {
+			status = "okay";
+			port {
+				isi_0: endpoint@0 {
+					remote-endpoint = <&ov2640_0>;
+					bus-width = <8>;
+				};
+
+				isi_1: endpoint@1 {
+					remote-endpoint = <&ov5640_0>;
+					bus-width = <8>;
+				};
+
+				isi_2: endpoint@2 {
+					remote-endpoint = <&ov7740_0>;
+					bus-width = <8>;
+				};
+
+				isi_3: endpoint@3 {
+					remote-endpoint = <&ov9740_0>;
+					bus-width = <8>;
+				};
+			};
+		};
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&hlcdc_pwm 0 50000 0>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <6>;
+		power-supply = <&bl_reg>;
+		status = "okay";
+	};
+
+	bl_reg: backlight_regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "backlight-power-supply";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		status = "okay";
 	};
 
 	gpio_keys {
@@ -256,5 +429,71 @@
 			linux,code = <0x100>;
 			gpio-key,wakeup;
 		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		status = "okay";
+
+		d8 {
+			label = "d8";
+			/* PE28, conflicts with usart4 rts pin */
+			gpios = <&pioE 28 GPIO_ACTIVE_LOW>;
+		};
+
+		d9 {
+			label = "d9";
+			gpios = <&pioE 9 GPIO_ACTIVE_HIGH>;
+		};
+
+		d10 {
+			label = "d10";
+			gpios = <&pioE 8 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "heartbeat";
+		};
+	};
+
+	panel: panel {
+		compatible = "shelly,sca07010-bfn-lnn", "simple-panel";
+		backlight = <&backlight>;
+		power-supply = <&panel_reg>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "okay";
+
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			panel_input: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&hlcdc_panel_output>;
+			};
+		};
+	};
+
+	panel_reg: panel_regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "panel-power-supply";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		status = "okay";
+	};
+
+	sound {
+		compatible = "atmel,asoc-wm8904";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pck2_as_audio_mck>;
+
+		atmel,model = "wm8904 @ SAMA5D4EK";
+		atmel,audio-routing =
+			"Headphone Jack", "HPOUTL",
+			"Headphone Jack", "HPOUTR",
+			"IN1L", "Line In Jack",
+			"IN1R", "Line In Jack";
+
+		atmel,ssc-controller = <&ssc0>;
+		atmel,audio-codec = <&wm8904>;
 	};
 };

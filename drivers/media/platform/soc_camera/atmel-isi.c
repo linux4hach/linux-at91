@@ -105,25 +105,25 @@ static u32 isi_readl(struct atmel_isi *isi, u32 reg)
 }
 
 static int configure_geometry(struct atmel_isi *isi, u32 width,
-			u32 height, enum v4l2_mbus_pixelcode code)
+			u32 height, u32 code)
 {
 	u32 cfg2, cr;
 
 	switch (code) {
 	/* YUV, including grey */
-	case V4L2_MBUS_FMT_Y8_1X8:
+	case MEDIA_BUS_FMT_Y8_1X8:
 		cr = ISI_CFG2_GRAYSCALE;
 		break;
-	case V4L2_MBUS_FMT_VYUY8_2X8:
+	case MEDIA_BUS_FMT_VYUY8_2X8:
 		cr = ISI_CFG2_YCC_SWAP_MODE_3;
 		break;
-	case V4L2_MBUS_FMT_UYVY8_2X8:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
 		cr = ISI_CFG2_YCC_SWAP_MODE_2;
 		break;
-	case V4L2_MBUS_FMT_YVYU8_2X8:
+	case MEDIA_BUS_FMT_YVYU8_2X8:
 		cr = ISI_CFG2_YCC_SWAP_MODE_1;
 		break;
-	case V4L2_MBUS_FMT_YUYV8_2X8:
+	case MEDIA_BUS_FMT_YUYV8_2X8:
 		cr = ISI_CFG2_YCC_SWAP_DEFAULT;
 		break;
 	/* RGB, TODO */
@@ -227,7 +227,7 @@ static int atmel_isi_wait_status(struct atmel_isi *isi, int wait_reset)
 	}
 
 	timeout = wait_for_completion_timeout(&isi->complete,
-			msecs_to_jiffies(100));
+			msecs_to_jiffies(500));
 	if (timeout == 0)
 		return -ETIMEDOUT;
 
@@ -645,7 +645,7 @@ static int isi_camera_get_formats(struct soc_camera_device *icd,
 	struct v4l2_subdev *sd = soc_camera_to_subdev(icd);
 	int formats = 0, ret;
 	/* sensor format */
-	enum v4l2_mbus_pixelcode code;
+	u32 code;
 	/* soc camera host format */
 	const struct soc_mbus_pixelfmt *fmt;
 
@@ -670,10 +670,10 @@ static int isi_camera_get_formats(struct soc_camera_device *icd,
 	}
 
 	switch (code) {
-	case V4L2_MBUS_FMT_UYVY8_2X8:
-	case V4L2_MBUS_FMT_VYUY8_2X8:
-	case V4L2_MBUS_FMT_YUYV8_2X8:
-	case V4L2_MBUS_FMT_YVYU8_2X8:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
+	case MEDIA_BUS_FMT_VYUY8_2X8:
+	case MEDIA_BUS_FMT_YUYV8_2X8:
+	case MEDIA_BUS_FMT_YVYU8_2X8:
 		formats++;
 		if (xlate) {
 			xlate->host_fmt	= &isi_camera_formats[0];
@@ -839,9 +839,16 @@ static int isi_camera_set_bus_param(struct soc_camera_device *icd)
 	if (isi->pdata.full_mode)
 		cfg1 |= ISI_CFG1_FULL_MODE;
 
+	cfg1 |= ISI_CFG1_THMASK_BEATS_16;
+
 	isi_writel(isi, ISI_CTRL, ISI_CTRL_DIS);
 	isi_writel(isi, ISI_CFG1, cfg1);
 
+	return 0;
+}
+
+static int isi_camera_set_parm(struct soc_camera_device *icd, struct v4l2_streamparm *parm)
+{
 	return 0;
 }
 
@@ -858,6 +865,8 @@ static struct soc_camera_host_ops isi_soc_camera_host_ops = {
 	.poll		= isi_camera_poll,
 	.querycap	= isi_camera_querycap,
 	.set_bus_param	= isi_camera_set_bus_param,
+	.set_parm	= isi_camera_set_parm,
+	.get_parm	= isi_camera_set_parm,
 };
 
 /* -----------------------------------------------------------------------*/
