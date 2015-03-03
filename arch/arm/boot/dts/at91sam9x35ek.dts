@@ -8,6 +8,7 @@
  */
 /dts-v1/;
 #include "at91sam9x35.dtsi"
+#include "at91sam9x5dm.dtsi"
 #include "at91sam9x5ek.dtsi"
 
 / {
@@ -16,15 +17,38 @@
 
 	ahb {
 		apb {
+			hlcdc: hlcdc@f8038000 {
+				status = "okay";
+			};
+
 			macb0: ethernet@f802c000 {
 				phy-mode = "rmii";
 				status = "okay";
 			};
 
-			spi0: spi@f0000000 {
-				/* mmc1 pins is conflicted with spi0 pins */
-				status = "disabled";
+			adc0: adc@f804c000 {
+				status = "okay";
+			};
+
+			pwm0: pwm@f8034000 {
+				status = "okay";
 			};
 		};
+	};
+
+	bl_reg: backlight_regulator {
+		status = "okay";
+	};
+
+	panel_reg: panel_regulator {
+		status = "okay";
+	};
+
+	backlight: backlight {
+		status = "okay";
+	};
+
+	panel: panel {
+		status = "okay";
 	};
 };

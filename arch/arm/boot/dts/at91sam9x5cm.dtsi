@@ -23,14 +23,12 @@
 		};
 	};
 
-	clocks {
-		slow_xtal {
-			clock-frequency = <32768>;
-		};
+	slow_xtal {
+		clock-frequency = <32768>;
+	};
 
-		main_xtal {
-			clock-frequency = <12000000>;
-		};
+	main_xtal {
+		clock-frequency = <12000000>;
 	};
 
 	ahb {
@@ -48,24 +46,36 @@
 			nand-bus-width = <8>;
 			nand-ecc-mode = "hw";
 			atmel,has-pmecc;	/* Enable PMECC */
-			atmel,pmecc-cap = <2>;
+			atmel,pmecc-cap = <4>;
 			atmel,pmecc-sector-size = <512>;
 			nand-on-flash-bbt;
 			status = "okay";
 
 			at91bootstrap@0 {
-				label = "at91bootstrap";
+				label = "bootstrap";
 				reg = <0x0 0x40000>;
 			};
 
 			uboot@40000 {
-				label = "u-boot";
+				label = "uboot";
 				reg = <0x40000 0x80000>;
 			};
 
 			ubootenv@c0000 {
-				label = "U-Boot Env";
-				reg = <0xc0000 0x140000>;
+				label = "env";
+				reg = <0xc0000 0x40000>;
+			};
+			ubootenv-redundant@100000 {
+				label = "env_redundant";
+				reg = <0x100000 0x40000>;
+			};
+			spare@140000 {
+				label = "spare";
+				reg = <0x140000 0x40000>;
+			};
+			dtb@180000 {
+				label = "dtb";
+				reg = <0x180000 0x80000>;
 			};
 
 			kernel@200000 {
@@ -75,11 +85,36 @@
 
 			rootfs@800000 {
 				label = "rootfs";
-				reg = <0x800000 0x1f800000>;
+				reg = <0x800000 0x6780000>;
+			};
+			dtb-backup@6F80000 {
+				label = "dtb-backup";
+				reg = <0x6F80000 0x80000>;
+			};
+			kernel-backup@7000000 {
+				label = "kernel-backup";
+				reg = <0x7000000 0x600000>;
+			};
+
+			rootfs-backup@7600000 {
+				label = "rootfs-backup";
+				reg = <0x7600000 0x6800000>;
+			};
+			eventlog@DE00000 {
+				label = "eventlog";
+				reg = <0xDE00000 0x200000>;
+			};
+			datalog@E000000 {
+				label = "datalog";
+				reg = <0xE000000 0x800000>;
+			};
+			diaglog@E800000 {
+				label = "diaglog";
+				reg = <0xE800000 0x1800000>;
 			};
 		};
 	};
-
+/*
 	leds {
 		compatible = "gpio-leds";
 
@@ -103,5 +138,5 @@
 		pinctrl-0 = <&pinctrl_1wire_cm>;
 		status = "okay";
 	};
-
+*/
 };
