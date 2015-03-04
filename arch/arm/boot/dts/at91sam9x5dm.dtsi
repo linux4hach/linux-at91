@@ -72,7 +72,7 @@
 	};
 
 	panel: panel {
-		compatible = "newhaven,nhd-4p3-480272ef-atxl", "simple-panel";
+		compatible = "az,az-4p3-480272ef-atxl", "simple-panel";
 		backlight = <&backlight>;
 		power-supply = <&panel_reg>;
 		#address-cells = <1>;
