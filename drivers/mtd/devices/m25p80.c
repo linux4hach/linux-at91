@@ -50,6 +50,7 @@
 #define	OPCODE_SE		0xd8	/* Sector erase (usually 64KiB) */
 #define	OPCODE_RDID		0x9f	/* Read JEDEC ID */
 #define	OPCODE_RDCR             0x35    /* Read configuration register */
+#define OPCODE_RDFSR		0x70	/* Read flag status register */
 
 /* 4-byte address opcodes - used on Spansion and some Macronix flashes. */
 #define	OPCODE_NORM_READ_4B	0x13	/* Read data bytes (low frequency) */
@@ -82,6 +83,9 @@
 
 #define SR_QUAD_EN_MX           0x40    /* Macronix Quad I/O */
 
+/* Flag Status Register bits */
+#define FSR_READY		0x80
+
 /* Configuration Register bits. */
 #define CR_QUAD_EN_SPAN		0x2     /* Spansion Quad I/O */
 
@@ -111,6 +115,10 @@ struct m25p {
 	u8			program_opcode;
 	u8			*command;
 	enum read_type		flash_read;
+	u8                      fsr_wait;
+	u32 			die_size;
+	u32                     sector_size;
+	u32                     n_sectors;
 };
 
 static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
@@ -139,6 +147,28 @@ static int read_sr(struct m25p *flash)
 
 	if (retval < 0) {
 		dev_err(&flash->spi->dev, "error %d reading SR\n",
+				(int) retval);
+		return retval;
+	}
+
+	return val;
+}
+/*
+ * Read the flag status register, returning its value in the location
+ * Return the status register value.
+ * Returns negative if error occurred.
+ */
+static int read_fsr(struct m25p *flash)
+{
+
+	ssize_t retval;
+	u8 code = OPCODE_RDFSR;
+	u8 val;
+
+	retval = spi_write_then_read(flash->spi, &code, 1, &val, 1);
+
+	if (retval < 0) {
+		dev_err(&flash->spi->dev, "error %d reading FSR\n",
 				(int) retval);
 		return retval;
 	}
@@ -235,7 +265,7 @@ static inline int set_4byte(struct m25p *flash, u32 jedec_id, int enable)
  * Service routine to read status register until ready, or timeout occurs.
  * Returns non-zero if error.
  */
-static int wait_till_ready(struct m25p *flash)
+static int wait_till_sr_ready(struct m25p *flash)
 {
 	unsigned long deadline;
 	int sr;
@@ -254,7 +284,47 @@ static int wait_till_ready(struct m25p *flash)
 
 	return 1;
 }
+/*
+ * Service routine to read flag status register until ready, or timeout occurs.
+ * Returns non-zero if error.
+ */
+static int wait_till_fsr_ready(struct m25p *flash)
+{
+	unsigned long deadline;
+	int sr;
+	int fsr;
 
+	deadline = jiffies + MAX_READY_WAIT_JIFFIES;
+
+	do {
+		cond_resched();
+
+		//sr = read_sr(flash);
+		//if (sr < 0) {
+		//	break;
+		//} else if (!(sr & SR_WIP)) 
+		{
+			fsr = read_fsr(flash);
+			if (fsr < 0)
+				break;
+			if (fsr & FSR_READY)
+				return 0;
+		}
+	} while (!time_after_eq(jiffies, deadline));
+
+	return 1;
+}
+
+static int wait_till_ready(struct m25p *flash)
+{
+	if (flash->fsr_wait) {
+		return wait_till_fsr_ready(flash);
+	}
+	else {
+		return wait_till_sr_ready(flash);
+	}
+
+}
 /*
  * Write status Register and configuration register with 2 bytes
  * The first byte will be written to the status register, while the
@@ -516,6 +586,7 @@ static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
 	struct spi_message m;
 	uint8_t opcode;
 	int dummy;
+	u32 die_offset, die_size;
 
 	pr_debug("%s: %s from 0x%08x, len %zd\n", dev_name(&flash->spi->dev),
 			__func__, (u32)from, len);
@@ -535,7 +606,7 @@ static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
 
 	t[1].rx_buf = buf;
 	t[1].rx_nbits = m25p80_rx_nbits(flash);
-	t[1].len = len;
+	//t[1].len = len;
 	spi_message_add_tail(&t[1], &m);
 
 	mutex_lock(&flash->lock);
@@ -552,9 +623,46 @@ static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
 	flash->command[0] = opcode;
 	m25p_addr2cmd(flash, from, flash->command);
 
-	spi_sync(flash->spi, &m);
+	die_offset = from & (flash->die_size - 1);
 
-	*retlen = m.actual_length - m25p_cmdsz(flash) - dummy;
+	/* do all the bytes fit into one die? */
+	if (die_offset + len <= flash->die_size) {
+		t[1].len = len;
+
+		spi_sync(flash->spi, &m);
+
+		*retlen = m.actual_length - m25p_cmdsz(flash) - dummy;
+	} else {
+		u32 i;
+
+		/* the size of data remaining on the first die */
+		die_size = flash->die_size - die_offset;
+
+		t[1].len = die_size;
+		spi_sync(flash->spi, &m);
+
+		*retlen = m.actual_length - m25p_cmdsz(flash) - dummy;
+
+		/* write everything in flash->die_size chunks */
+		for (i = die_size; i < len; i += die_size) {
+			die_size = len - i;
+			if (die_size > flash->die_size)
+				die_size = flash->die_size;
+
+			/* write the next die to flash */
+			m25p_addr2cmd(flash, from + i, flash->command);
+
+			t[1].rx_buf = buf + i;
+			t[1].len = die_size;
+
+			spi_sync(flash->spi, &m);
+
+			*retlen += m.actual_length - m25p_cmdsz(flash) - dummy;
+		}
+	}
+	//spi_sync(flash->spi, &m);
+
+	//*retlen = m.actual_length - m25p_cmdsz(flash) - dummy;
 
 	mutex_unlock(&flash->lock);
 
@@ -830,7 +938,91 @@ static int m25p80_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 err:	mutex_unlock(&flash->lock);
 	return res;
 }
+static int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	struct m25p *flash = mtd_to_m25p(mtd);
+	u8 TB, BP, SR;
+	u32 i, start_sector,protected_area;
+	u32 sector_size, num_of_sectors;
+	int res = 0;
+	uint32_t address = ofs;
 
+	mutex_lock(&flash->lock);
+	/* Wait until finished previous command */
+	if (wait_till_ready(flash)) {
+		res = 1;
+		goto err;
+	}
+
+	sector_size = flash->sector_size;
+	num_of_sectors = flash->n_sectors;
+
+	start_sector = address / sector_size;
+	//protected_area = len / sector_size;
+	//64 bit division
+	do_div(len, sector_size);
+	protected_area = len;
+	
+	if (protected_area == 0 ) {
+		res = 1;
+		goto err;
+	}
+
+	//protect the lower sectors if the start sector is 0, otherwise start the protection from the upper sectors
+	if (start_sector < num_of_sectors/2) {
+		TB = 1;
+	}
+	else {
+		TB = 0;
+	}
+
+	BP = 1;
+	for (i = 1; i <= num_of_sectors/2; i = i*2) {
+		//over protection if the number of protected sectors is not a multiple of 2
+		//all sectors are protected if the number of protected sectors is geater than the half of total sectors
+		if (protected_area <= i) {
+			break;	
+		}
+		BP++;		
+	}
+
+	//set the status register
+	SR = (((BP & 8) >> 3) << 6) | (TB << 5) | ((BP & 7) << 2);
+	
+	//enable the write
+	write_enable(flash);
+	
+	//write the status register
+	if (write_sr(flash, SR) < 0) {
+		res = 1;
+		goto err;
+	}
+
+err:	mutex_unlock(&flash->lock);
+	return res;
+}
+static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	struct m25p *flash = mtd_to_m25p(mtd);
+	//uint32_t offset = ofs;
+	int res = 0;
+
+	mutex_lock(&flash->lock);
+	/* Wait until finished previous command */
+	if (wait_till_ready(flash)) {
+		res = 1;
+		goto err;
+	}
+	//enable the write
+	write_enable(flash);
+	//write 0 to the status register to unlock all sectors
+	if (write_sr(flash, 0) < 0) {
+		res = 1;
+		goto err;
+	}
+err:	mutex_unlock(&flash->lock);
+	return res;
+}
 /****************************************************************************/
 
 /*
@@ -855,6 +1047,7 @@ struct flash_info {
 	u16		addr_width;
 
 	u16		flags;
+	u16             n_die;
 #define	SECT_4K		0x01		/* OPCODE_BE_4K works uniformly */
 #define	M25P_NO_ERASE	0x02		/* No erase command needed */
 #define	SST_WRITE	0x04		/* use SST byte programming */
@@ -862,6 +1055,7 @@ struct flash_info {
 #define	SECT_4K_PMC	0x10		/* OPCODE_BE_4K_PMC works uniformly */
 #define	M25P80_DUAL_READ	0x20    /* Flash supports Dual Read */
 #define	M25P80_QUAD_READ	0x40    /* Flash supports Quad Read */
+#define	USE_FSR			0x80	/* use flag status register */
 };
 
 #define INFO(_jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
@@ -872,6 +1066,7 @@ struct flash_info {
 		.n_sectors = (_n_sectors),				\
 		.page_size = 256,					\
 		.flags = (_flags),					\
+		.n_die = 1,                                             \
 	})
 
 #define CAT25_INFO(_sector_size, _n_sectors, _page_size, _addr_width, _flags)	\
@@ -881,6 +1076,17 @@ struct flash_info {
 		.page_size = (_page_size),				\
 		.addr_width = (_addr_width),				\
 		.flags = (_flags),					\
+		.n_die = 1,                                             \
+	})
+#define DIE_INFO(_jedec_id, _ext_id, _sector_size, _n_sectors, _flags, _n_die)	\
+	((kernel_ulong_t)&(struct flash_info) {				\
+		.jedec_id = (_jedec_id),				\
+		.ext_id = (_ext_id),					\
+		.sector_size = (_sector_size),				\
+		.n_sectors = (_n_sectors),				\
+		.page_size = 256,					\
+		.flags = (_flags),					\
+		.n_die = (_n_die),                                      \
 	})
 
 /* NOTE: double check command sets and memory organization when you add
@@ -998,6 +1204,7 @@ static const struct spi_device_id m25p_ids[] = {
 	{ "m25p64",  INFO(0x202017,  0,  64 * 1024, 128, 0) },
 	{ "m25p128", INFO(0x202018,  0, 256 * 1024,  64, 0) },
 	{ "n25q032", INFO(0x20ba16,  0,  64 * 1024,  64, 0) },
+	{ "n25q00",  DIE_INFO(0x20ba21,  0,  64 * 1024,  2048, USE_FSR, 4) },
 
 	{ "m25p05-nonjedec",  INFO(0, 0,  32 * 1024,   2, 0) },
 	{ "m25p10-nonjedec",  INFO(0, 0,  32 * 1024,   4, 0) },
@@ -1104,7 +1311,7 @@ static int m25p_probe(struct spi_device *spi)
 	struct mtd_part_parser_data	ppdata;
 	struct device_node *np = spi->dev.of_node;
 	int ret;
-
+	uint64_t size;
 	/* Platform data helps sort out which chip type we have, as
 	 * well as how this board partitions it.  If we don't have
 	 * a chip ID, try the JEDEC id commands; they'll work for most
@@ -1185,11 +1392,24 @@ static int m25p_probe(struct spi_device *spi)
 	flash->mtd.size = info->sector_size * info->n_sectors;
 	flash->mtd._erase = m25p80_erase;
 	flash->mtd._read = m25p80_read;
+	flash->fsr_wait = 0;
+	size = flash->mtd.size;
+	do_div(size,info->n_die);
+	flash->die_size = size;
+	flash->sector_size = info->sector_size;
+	flash->n_sectors = info->n_sectors;
 
 	/* flash protection support for STmicro chips */
 	if (JEDEC_MFR(info->jedec_id) == CFI_MFR_ST) {
-		flash->mtd._lock = m25p80_lock;
-		flash->mtd._unlock = m25p80_unlock;
+		if (info->flags & USE_FSR) {
+			flash->mtd._lock = micron_lock;
+			flash->mtd._unlock = micron_unlock; 
+
+		}
+		else {
+			flash->mtd._lock = m25p80_lock;
+			flash->mtd._unlock = m25p80_unlock;
+		}
 	}
 
 	/* sst flash chips use AAI word program */
@@ -1197,6 +1417,9 @@ static int m25p_probe(struct spi_device *spi)
 		flash->mtd._write = sst_write;
 	else
 		flash->mtd._write = m25p80_write;
+
+	if (info->flags & USE_FSR)
+		flash->fsr_wait = 1;
 
 	/* prefer "small sector" erase if possible */
 	if (info->flags & SECT_4K) {

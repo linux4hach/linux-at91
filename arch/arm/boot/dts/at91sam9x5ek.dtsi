@@ -103,7 +103,7 @@
 				cs-gpios = <0>, <&pioA 0 0>, <0>, <0>; /* SPI1_NPCS1 */
 				LTC2498@1 {
 					compatible = "spidev";
-					spi-max-frequency = <2000000>;
+					spi-max-frequency = <4000000>;
 					reg = <1>;
 				};
 			};
