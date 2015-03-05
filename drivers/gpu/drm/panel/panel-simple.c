@@ -548,6 +548,31 @@ static const struct panel_desc foxlink_fl500wvr00_a0t = {
 	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
 };
 
+
+static const struct drm_display_mode nhd_4p3_480272ef_atxl_mode = {
+	.clock = 9000, //kHz
+	.hdisplay = 480, //width in pixels
+	.hsync_start = 480 + 2 ,
+	.hsync_end = 480 + 41 + 2,
+	.htotal = 480 + 45 ,
+	.vdisplay = 272, //height in pixels
+	.vsync_start = 272 + 2,
+	.vsync_end = 272 + 10 + 2,
+	.vtotal = 272 + 14,
+	.vrefresh = 60,
+};
+
+static const struct panel_desc nhd_4p3_480272ef_atxl = {
+	.modes = &nhd_4p3_480272ef_atxl_mode,
+	.num_modes = 1,
+	.size = {
+		.width = 98, // width in mm
+		.height = 57, //height in mm
+	},
+	.bus_format = VIDEO_BUS_FMT_RGB565_1X16,
+};
+
+
 static const struct drm_display_mode innolux_at043tn24_mode = {
 	.clock = 9000,
 	.hdisplay = 480,
@@ -721,7 +746,10 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "foxlink,fl500wvr00-a0t",
 		.data = &foxlink_fl500wvr00_a0t,
-	}, {
+	},  {
+	    .compatible = "newhaven,nhd-4p3-480272ef-atxl", 
+		.data = &nhd_4p3_480272ef_atxl,
+	},	{
 		.compatible = "innolux,at043tn24",
 		.data = &innolux_at043tn24,
 	}, {
