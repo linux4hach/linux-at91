@@ -50,18 +50,16 @@
 		reg = <0x20000000 0x10000000>;
 	};
 
-	clocks {
-		slow_xtal: slow_xtal {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <0>;
-		};
+	slow_xtal: slow_xtal {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <0>;
+	};
 
-		main_xtal: main_xtal {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <0>;
-		};
+	main_xtal: main_xtal {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <0>;
 	};
 
 	ahb {
@@ -87,8 +85,6 @@
 			ramc0: ramc@ffffe800 {
 				compatible = "atmel,at91sam9g45-ddramc";
 				reg = <0xffffe800 0x200>;
-				clocks = <&ddrck>;
-				clock-names = "ddrck";
 			};
 
 			pmc: pmc@fffffc00 {
@@ -136,8 +132,8 @@
 								      <595000000 650000000 3 0>,
 								      <545000000 600000000 0 1>,
 								      <495000000 555000000 1 1>,
-								      <445000000 500000000 2 1>,
-								      <400000000 450000000 3 1>;
+								      <445000000 500000000 1 2>,
+								      <400000000 450000000 1 3>;
 				};
 
 				plladiv: plladivck {

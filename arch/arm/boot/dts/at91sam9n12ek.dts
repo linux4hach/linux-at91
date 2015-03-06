@@ -21,6 +21,14 @@
 		reg = <0x20000000 0x8000000>;
 	};
 
+	slow_xtal {
+		clock-frequency = <32768>;
+	};
+
+	main_xtal {
+		clock-frequency = <16000000>;
+	};
+
 	clocks {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -28,14 +36,6 @@
 
 		main_clock: clock@0 {
 			compatible = "atmel,osc", "fixed-clock";
-			clock-frequency = <16000000>;
-		};
-
-		slow_xtal {
-			clock-frequency = <32768>;
-		};
-
-		main_xtal {
 			clock-frequency = <16000000>;
 		};
 	};
@@ -54,7 +54,7 @@
 				status = "okay";
 
 				wm8904: codec@1a {
-					compatible = "wlf,wm8904";
+					compatible = "wm8904";
 					reg = <0x1a>;
 					clocks = <&pck0>;
 					clock-names = "mclk";
@@ -68,6 +68,10 @@
 					pinctrl-names = "default";
 					pinctrl-0 = <&pinctrl_qt1070_irq>;
 				};
+			};
+
+			i2c1: i2c@f8014000 {
+				status = "okay";
 			};
 
 			mmc0: mmc@f0008000 {
@@ -132,8 +136,6 @@
 		};
 
 		usb0: ohci@00500000 {
-			num-ports = <1>;
-			atmel,vbus-gpio = <&pioB 7 GPIO_ACTIVE_LOW>;
 			status = "okay";
 		};
 	};
