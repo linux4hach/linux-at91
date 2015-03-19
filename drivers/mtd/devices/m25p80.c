@@ -333,29 +333,28 @@ static int wait_till_ready(struct m25p *flash)
  * Reset the device.
  */
 static int reset_device(struct m25p *flash)
-{
-	
+{	
+
 	/* Wait until finished previous command */
-	if (wait_till_ready(flash)) {
+	if (wait_till_ready(flash))
 		return 1;
-	}
+
+	/*
+	// first exit the 4-byte mode 
 	write_enable(flash);
-	/* first exit the 4-byte mode */
 	flash->command[0] = OPCODE_EX4B;
 	spi_write(flash->spi, flash->command, 1);
 	flash->addr_width = 3;
 	if (wait_till_ready(flash)) {
 		return 1;
 	}
+	*/
 	/* send reset enable command followed by the reset memory command */
-
 	flash->command[0] = OPCODE_RESET_ENABLE;
 	spi_write(flash->spi, flash->command, 1);
 	cond_resched();
 	flash->command[0] = OPCODE_RESET_MEMORY;
 	spi_write(flash->spi, flash->command, 1);
-
-	wait_till_ready(flash);
 	
 	return 0;
 }
@@ -1043,20 +1042,25 @@ static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	int res = 0;
 	u32 start_sector,unprotected_area;
 	u32 sector_size;
-	u8 id[5];
+
+	sector_size = flash->sector_size;
+	start_sector = address / sector_size;
+	//64 bit division
+	do_div(len, sector_size);
+	unprotected_area = len;
+
+	if (start_sector == 0 && unprotected_area == 1) {
+		printk("spi: reset the chip...\n");
+		res = reset_device(flash);
+		return res;
+	}
 	mutex_lock(&flash->lock);
 	/* Wait until finished previous command */
 	if (wait_till_ready(flash)) {
 		res = 1;
 		goto err;
 	}
-	sector_size = flash->sector_size;
 
-	start_sector = address / sector_size;
-
-	//64 bit division
-	do_div(len, sector_size);
-	unprotected_area = len;
 	//enable the write
 	write_enable(flash);
 	//write 0 to the status register to unlock all sectors
@@ -1065,11 +1069,6 @@ static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 		goto err;
 	}
 
-	if (start_sector == 0 && unprotected_area == 1) {
-		printk("spi: reset the chip...\n");
-		reset_device(flash);
-
-	}
 err:	mutex_unlock(&flash->lock);
 	return res;
 }
