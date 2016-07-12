@@ -50,7 +50,7 @@
 			};
 
 			usart0: serial@f801c000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			usb2: gadget@f803c000 {
