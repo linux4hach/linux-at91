@@ -706,7 +706,7 @@ static const struct panel_desc nhd_4p3_480272ef_atx1 = {
 		.height = 47, //height in mm
 	},
 
-	.bus_format = MEDIA_BUS_FMT_RGB565_1x16,
+	.bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
 
