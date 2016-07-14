@@ -17,29 +17,38 @@
 
 	ahb {
 		apb {
+			hlcdc: hlcdc@f8038000 {
+				status = "okay";
+			};
+
 			macb0: ethernet@f802c000 {
 				phy-mode = "rmii";
 				status = "okay";
 			};
-			hlcdc: hlcdc@f8038000 {
+
+			adc0: adc@f804c000 {
+				status = "okay";
+			};
+
+			pwm0: pwm@f8034000 {
 				status = "okay";
 			};
 		};
-	};
-
-	backlight: backlight {
-		status = "okay";
 	};
 
 	bl_reg: backlight_regulator {
 		status = "okay";
 	};
 
-	panel: panel {
+	panel_reg: panel_regulator {
 		status = "okay";
 	};
 
-	panel_reg: panel_regulator {
+	backlight: backlight {
+		status = "okay";
+	};
+
+	panel: panel {
 		status = "okay";
 	};
 };
