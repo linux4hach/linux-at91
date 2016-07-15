@@ -472,8 +472,6 @@
 					bias-disable;
 				};
 
-<<<<<<< HEAD
-=======
 				pinctrl_pdmic_default: pdmic_default {
 					pinmux = <PIN_PB26__PDMIC_DAT>,
 						<PIN_PB27__PDMIC_CLK>;
@@ -496,7 +494,6 @@
 					};
 				};
 
->>>>>>> upstream/linux-4.4-at91
 				pinctrl_sdmmc0_default: sdmmc0_default {
 					cmd_data {
 						pinmux = <PIN_PA1__SDMMC0_CMD>,
@@ -567,8 +564,6 @@
 					bias-disable;
 				};
 
-<<<<<<< HEAD
-=======
 			};
 
 			classd: classd@fc048000 {
@@ -583,7 +578,6 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_can1_default>;
 				status = "okay";
->>>>>>> upstream/linux-4.4-at91
 			};
 		};
 	};
