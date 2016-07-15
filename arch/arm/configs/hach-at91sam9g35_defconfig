@@ -440,7 +440,7 @@ CONFIG_AUTO_ZRELADDR=y
 #
 # At least one emulation must be selected
 #
-# CONFIG_VFP is not set
+CONFIG_VFP=y
 
 #
 # Userspace binary formats
