@@ -1049,6 +1049,8 @@
 				atmel,adc-res = <8 10>;
 				atmel,adc-res-names = "lowres", "highres";
 				atmel,adc-use-res = "highres";
+        pinctrl-names="default;
+        pinctrl-0 = <&pinctrl_adc0_ad6>;
         /*
 				trigger@0 {
 					reg = <0>;
