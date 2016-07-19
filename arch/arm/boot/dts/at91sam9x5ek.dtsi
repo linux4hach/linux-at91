@@ -52,14 +52,12 @@
 			usart0: serial@f801c000 {
 				status = "okay";
 			};
-/*
 			usb2: gadget@f803c000 {
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_board_usb2>;
 				atmel,vbus-gpio = <&pioB 16 GPIO_ACTIVE_HIGH>;
 				status = "disable";
 			};
-*/
 			isi: isi@f8048000 {
 				status = "disabled";
 				port {
