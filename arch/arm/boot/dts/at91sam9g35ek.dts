@@ -25,7 +25,10 @@
 			hlcdc: hlcdc@f8038000 {
 				status = "okay";
 			};
-pwm0: pwm@f8034000 {
+     pwm0: pwm@f8034000 {
+        status = "okay";
+      };
+adc0: adc@f804c000 {
         status = "okay";
       };
 		};
