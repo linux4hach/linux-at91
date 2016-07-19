@@ -79,8 +79,6 @@
       };
 
 
-
-
 			kernel@200000 {
 				label = "kernel";
 				reg = <0x200000 0x600000>;
@@ -90,6 +88,33 @@
 				label = "rootfs";
 				reg = <0x800000 0x1f800000>;
 			};
+
+			dtb-backup@6F80000 {
+				label = "dtb-backup";
+				reg = <0x6F80000 0x80000>;
+			};
+			kernel-backup@7000000 {
+				label = "kernel-backup";
+				reg = <0x7000000 0x600000>;
+			};
+
+			rootfs-backup@7600000 {
+				label = "rootfs-backup";
+				reg = <0x7600000 0x6800000>;
+			};
+			eventlog@DE00000 {
+				label = "eventlog";
+				reg = <0xDE00000 0x200000>;
+			};
+			datalog@E000000 {
+				label = "datalog";
+				reg = <0xE000000 0x800000>;
+			};
+			diaglog@E800000 {
+				label = "diaglog";
+				reg = <0xE800000 0x1800000>;
+			};
+
 		};
 	};
 
