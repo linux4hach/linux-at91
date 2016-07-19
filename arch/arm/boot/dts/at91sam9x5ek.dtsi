@@ -154,7 +154,7 @@
 				m25p80@0 {
           
 				/*	compatible = "atmel,at25df321a"; */
-          compatible - "Micron,n25q000"
+          compatible - "jedec,spi-nor"
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
