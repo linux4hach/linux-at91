@@ -1039,15 +1039,17 @@
 				clocks = <&adc_clk>,
 					 <&adc_op_clk>;
 				clock-names = "adc_clk", "adc_op_clk";
+        /*
 				atmel,adc-use-external-triggers;
-				atmel,adc-channels-used = <0xffff>;
+        */	
+        atmel,adc-channels-used = <0xffff>;
 				atmel,adc-vref = <3300>;
 				atmel,adc-startup-time = <40>;
 				atmel,adc-sample-hold-time = <11>;
 				atmel,adc-res = <8 10>;
 				atmel,adc-res-names = "lowres", "highres";
 				atmel,adc-use-res = "highres";
-
+        /*
 				trigger@0 {
 					reg = <0>;
 					trigger-name = "external-rising";
@@ -1075,7 +1077,7 @@
 					trigger-value = <0x6>;
 				};
 			};
-
+*/
 			spi0: spi@f0000000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
