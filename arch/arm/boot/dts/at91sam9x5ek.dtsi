@@ -169,7 +169,7 @@
 				status = "okay";
 			};
 		};
-/*
+    /*
 		usb0: ohci@00600000 {
 			status = "okay";
 			num-ports = <3>;
@@ -182,7 +182,6 @@
 		usb1: ehci@00700000 {
 			status = "okay";
 		};
-
 */
   };
 
