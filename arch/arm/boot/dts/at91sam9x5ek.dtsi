@@ -148,6 +148,18 @@
 				};
 			};
 
+      LTC2498@1 {
+
+        compatible = "spidev";
+        spi-max-frequency = <4000000>;
+        reg = <1>;
+      };
+
+
+
+
+
+      }
 			spi0: spi@f0000000 {
 				status = "okay";
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
