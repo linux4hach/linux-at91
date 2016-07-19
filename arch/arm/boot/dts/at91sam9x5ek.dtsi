@@ -159,6 +159,7 @@
 			};
 
 			watchdog@fffffe40 {
+        timeout-sec = <30>; /* 30 seconds */
 				status = "okay";
 			};
 
