@@ -1078,8 +1078,9 @@
 					trigger-name = "continuous";
 					trigger-value = <0x6>;
 				};
-			};
+
 */
+			};
 			spi0: spi@f0000000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
