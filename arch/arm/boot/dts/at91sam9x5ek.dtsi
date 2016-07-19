@@ -156,10 +156,7 @@
       };
 
 
-
-
-
-      }
+      };
 			spi0: spi@f0000000 {
 				status = "okay";
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
@@ -180,18 +177,21 @@
 			};
 		};
 
+  /*
 		usb0: ohci@00600000 {
 			status = "okay";
 			num-ports = <3>;
 			atmel,vbus-gpio = <0 /* &pioD 18 GPIO_ACTIVE_LOW *//* Activate to have access to port A */
-					   &pioD 19 GPIO_ACTIVE_LOW
+		/*			   &pioD 19 GPIO_ACTIVE_LOW
 					   &pioD 20 GPIO_ACTIVE_LOW
 					  >;
 		};
-
+    */
+/*
 		usb1: ehci@00700000 {
 			status = "okay";
 		};
+          */
 	};
 
 	sound {
