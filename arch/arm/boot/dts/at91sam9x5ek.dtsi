@@ -152,16 +152,13 @@
 				status = "okay";
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
-          
-				/*	compatible = "atmel,at25df321a"; */
-          compatible - "jedec,spi-nor"
+					compatible = "atmel,at25df321a";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
 			};
 
 			watchdog@fffffe40 {
-        timeout-sec = <30>; /* 30 seconds */
 				status = "okay";
 			};
 
@@ -169,7 +166,7 @@
 				status = "okay";
 			};
 		};
-    /*
+
 		usb0: ohci@00600000 {
 			status = "okay";
 			num-ports = <3>;
@@ -182,9 +179,7 @@
 		usb1: ehci@00700000 {
 			status = "okay";
 		};
-*/
-  };
-
+	};
 
 	sound {
 		compatible = "atmel,sam9x5-wm8731-audio";
