@@ -159,6 +159,18 @@
 				};
 			};
 
+spi1:spi@f0004000 {
+       status = "okay";
+       cs-gpios = <0>, <&pioA 0 0>, <0>, <0>;
+       LTC2498@1 {
+         compatible = "spidev";
+         spi-max-frequency = <4000000>;
+         reg = <1>;
+       };
+     };
+
+
+
 			watchdog@fffffe40 {
 				status = "okay";
 			};
@@ -167,11 +179,11 @@
 				status = "okay";
 			};
 		};
-
+/*
 		usb0: ohci@00600000 {
 			status = "disabled";
 			num-ports = <3>;
-			atmel,vbus-gpio = <0 /* &pioD 18 GPIO_ACTIVE_LOW *//* Activate to have access to port A */
+			atmel,vbus-gpio = <0 
 					   &pioD 19 GPIO_ACTIVE_LOW
 					   &pioD 20 GPIO_ACTIVE_LOW
 					  >;
@@ -180,6 +192,7 @@
 		usb1: ehci@00700000 {
 			status = "disabled";
 		};
+          */
 	};
 
 	sound {
