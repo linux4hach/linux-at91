@@ -109,7 +109,7 @@
 
       datalog@E000000 {
         label = "diaglog";
-        reg = <0xE800000 0x1800000>;
+        reg = <0xE000000 0x1800000>;
       };
       diaglog@E800000 {
         label = "diaglog";
