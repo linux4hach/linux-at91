@@ -152,7 +152,8 @@
 				status = "okay";
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
-					compatible = "atmel,at25df321a";
+					/* compatible = "atmel,at25df321a"; */
+          compatible = "jedec,spi-nor";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
