@@ -52,6 +52,7 @@ adc0: adc@f804c000 {
  
   gpio_keys {
     compatible = "gpio-keys";
+    poll-interval = <100>;
 
     /* Keypad button is HOME */
     button_0 {
@@ -116,7 +117,7 @@ adc0: adc@f804c000 {
       label = "button 6";
       gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
       linux,code = <KEY_LEFT>;
-      /* gpio-key,wakeup; *
+      /* gpio-key,wakeup; */
     };
 
     /* Currently keypad button MUTE */
