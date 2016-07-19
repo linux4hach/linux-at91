@@ -62,7 +62,6 @@
 				reg = <0xc0000 0x140000>;
 			};
 
-
       ubootenv-redundant@100000 {
         label = "env_redundant";
         reg = <0x100000 0x40000>;
@@ -109,6 +108,10 @@
       };
 
       datalog@E000000 {
+        label = "diaglog";
+        reg = <0xE800000 0x1800000>;
+      };
+      diaglog@E800000 {
         label = "diaglog";
         reg = <0xE800000 0x1800000>;
       };
