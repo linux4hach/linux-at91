@@ -100,8 +100,6 @@
 			ramc0: ramc@ffffe800 {
 				compatible = "atmel,at91sam9g45-ddramc";
 				reg = <0xffffe800 0x200>;
-				clocks = <&ddrck>;
-				clock-names = "ddrck";
 			};
 
 			pmc: pmc@fffffc00 {
@@ -455,6 +453,55 @@
 				#size-cells = <1>;
 				compatible = "atmel,at91sam9x5-pinctrl", "atmel,at91rm9200-pinctrl", "simple-bus";
 				ranges = <0xfffff400 0xfffff400 0x800>;
+		adc0 {
+					pinctrl_adc0_ad0: adc0_ad0 {
+						atmel,pins =
+							<AT91_PIOB 11 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PWM0 */
+					};
+
+					pinctrl_adc0_ad1: adc0_ad1 {
+						atmel,pins =
+							<AT91_PIOB 12 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PWM1 */
+					};
+
+					pinctrl_adc0_ad2: adc0_ad2 {
+						atmel,pins =
+							<AT91_PIOB 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PWM2 */
+					};
+
+					pinctrl_adc0_ad3: adc0_ad3 {
+						atmel,pins =
+							<AT91_PIOB 14 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PWM3 */
+					};
+					pinctrl_adc0_ad6: adc0_ad6 {
+						atmel,pins =
+							<AT91_PIOB 17 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; 
+					};
+					pinctrl_adc0_ad4_9: adc0_ad4_9 {
+						atmel,pins =
+							<AT91_PIOB 15 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
+							 AT91_PIOB 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
+							 AT91_PIOB 17 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
+							 AT91_PIOB  6 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
+							 AT91_PIOB  7 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
+							 AT91_PIOB  8 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
+					};
+
+					pinctrl_adc0_ad10: adc0_ad10 {
+						atmel,pins =
+							<AT91_PIOB 9 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PCK1 */
+					};
+
+					pinctrl_adc0_ad11: adc0_ad11 {
+						atmel,pins =
+							<AT91_PIOB 10 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>; /* conflicts with PCK0 */
+					};
+
+					pinctrl_adc0_adtrg: adc0_adtrg {
+						atmel,pins =
+							<AT91_PIOB 18 AT91_PERIPH_B AT91_PINCTRL_NONE>;
+					};
+				};
 
 				/* shared pinctrl settings */
 				dbgu {

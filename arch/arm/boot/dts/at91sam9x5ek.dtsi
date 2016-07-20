@@ -92,7 +92,7 @@
 				};
 			};
 
-spi1:spi@f0004000 {
+      spi1:spi@f0004000 {
        status = "okay";
        cs-gpios = <0>, <&pioA 0 0>, <0>, <0>;
        LTC2498@1 {
