@@ -784,12 +784,7 @@
 							<AT91_PIOB 14 AT91_PERIPH_B AT91_PINCTRL_NONE>;
 					};
 
-          pinctrl_adc0_ad6: adc0_ad6 {
-            atmel,pins =
-              <AT91_PIOB 17 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-         };
-
-
+       
 					pinctrl_pwm0_pwm3_1: pwm0_pwm3-1 {
 						atmel,pins =
 							<AT91_PIOC 21 AT91_PERIPH_C AT91_PINCTRL_NONE>;
