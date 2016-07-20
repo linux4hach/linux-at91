@@ -164,7 +164,6 @@ spi1:spi@f0004000 {
 			status = "disabled";
 		};
           */
-	};
 
 	sound {
 		compatible = "atmel,sam9x5-wm8731-audio";
