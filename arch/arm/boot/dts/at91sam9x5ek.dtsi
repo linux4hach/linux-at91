@@ -13,7 +13,8 @@
 	compatible = "atmel,at91sam9x5ek", "atmel,at91sam9x5", "atmel,at91sam9";
 
 	chosen {
-		bootargs = "console=ttyS0,115200 root=/dev/mtdblock1 rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs";
+		bootargs = "root=/dev/mtdblock1 rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs";
+		stdout-path = "serial0:115200n8";
 	};
 
 	ahb {
@@ -36,7 +37,7 @@
 					&pinctrl_board_mmc1
 					&pinctrl_mmc1_slot0_clk_cmd_dat0
 					&pinctrl_mmc1_slot0_dat1_3>;
-				status = "disabled";
+				status = "okay";
 				slot@0 {
 					reg = <0>;
 					bus-width = <4>;
@@ -47,14 +48,28 @@
 			dbgu: serial@fffff200 {
 				status = "okay";
 			};
-			
+
 			usart0: serial@f801c000 {
-				status = "disabled";
+				status = "okay";
 			};
-			
+
 			usb2: gadget@f803c000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_board_usb2>;
 				atmel,vbus-gpio = <&pioB 16 GPIO_ACTIVE_HIGH>;
 				status = "disabled";
+			};
+
+			isi: isi@f8048000 {
+				status = "disabled";
+				port {
+					isi_0: endpoint@0 {
+						remote-endpoint = <&ov2640_0>;
+						bus-width = <8>;
+						vsync-active = <1>;
+						hsync-active = <1>;
+					};
+				};
 			};
 
 			i2c0: i2c@f8010000 {
@@ -63,17 +78,54 @@
 				wm8731: wm8731@1a {
 					compatible = "wm8731";
 					reg = <0x1a>;
-				}; 
-                        /*
-        			qt1070: qt1070@1b {
-                  			compatible = "qt1070";
-                  			reg = <0x1b>;
-                  			gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
-			  	};
-			*/
-      			};
-			
+				};
+
+				ov2640: camera@0x30 {
+					compatible = "ovti,ov2640";
+					reg = <0x30>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_pck0_as_isi_mck &pinctrl_sensor_power &pinctrl_sensor_reset>;
+					resetb-gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
+					pwdn-gpios = <&pioA 13 GPIO_ACTIVE_HIGH>;
+					clocks = <&pck0>;
+					clock-names = "xvclk";
+					assigned-clocks = <&pck0>;
+					assigned-clock-rates = <25000000>;
+					status = "disabled";
+
+					port {
+						ov2640_0: endpoint {
+							remote-endpoint = <&isi_0>;
+							bus-width = <8>;
+						};
+					};
+				};
+			};
+
+			adc0: adc@f804c000 {
+				atmel,adc-ts-wires = <4>;
+				atmel,adc-ts-pressure-threshold = <10000>;
+				status = "okay";
+			};
+
 			pinctrl@fffff400 {
+				camera_sensor {
+					pinctrl_pck0_as_isi_mck: pck0_as_isi_mck-0 {
+						atmel,pins =
+							<AT91_PIOC 15 AT91_PERIPH_C AT91_PINCTRL_NONE>;	/* ISI_MCK */
+					};
+
+					pinctrl_sensor_power: sensor_power-0 {
+						atmel,pins =
+							<AT91_PIOA 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
+					};
+
+					pinctrl_sensor_reset: sensor_reset-0 {
+						atmel,pins =
+							<AT91_PIOA 7 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
+					};
+				};
+
 				mmc0 {
 					pinctrl_board_mmc0: mmc0-board {
 						atmel,pins =
@@ -87,41 +139,49 @@
 							<AT91_PIOD 14 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;	/* PD14 gpio CD pin pull up and deglitch */
 					};
 				};
+
+				usb2 {
+					pinctrl_board_usb2: usb2-board {
+						atmel,pins =
+							<AT91_PIOB 16 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;		/* PB16 gpio vbus sense, deglitch */
+					};
+				};
 			};
 
 			spi0: spi@f0000000 {
 				status = "okay";
-				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>; /* SPI0_NPCS0 */
+				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
 					/* compatible = "atmel,at25df321a"; */
-					/* compatible = "Spansion,s25fl512s"; */
- 					compatible = "Micron,n25q00";
+          compatible = "micron,n25q00";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
 			};
-			spi1: spi@f0004000 {
-				status = "okay";
-				cs-gpios = <0>, <&pioA 0 0>, <0>, <0>; /* SPI1_NPCS1 */
-				LTC2498@1 {
-					compatible = "spidev";
-					spi-max-frequency = <4000000>;
-					reg = <1>;
-				};
-			};
+
+spi1:spi@f0004000 {
+       status = "okay";
+       cs-gpios = <0>, <&pioA 0 0>, <0>, <0>;
+       LTC2498@1 {
+         compatible = "spidev";
+         spi-max-frequency = <4000000>;
+         reg = <1>;
+       };
+     };
+
+
+
 			watchdog@fffffe40 {
-				timeout-sec = <30>; /* 30 seconds */
 				status = "okay";
 			};
 
- 
 			ssc0: ssc@f0010000 {
 				status = "okay";
 			};
 		};
-		/*
+/*
 		usb0: ohci@00600000 {
-			status = "okay";
+			status = "disabled";
 			num-ports = <3>;
 			atmel,vbus-gpio = <0 
 					   &pioD 19 GPIO_ACTIVE_LOW
@@ -130,9 +190,9 @@
 		};
 
 		usb1: ehci@00700000 {
-			status = "okay";
+			status = "disabled";
 		};
-		*/
+          */
 	};
 
 	sound {
@@ -148,5 +208,5 @@
 
 		atmel,ssc-controller = <&ssc0>;
 		atmel,audio-codec = <&wm8731>;
-	}; 
+	};
 };
