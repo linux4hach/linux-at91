@@ -53,15 +53,6 @@
 				status = "okay";
 			};
 
-			usb2: gadget@f803c000 {
-				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_board_usb2>;
-				atmel,vbus-gpio = <&pioB 16 GPIO_ACTIVE_HIGH>;
-				status = "disabled";
-			};
-
-		;
-
 			i2c0: i2c@f8010000 {
 				status = "okay";
 
@@ -70,8 +61,7 @@
 					reg = <0x1a>;
 				};
 
-;
-			};
+		};
 
 			adc0: adc@f804c000 {
 				atmel,adc-ts-wires = <4>;
@@ -150,20 +140,7 @@ spi1:spi@f0004000 {
 				status = "okay";
 			};
 		};
-/*
-		usb0: ohci@00600000 {
-			status = "disabled";
-			num-ports = <3>;
-			atmel,vbus-gpio = <0 
-					   &pioD 19 GPIO_ACTIVE_LOW
-					   &pioD 20 GPIO_ACTIVE_LOW
-					  >;
-		};
-
-		usb1: ehci@00700000 {
-			status = "disabled";
-		};
-          */
+	};
 
 	sound {
 		compatible = "atmel,sam9x5-wm8731-audio";
