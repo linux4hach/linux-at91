@@ -13,7 +13,7 @@
 	compatible = "atmel,at91sam9x5ek", "atmel,at91sam9x5", "atmel,at91sam9";
 
 	chosen {
-		bootargs = "root=/dev/mtdblock1 rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs"; stdout-path = "serial0:115200n8";
+		bootargs = "console=ttyS0,115200 root=/dev/mtdblock1 rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs";
 	};
 
 	ahb {
@@ -47,8 +47,13 @@
 			dbgu: serial@fffff200 {
 				status = "okay";
 			};
-
+			
 			usart0: serial@f801c000 {
+				status = "disabled";
+			};
+			
+			usb2: gadget@f803c000 {
+				atmel,vbus-gpio = <&pioB 16 GPIO_ACTIVE_HIGH>;
 				status = "disabled";
 			};
 
@@ -58,13 +63,17 @@
 				wm8731: wm8731@1a {
 					compatible = "wm8731";
 					reg = <0x1a>;
-				};
-
-		};
-
-		
+				}; 
+                        /*
+        			qt1070: qt1070@1b {
+                  			compatible = "qt1070";
+                  			reg = <0x1b>;
+                  			gpios = <&pioA 7 GPIO_ACTIVE_LOW>;
+			  	};
+			*/
+      			};
+			
 			pinctrl@fffff400 {
-		
 				mmc0 {
 					pinctrl_board_mmc0: mmc0-board {
 						atmel,pins =
@@ -78,41 +87,52 @@
 							<AT91_PIOD 14 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;	/* PD14 gpio CD pin pull up and deglitch */
 					};
 				};
-
 			};
 
-			spi0: spi@f00000000 {
+			spi0: spi@f0000000 {
 				status = "okay";
-				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
+				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>; /* SPI0_NPCS0 */
 				m25p80@0 {
 					/* compatible = "atmel,at25df321a"; */
-          compatible = "micron,n25q00";
+					/* compatible = "Spansion,s25fl512s"; */
+ 					compatible = "Micron,n25q00";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
 			};
-
-      spi1:spi@f0004000 {
-       status = "okay";
-       cs-gpios = <0>, <&pioA 0 0>, <0>, <0>;
-       LTC2498@1 {
-         compatible = "spidev";
-         spi-max-frequency = <4000000>;
-         reg = <1>;
-       };
-     };
-
-
-
+			spi1: spi@f0004000 {
+				status = "okay";
+				cs-gpios = <0>, <&pioA 0 0>, <0>, <0>; /* SPI1_NPCS1 */
+				LTC2498@1 {
+					compatible = "spidev";
+					spi-max-frequency = <4000000>;
+					reg = <1>;
+				};
+			};
 			watchdog@fffffe40 {
-        timeout-sec = <30>;
+				timeout-sec = <30>; /* 30 seconds */
 				status = "okay";
 			};
 
+ 
 			ssc0: ssc@f0010000 {
 				status = "okay";
 			};
 		};
+		/*
+		usb0: ohci@00600000 {
+			status = "okay";
+			num-ports = <3>;
+			atmel,vbus-gpio = <0 
+					   &pioD 19 GPIO_ACTIVE_LOW
+					   &pioD 20 GPIO_ACTIVE_LOW
+					  >;
+		};
+
+		usb1: ehci@00700000 {
+			status = "okay";
+		};
+		*/
 	};
 
 	sound {
@@ -128,5 +148,5 @@
 
 		atmel,ssc-controller = <&ssc0>;
 		atmel,audio-codec = <&wm8731>;
-	};
+	}; 
 };
