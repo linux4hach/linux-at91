@@ -91,7 +91,7 @@
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
 					/* compatible = "atmel,at25df321a"; */
-          compatible = "m25p80, spi-nor";
+          compatible = "jedec, spi-nor";
 					spi-max-frequency = <500000000>;
 					reg = <0>;
 				};
