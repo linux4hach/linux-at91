@@ -12,22 +12,10 @@
 / {
 	ahb {
 		apb {
-			i2c0: i2c@f8010000 {
-				qt1070: keyboard@1b {
-					compatible = "qt1070";
-					reg = <0x1b>;
-					interrupt-parent = <&pioA>;
-					interrupts = <7 0x0>;
-					pinctrl-names = "default";
-					pinctrl-0 = <&pinctrl_qt1070_irq>;
-					wakeup-source;
-				};
-			};
-
 			hlcdc: hlcdc@f8038000 {
 				hlcdc-display-controller {
 					pinctrl-names = "default";
-					pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb888>;
+					pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb565>;
 
 					port@0 {
 						hlcdc_panel_output: endpoint@0 {
@@ -41,12 +29,7 @@
 			adc0: adc@f804c000 {
         pinctrl-names="default";
         pinctrl-0=<&pinctrl_adc0_ad6>;
-        /*
-				atmel,adc-ts-wires = <4>;
-				atmel,adc-ts-pressure-threshold = <10000>;
-        */
-				status = "okay";
-			};
+ 			};
 
 			pinctrl@fffff400 {
 				board {
@@ -56,8 +39,13 @@
 					};
 				};
 			};
+
+pwm0: pwm@f8034000 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_pwm0_pwm0_0 &pinctrl_pwm0_pwm1_0 &pinctrl_pwm0_pwm2_0 &pinctrl_pwm0_pwm3_0>;
 		};
 	};
+  };
 
 	backlight: backlight {
 		compatible = "pwm-backlight";
