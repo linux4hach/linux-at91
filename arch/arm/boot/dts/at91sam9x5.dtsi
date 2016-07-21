@@ -1208,28 +1208,6 @@
 			};
 		};
 
-		nand0: nand@40000000 {
-			compatible = "atmel,at91rm9200-nand";
-			#address-cells = <1>;
-			#size-cells = <1>;
-			reg = <0x40000000 0x10000000
-			       0xffffe000 0x600		/* PMECC Registers */
-			       0xffffe600 0x200		/* PMECC Error Location Registers */
-			       0x00108000 0x18000	/* PMECC looup table in ROM code  */
-			      >;
-			atmel,pmecc-lookup-table-offset = <0x0 0x8000>;
-			atmel,nand-addr-offset = <21>;
-			atmel,nand-cmd-offset = <22>;
-			atmel,nand-has-dma;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_nand>;
-			gpios = <&pioD 5 GPIO_ACTIVE_HIGH
-				 &pioD 4 GPIO_ACTIVE_HIGH
-				 0
-				>;
-			status = "disabled";
-		};
-
 		usb0: ohci@00600000 {
 			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
 			reg = <0x00600000 0x100000>;
