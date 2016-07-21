@@ -37,7 +37,7 @@
 					&pinctrl_board_mmc1
 					&pinctrl_mmc1_slot0_clk_cmd_dat0
 					&pinctrl_mmc1_slot0_dat1_3>;
-				status = "okay";
+				status = "disabled";
 				slot@0 {
 					reg = <0>;
 					bus-width = <4>;
@@ -91,7 +91,7 @@
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
 					/* compatible = "atmel,at25df321a"; */
-          compatible = "micron,n25q00";
+          compatible = "Micron,n25q00";
 					spi-max-frequency = <500000000>;
 					reg = <0>;
 				};
