@@ -91,10 +91,9 @@
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
 					/* compatible = "atmel,at25df321a"; */
-          compatible = "Micron,m25p80";
+          compatible = "Micron,m25p80", "Micron,n25q00", "jedec,spi-nor";
 					spi-max-frequency = <500000000>;
 					reg = <0>;
-          m25p, fast-read;
 				};
 			};
 
