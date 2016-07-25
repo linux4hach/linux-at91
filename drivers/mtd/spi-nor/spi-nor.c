@@ -79,6 +79,7 @@ struct flash_info {
 
 #define JEDEC_MFR(info)	((info)->id[0])
 static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
+static inline struct spi_nor *mtd_to_spi_nor(struct mtd_info *mtd);
 
 static const struct flash_info *spi_nor_match_id(const char *name);
 
