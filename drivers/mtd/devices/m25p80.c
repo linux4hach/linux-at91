@@ -61,12 +61,11 @@ static int m25p80_reset_device(struct m25p *flash)
 	}
 
 
-
-	flash->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_write(flash->spi, flash->cmd_buf, 1);
+	flash->command[0] = SPINOR_OP_RESET_ENABLE;
+	spi_write(flash->spi, flash->command, 1);
 	cond_resched();
-	flash->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_write(flash->spi, flash->cmd_buf, 1);
+	flash->command[0] = SPINOR_OP_RESET_MEMORY;
+	spi_write(flash->spi, flash->command, 1);
 
 
 	spi_nor_wait_till_ready(flash);
