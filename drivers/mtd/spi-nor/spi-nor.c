@@ -333,6 +333,38 @@ static int spi_nor_wait_till_ready_with_timeout(struct spi_nor *nor,
 	return -ETIMEDOUT;
 }
 
+static int reset_device(struct spi_nor *nor)
+{
+	if (spi_nor_wait_till_ready(nor)) {
+		return 1;
+	}
+
+	write_enable(nor);
+
+	spi_nor_write(nor->spi, nor->command, 1);
+	nor->addr_width = 3;
+
+	if (wait_till_ready(nor)) {
+		return 1;
+	}
+
+
+	nor->command[0] = SPINOR_OP_RESET_ENABLE;
+	spi_nor_write(nor->spi, spi->command, 1);
+	cond_resched();
+	nor->command[0] = SPINOR_OP_RESET_MEMORY;
+	spi_nor_write(nor->spi, spi->command, 1);
+
+
+	spi_nor_wait_till_ready(nor);
+
+	return 0;
+
+}
+
+
+
+
 static int spi_nor_wait_till_ready(struct spi_nor *nor)
 {
 	return spi_nor_wait_till_ready_with_timeout(nor,
@@ -648,15 +680,33 @@ static int spi_nor_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 static int spi_nor_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
+	uint32_t address = ofs;
 	int ret;
-
+	uint32_t start_sector, unprotected_area;
+	uint32_t sector_size;
+	uint8_t id[5];
+	
 	ret = spi_nor_lock_and_prep(nor, SPI_NOR_OPS_UNLOCK);
 	if (ret)
 		return ret;
 
+
+	sector_size = nor->sector_size;
+	start_sector = address / sector_size;
+
+	do_div(len, sector_size);
+	unprotected_area = len;
+
 	ret = nor->flash_unlock(nor, ofs, len);
 
 	spi_nor_unlock_and_unprep(nor, SPI_NOR_OPS_LOCK);
+
+	if (start_sector == 0 && unprotected_area == 1) {
+		printk("spi: reset the chip...\n");
+		reset_device(nor);
+	
+	}	
+
 	return ret;
 }
 
