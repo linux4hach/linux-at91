@@ -80,7 +80,6 @@ struct flash_info {
 #define JEDEC_MFR(info)	((info)->id[0])
 static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
 static inline struct spi_nor *mtd_to_spi_nor(struct mtd_info *mtd);
-
 static const struct flash_info *spi_nor_match_id(const char *name);
 
 /*
@@ -662,10 +661,10 @@ static int reset_device(struct spi_nor *nor)
 
 
 	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_nor(nor->spi, nor->cmd_buf, 1);
+	spi_write(nor->spi, nor->cmd_buf, 1);
 	cond_resched();
 	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_nor(nor->spi, nor->cmd_buf, 1);
+	spi_write(nor->spi, nor->cmd_buf, 1);
 
 
 	spi_nor_wait_till_ready(nor);
