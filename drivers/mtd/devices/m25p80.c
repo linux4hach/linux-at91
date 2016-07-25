@@ -56,7 +56,7 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 static int m25p80_reset_device(struct m25p *flash)
 {
 	
-	if (spi_nor_wait_till_ready(flash)) {
+	if (flash->spi_nor->spi_nor_wait_till_ready(flash)) {
 		return 1;
 	}
 
