@@ -23,7 +23,6 @@
 #include <linux/of_platform.h>
 #include <linux/spi/flash.h>
 #include <linux/mtd/spi-nor.h>
-#include <linux/spi/spi.h>
 
 /* Define max times to check status register before we give up. */
 
@@ -78,8 +77,7 @@ struct flash_info {
 };
 
 #define JEDEC_MFR(info)	((info)->id[0])
-static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
-static inline struct spi_nor *mtd_to_spi_nor(struct mtd_info *mtd);
+
 static const struct flash_info *spi_nor_match_id(const char *name);
 
 /*
@@ -334,10 +332,6 @@ static int spi_nor_wait_till_ready_with_timeout(struct spi_nor *nor,
 
 	return -ETIMEDOUT;
 }
-
-
-
-
 
 static int spi_nor_wait_till_ready(struct spi_nor *nor)
 {
@@ -651,58 +645,18 @@ static int spi_nor_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	return ret;
 }
 
-static int reset_device(struct spi_nor *nor)
-{
-	
-	if (spi_nor_wait_till_ready(nor)) {
-		return 1;
-	}
-
-
-
-	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_write(nor, nor->cmd_buf, 1);
-	cond_resched();
-	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_write(nor, nor->cmd_buf, 1);
-
-
-	spi_nor_wait_till_ready(nor);
-
-	return 0;
-
-}
-
 static int spi_nor_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
-	uint32_t address = ofs;
 	int ret;
-	uint32_t start_sector, unprotected_area;
-	uint32_t sector_size;
-	uint8_t id[5];
-	
+
 	ret = spi_nor_lock_and_prep(nor, SPI_NOR_OPS_UNLOCK);
 	if (ret)
 		return ret;
 
-
-	sector_size = nor->sector_size;
-	start_sector = address / sector_size;
-
-	do_div(len, sector_size);
-	unprotected_area = len;
-
 	ret = nor->flash_unlock(nor, ofs, len);
 
 	spi_nor_unlock_and_unprep(nor, SPI_NOR_OPS_LOCK);
-
-	if (start_sector == 0 && unprotected_area == 1) {
-		printk("spi: reset the chip...\n");
-		reset_device(nor);
-	
-	}	
-
 	return ret;
 }
 
@@ -2149,7 +2103,6 @@ static const struct flash_info *spi_nor_match_id(const char *name)
 	}
 	return NULL;
 }
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Huang Shijie <shijie8@gmail.com>");
