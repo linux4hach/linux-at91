@@ -23,7 +23,7 @@
 #include <linux/of_platform.h>
 #include <linux/spi/flash.h>
 #include <linux/mtd/spi-nor.h>
-#include <linux/mtd/spi.h>
+#include <linux/spi/spi.h>
 
 /* Define max times to check status register before we give up. */
 
@@ -661,10 +661,10 @@ static int reset_device(struct spi_nor *nor)
 
 
 	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_nor_write(nor->spi, nor->cmd_buf, 1);
+	spi_nor(nor->spi, nor->cmd_buf, 1);
 	cond_resched();
 	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_nor_write(nor->spi, nor->cmd_buf, 1);
+	spi_nor(nor->spi, nor->cmd_buf, 1);
 
 
 	spi_nor_wait_till_ready(nor);
