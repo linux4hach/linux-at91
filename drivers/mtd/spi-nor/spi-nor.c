@@ -333,27 +333,6 @@ static int spi_nor_wait_till_ready_with_timeout(struct spi_nor *nor,
 	return -ETIMEDOUT;
 }
 
-static int reset_device(struct spi_nor *nor)
-{
-	if (spi_nor_wait_till_ready(nor)) {
-		return 1;
-	}
-
-	write_enable(nor);
-
-
-	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_nor_write(nor->spi, nor->cmd_buf, 1);
-	cond_resched();
-	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_nor_write(nor->spi, nor->cmd_buf, 1);
-
-
-	spi_nor_wait_till_ready(nor);
-
-	return 0;
-
-}
 
 
 
@@ -2145,6 +2124,28 @@ static const struct flash_info *spi_nor_match_id(const char *name)
 		id++;
 	}
 	return NULL;
+}
+
+static int reset_device(struct spi_nor *nor)
+{
+	if (spi_nor_wait_till_ready(nor)) {
+		return 1;
+	}
+
+	write_enable(nor);
+
+
+	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
+	spi_nor_write(nor->spi, nor->cmd_buf, 1);
+	cond_resched();
+	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
+	spi_nor_write(nor->spi, nor->cmd_buf, 1);
+
+
+	spi_nor_wait_till_ready(nor);
+
+	return 0;
+
 }
 
 MODULE_LICENSE("GPL");
