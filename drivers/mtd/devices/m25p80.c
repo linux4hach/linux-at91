@@ -34,24 +34,6 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
-
-static int wait_till_ready(struct m25p *flash)
-{
-
-	if (flash->fsr_wait) {
-		return wait_till_fsr_ready(flash);
-	}
-	else {
-		return wait_till_sr_ready(flash);
-	}
-}
-
-
-
-
-
-
-
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
 				     unsigned *addr_nbits,
