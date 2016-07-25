@@ -341,19 +341,12 @@ static int reset_device(struct spi_nor *nor)
 
 	write_enable(nor);
 
-	spi_nor_write(nor->spi, nor->command, 1);
-	nor->addr_width = 3;
 
-	if (wait_till_ready(nor)) {
-		return 1;
-	}
-
-
-	nor->command[0] = SPINOR_OP_RESET_ENABLE;
-	spi_nor_write(nor->spi, spi->command, 1);
+	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
+	spi_nor_write(nor->spi, nor->cmd_buf, 1);
 	cond_resched();
-	nor->command[0] = SPINOR_OP_RESET_MEMORY;
-	spi_nor_write(nor->spi, spi->command, 1);
+	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
+	spi_nor_write(nor->spi, nor->cmd_buf, 1);
 
 
 	spi_nor_wait_till_ready(nor);
