@@ -34,7 +34,7 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
-static int reset_device(struct spi_nor *nor)
+static int reset_device(struct spi_nor *nor);
 
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
