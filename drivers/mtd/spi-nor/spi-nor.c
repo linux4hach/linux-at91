@@ -653,18 +653,18 @@ static int spi_nor_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 
 static int reset_device(struct spi_nor *nor)
 {
+	
 	if (spi_nor_wait_till_ready(nor)) {
 		return 1;
 	}
 
-	write_enable(nor);
 
 
 	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_write(nor->spi, nor->cmd_buf, 1);
+	spi_write(nor, nor->cmd_buf, 1);
 	cond_resched();
 	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_write(nor->spi, nor->cmd_buf, 1);
+	spi_write(nor, nor->cmd_buf, 1);
 
 
 	spi_nor_wait_till_ready(nor);
