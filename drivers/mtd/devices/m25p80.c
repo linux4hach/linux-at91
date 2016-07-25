@@ -34,7 +34,23 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
-static int m25p80_reset_device(struct m25p *flash);
+
+static int wait_till_ready(struct m25p *flash)
+{
+
+	if (flash->fsr_wait) {
+		return wait_till_fsr_ready(flash);
+	}
+	else {
+		return wait_till_sr_ready(flash);
+	}
+}
+
+
+
+
+
+
 
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
@@ -49,29 +65,6 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 		*data_nbits = SNOR_PROTO_DATA_FROM_PROTO(proto);
 
 	return 0;
-}
-
-
-
-static int m25p80_reset_device(struct m25p *flash)
-{
-	
-	if (flash->spi_nor->spi_nor_wait_till_ready(flash)) {
-		return 1;
-	}
-
-
-	flash->command[0] = SPINOR_OP_RESET_ENABLE;
-	spi_write(flash->spi, flash->command, 1);
-	cond_resched();
-	flash->command[0] = SPINOR_OP_RESET_MEMORY;
-	spi_write(flash->spi, flash->command, 1);
-
-
-	spi_nor_wait_till_ready(flash);
-
-	return 0;
-
 }
 
 static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
