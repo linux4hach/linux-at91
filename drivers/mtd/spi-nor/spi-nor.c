@@ -649,6 +649,28 @@ static int spi_nor_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	return ret;
 }
 
+static int reset_device(struct spi_nor *nor)
+{
+	if (spi_nor_wait_till_ready(nor)) {
+		return 1;
+	}
+
+	write_enable(nor);
+
+
+	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
+	spi_nor_write(nor->spi, nor->cmd_buf, 1);
+	cond_resched();
+	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
+	spi_nor_write(nor->spi, nor->cmd_buf, 1);
+
+
+	spi_nor_wait_till_ready(nor);
+
+	return 0;
+
+}
+
 static int spi_nor_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
@@ -2126,27 +2148,6 @@ static const struct flash_info *spi_nor_match_id(const char *name)
 	return NULL;
 }
 
-static int reset_device(struct spi_nor *nor)
-{
-	if (spi_nor_wait_till_ready(nor)) {
-		return 1;
-	}
-
-	write_enable(nor);
-
-
-	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_nor_write(nor->spi, nor->cmd_buf, 1);
-	cond_resched();
-	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_nor_write(nor->spi, nor->cmd_buf, 1);
-
-
-	spi_nor_wait_till_ready(nor);
-
-	return 0;
-
-}
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Huang Shijie <shijie8@gmail.com>");
