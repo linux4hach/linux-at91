@@ -52,7 +52,7 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 }
 
 
-static int reset_device(struct m25p *flash)
+static int m25p80_reset_device(struct m25p *flash)
 {
 	int ret = 0;
 	flash->command[0] = SPINOR_OP_RESET_ENABLE;
@@ -368,7 +368,7 @@ static int m25p_remove(struct spi_device *spi)
 	
 	struct m25p	*flash = spi_get_drvdata(spi);
 
-	ret = reset_device(flash);
+	ret = m25p80_reset_device(flash);
     ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
 
 	/* Clean up MTD stuff. */
