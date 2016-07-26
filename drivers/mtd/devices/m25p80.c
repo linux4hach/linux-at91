@@ -55,10 +55,10 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 static int reset_device(struct m25p *flash)
 {
 	int ret = 0;
-	flash->command[0] = OPCODE_RESET_ENABLE;
+	flash->command[0] = SPINOR_OP_RESET_ENABLE;
 	ret = spi_write(flash->spi, flash->command, 1);
 	cond_resched();
-	flash->command[0] = OPCODE_RESET_MEMORY;
+	flash->command[0] = SPINOR_OP_RESET_MEMORY;
 	ret = ret && spi_write(flash->spi, flash->command ,1);
 
 	return ret;
