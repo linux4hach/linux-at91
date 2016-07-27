@@ -286,7 +286,7 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 
 static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
-	struct m25p *flash - mtd_to_m25p(mtd);
+	struct m25p *flash = mtd_to_m25p(mtd);
 	uint32_t address = ofs;
 	int res = 0;
 	u32 start_sector,unprotected_area;
