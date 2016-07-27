@@ -395,6 +395,8 @@ static int m25p_probe(struct spi_device *spi)
 	nor->erase = m25p80_erase;
 	nor->write_reg = m25p80_write_reg;
 	nor->read_reg = m25p80_read_reg;
+	nor->flash_lock = micron_unlock;
+
 
 	nor->dev = &spi->dev;
 	nor->flash_node = spi->dev.of_node;
