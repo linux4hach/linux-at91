@@ -39,7 +39,7 @@ static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
 static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
 {
-	return container_of(mtd, struct m25p->spi_nor, mtd);
+	return container_of(mtd, struct m25p.spi_nor, mtd);
 }
 
 
