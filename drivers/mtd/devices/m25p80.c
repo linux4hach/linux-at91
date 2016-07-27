@@ -301,7 +301,7 @@ static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	unprotected_area = len;
 
 
-	if (start_sector == 0 && unprotectedc_area == 1) {
+	if (start_sector == 0 && unprotected_area == 1) {
 		printk("spi: reset the chip...\n");
 		res = m25p80_reset_device(flash);
 		return res;
