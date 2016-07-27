@@ -30,8 +30,8 @@
 #define	MAX_CMD_SIZE		16
 struct m25p {
 	struct spi_device	*spi;
-	struct mtd_info mtd;
 	struct spi_nor		spi_nor;
+	struct mtd_info     mtd;
 	u8			command[MAX_CMD_SIZE];
 };
 
@@ -292,7 +292,7 @@ static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	u32 start_sector,unprotected_area;
 	u32 sector_size;
 
-	sector_size = flash->sector_size;
+	sector_size = flash->spi_nor->sector_size;
 	start_sector = address / sector_size;
 
 	do_div(len, sector_size);
