@@ -37,6 +37,12 @@ struct m25p {
 static int m25p80_reset_device(struct m25p *flash);
 static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
+static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
+{
+	return container_of(mtd, struct m25p, mtd);
+}
+
+
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
 				     unsigned *addr_nbits,
@@ -274,11 +280,6 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 
 	*retlen = m.actual_length - m25p_cmdsz(nor) - dummy;
 	return 0;
-}
-
-static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
-{
-	return container_of(mtd, struct m25p, mtd);
 }
 
 
