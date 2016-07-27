@@ -294,6 +294,17 @@ static inline int write_enable(struct m25p *flash)
 
 }
 
+static int write_sr(struct m25p * flash, u8 val)
+{
+
+	flash->command[0] = SPINOR_OP_WRSR;
+	flash->command[1] = val;
+
+	return spi_write(flash->spi, flash->command, 2);
+
+
+}
+
 
 
 
