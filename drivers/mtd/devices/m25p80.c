@@ -276,6 +276,11 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 	return 0;
 }
 
+static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
+{
+	return container_of(mtd, struct m25p, mtd);
+}
+
 
 static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
