@@ -286,6 +286,17 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 	return 0;
 }
 
+static inline int write_enable(struct m25p *flash)
+{
+	u8 code = SPINOR_OP_WREN;
+
+	return spi_write_then_read(flash->spi, &code, 1, NULL, 0);
+
+}
+
+
+
+
 
 static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
@@ -309,11 +320,6 @@ static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	}
 
 	mutex_lock(&flash->lock);
-
-	if (wait_till_ready(flash)) {
-		res = 1;
-		goto  err;
-	}
 
 
 	write_enable(flash);
