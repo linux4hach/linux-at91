@@ -35,6 +35,7 @@ struct m25p {
 };
 
 static int m25p80_reset_device(struct m25p *flash);
+static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
@@ -273,6 +274,50 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 
 	*retlen = m.actual_length - m25p_cmdsz(nor) - dummy;
 	return 0;
+}
+
+
+static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	struct m25p *flash - mtd_to_m25p(mtd);
+	uint32_t address = ofs;
+	int res = 0;
+	u32 start_sector,unprotected_area;
+	u32 sector_size;
+
+	sector_size = flash->sector_size;
+	start_sector = address / sector_size;
+
+	do_div(len, sector_size);
+	unprotected_area = len;
+
+
+	if (start_sector == 0 && unprotectedc_area == 1) {
+		printk("spi: reset the chip...\n");
+		res = m25p80_reset_device(flash);
+		return res;
+	}
+
+	mutex_lock(&flash->lock);
+
+	if (wait_till_ready(flash)) {
+		res = 1;
+		goto  err;
+	}
+
+
+	write_enable(flash);
+
+	if (write_sr(flash, 0) < 0) {
+		res = 1;
+		goto err;
+	}
+
+err:  mutex_unlock(&flash->lock);
+	  return res;
+
+
+
 }
 
 static int m25p80_erase(struct spi_nor *nor, loff_t offset)
