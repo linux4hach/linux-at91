@@ -470,7 +470,8 @@ static int m25p_probe(struct spi_device *spi)
 	nor->read_reg = m25p80_read_reg;
 	
 	/* at this point only micron sytems will be unlockable */
-	nor->flash_lock = micron_unlock;
+	nor->flash_lock = micron_lock;
+	nor->flash_unlock = micron_unlock;
 
 
 	nor->dev = &spi->dev;
