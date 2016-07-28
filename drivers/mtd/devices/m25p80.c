@@ -305,6 +305,79 @@ static int write_sr(struct m25p * flash, u8 val)
 
 }
 
+static int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+
+	struct m25p *flash = mtd_to_m25p(mtd);
+	u8 TB, BP, SR;
+	u32 i, start_sector,protected_area;
+	u32 sector_size, num_of_sectors;
+	int res = 0;
+	uint32_t address = ofs;
+
+	mutex_lock(&flash->lock);
+	/* Wait until finished previous command */
+	if (wait_till_ready(flash)) {
+		res = 1;
+		goto err;
+	}
+
+	sector_size = flash->sector_size;
+	num_of_sectors = flash->n_sectors;
+
+	start_sector = address / sector_size;
+	//protected_area = len / sector_size;
+	//64 bit division
+	do_div(len, sector_size);
+	protected_area = len;
+	
+	if (protected_area == 0 ) {
+		res = 1;
+		goto err;
+	}
+
+	//protect the lower sectors if the start sector is 0, otherwise start the protection from the upper sectors
+	if (start_sector < num_of_sectors/2) {
+		TB = 1;
+	}
+	else {
+		TB = 0;
+	}
+
+	BP = 1;
+	for (i = 1; i <= num_of_sectors/2; i = i*2) {
+		//over protection if the number of protected sectors is not a multiple of 2
+		//all sectors are protected if the number of protected sectors is geater than the half of total sectors
+		if (protected_area <= i) {
+			break;	
+		}
+		BP++;		
+	}
+
+	//set the status register
+	SR = (((BP & 8) >> 3) << 6) | (TB << 5) | ((BP & 7) << 2);
+	
+	//enable the write
+	write_enable(flash);
+	
+	//write the status register
+	if (write_sr(flash, SR) < 0) {
+		res = 1;
+		goto err;
+	}
+
+err:	mutex_unlock(&flash->lock);
+	return res;
+
+
+
+
+
+
+
+
+}
+
 
 
 
@@ -395,6 +468,8 @@ static int m25p_probe(struct spi_device *spi)
 	nor->erase = m25p80_erase;
 	nor->write_reg = m25p80_write_reg;
 	nor->read_reg = m25p80_read_reg;
+	
+	/* at this point only micron sytems will be unlockable */
 	nor->flash_lock = micron_unlock;
 
 
