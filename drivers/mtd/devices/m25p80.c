@@ -33,7 +33,8 @@ struct m25p {
 	struct spi_nor		spi_nor;
 	struct mutex        lock;
 	struct mtd_info     mtd;
-	struct flash_info   flash;
+	u32                  sector_size;
+	u32                 n_sectors;
 	u8			command[MAX_CMD_SIZE];
 };
 
