@@ -316,11 +316,6 @@ static int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	uint32_t address = ofs;
 
 	mutex_lock(&flash->lock);
-	/* Wait until finished previous command */
-	if (wait_till_ready(flash)) {
-		res = 1;
-		goto err;
-	}
 
 	sector_size = flash->sector_size;
 	num_of_sectors = flash->n_sectors;
