@@ -31,21 +31,8 @@
 struct m25p {
 	struct spi_device	*spi;
 	struct spi_nor		spi_nor;
-	struct mutex        lock;
-	struct mtd_info     mtd;
-	u32                  sector_size;
-	u32                 n_sectors;
 	u8			command[MAX_CMD_SIZE];
 };
-
-static int m25p80_reset_device(struct m25p *flash);
-static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
-
-static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
-{
-	return container_of(mtd, struct m25p, mtd);
-}
-
 
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
@@ -61,20 +48,6 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 
 	return 0;
 }
-
-
-static int m25p80_reset_device(struct m25p *flash)
-{
-	int ret = 0;
-	flash->command[0] = SPINOR_OP_RESET_ENABLE;
-	ret = spi_write(flash->spi, flash->command, 1);
-	cond_resched();
-	flash->command[0] = SPINOR_OP_RESET_MEMORY;
-	ret = ret && spi_write(flash->spi, flash->command ,1);
-
-	return ret;
-}
-
 
 static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 {
@@ -286,135 +259,6 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 	return 0;
 }
 
-static inline int write_enable(struct m25p *flash)
-{
-	u8 code = SPINOR_OP_WREN;
-
-	return spi_write_then_read(flash->spi, &code, 1, NULL, 0);
-
-}
-
-static int write_sr(struct m25p * flash, u8 val)
-{
-
-	flash->command[0] = SPINOR_OP_WRSR;
-	flash->command[1] = val;
-
-	return spi_write(flash->spi, flash->command, 2);
-
-
-}
-
-static int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
-{
-
-	struct m25p *flash = mtd_to_m25p(mtd);
-	u8 TB, BP, SR;
-	u32 i, start_sector,protected_area;
-	u32 sector_size, num_of_sectors;
-	int res = 0;
-	uint32_t address = ofs;
-
-	mutex_lock(&flash->lock);
-
-	sector_size = flash->sector_size;
-	num_of_sectors = flash->n_sectors;
-
-	start_sector = address / sector_size;
-	//protected_area = len / sector_size;
-	//64 bit division
-	do_div(len, sector_size);
-	protected_area = len;
-	
-	if (protected_area == 0 ) {
-		res = 1;
-		goto err;
-	}
-
-	//protect the lower sectors if the start sector is 0, otherwise start the protection from the upper sectors
-	if (start_sector < num_of_sectors/2) {
-		TB = 1;
-	}
-	else {
-		TB = 0;
-	}
-
-	BP = 1;
-	for (i = 1; i <= num_of_sectors/2; i = i*2) {
-		//over protection if the number of protected sectors is not a multiple of 2
-		//all sectors are protected if the number of protected sectors is geater than the half of total sectors
-		if (protected_area <= i) {
-			break;	
-		}
-		BP++;		
-	}
-
-	//set the status register
-	SR = (((BP & 8) >> 3) << 6) | (TB << 5) | ((BP & 7) << 2);
-	
-	//enable the write
-	write_enable(flash);
-	
-	//write the status register
-	if (write_sr(flash, SR) < 0) {
-		res = 1;
-		goto err;
-	}
-
-err:	mutex_unlock(&flash->lock);
-	return res;
-
-
-
-
-
-
-
-
-}
-
-
-
-
-
-static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
-{
-	struct m25p *flash = mtd_to_m25p(mtd);
-	uint32_t address = ofs;
-	int res = 0;
-	u32 start_sector,unprotected_area;
-	u32 sector_size;
-
-	sector_size = flash->sector_size;
-	start_sector = address / sector_size;
-
-	do_div(len, sector_size);
-	unprotected_area = len;
-
-
-	if (start_sector == 0 && unprotected_area == 1) {
-		printk("spi: reset the chip...\n");
-		res = m25p80_reset_device(flash);
-		return res;
-	}
-
-	mutex_lock(&flash->lock);
-
-
-	write_enable(flash);
-
-	if (write_sr(flash, 0) < 0) {
-		res = 1;
-		goto err;
-	}
-
-err:  mutex_unlock(&flash->lock);
-	  return res;
-
-
-
-}
-
 static int m25p80_erase(struct spi_nor *nor, loff_t offset)
 {
 	struct m25p *flash = nor->priv;
@@ -463,11 +307,6 @@ static int m25p_probe(struct spi_device *spi)
 	nor->erase = m25p80_erase;
 	nor->write_reg = m25p80_write_reg;
 	nor->read_reg = m25p80_read_reg;
-	
-	/* at this point only micron sytems will be unlockable */
-	nor->flash_lock = micron_lock;
-	nor->flash_unlock = micron_unlock;
-
 
 	nor->dev = &spi->dev;
 	nor->flash_node = spi->dev.of_node;
@@ -508,16 +347,10 @@ static int m25p_probe(struct spi_device *spi)
 
 static int m25p_remove(struct spi_device *spi)
 {
-
-	int ret = 0;
-	
 	struct m25p	*flash = spi_get_drvdata(spi);
 
-	ret = m25p80_reset_device(flash);
-    ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
-
 	/* Clean up MTD stuff. */
-	return ret;
+	return mtd_device_unregister(&flash->spi_nor.mtd);
 }
 
 /*
