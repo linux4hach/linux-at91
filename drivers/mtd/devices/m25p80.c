@@ -307,7 +307,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	int res = 0;
 	uint32_t address = ofs;
 
-	mutex_lock(&flash->lock);
+	mutex_lock(&nor->lock);
 
 	sector_size = nor->mtd.sector_size;
 	num_of_sectors = nor->mtd.n_sectors;
@@ -348,7 +348,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	write_enable(flash);
 	
 	//write the status register
-	if (write_sr(spi, SR) < 0) {
+	if (write_sr(nor, SR) < 0) {
 		res = 1;
 		goto err;
 	}
