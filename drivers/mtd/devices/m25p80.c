@@ -344,9 +344,9 @@ static int m25p_probe(struct spi_device *spi)
 			data ? data->nr_parts : 0);
 }
 
-tatic int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+tatic int micron_lock(struct spi_nor *spi loff_t ofs, uint64_t len)
 {
-	struct m25p *flash = mtd_to_m25p(mtd);
+	struct m25p *flash = mtd_to_m25p(spi->mtd);
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
 	u32 sector_size, num_of_sectors;
