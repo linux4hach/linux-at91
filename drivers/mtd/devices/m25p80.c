@@ -310,7 +310,7 @@ static int m25p_probe(struct spi_device *spi)
 
     if (JEDEC_MFR(info->jdec_id) == CFI_MFG_ST) {
 
-		if (info->flags & USE_FSR) {
+		if (info->flags & SNOR_F_USE_FSR) {
 			nor->flash_lock = micron_lock;
 			nor->flash_unlock = micron_unlock;
 
