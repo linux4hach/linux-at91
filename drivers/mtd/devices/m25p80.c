@@ -27,7 +27,7 @@
 #include <linux/spi/flash.h>
 #include <linux/mtd/spi-nor.h>
 
-define JEDEC_MFR(_jedec_id_   ((_jedec_id) >> 16)
+#define JEDEC_MFR(_jedec_id)   ((_jedec_id) >> 16)
 
 #define	MAX_CMD_SIZE		16
 struct m25p {
