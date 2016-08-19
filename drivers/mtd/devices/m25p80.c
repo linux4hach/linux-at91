@@ -276,87 +276,7 @@ static int m25p80_erase(struct spi_nor *nor, loff_t offset)
 
 	return 0;
 }
-
-/*
- * board specific setup should have ensured the SPI clock used here
- * matches what the READ command supports, at least until this driver
- * understands FAST_READ (for clocks over 25 MHz).
- */
-static int m25p_probe(struct spi_device *spi)
-{
-	struct mtd_part_parser_data	ppdata;
-	struct flash_platform_data	*data;
-	struct m25p *flash;
-	struct flash_info *info;
-	struct spi_nor *nor;
-	struct spi_nor_modes modes = {
-		.rd_modes = SNOR_MODE_SLOW,
-		.wr_modes = SNOR_MODE_1_1_1,
-	};
-	char *flash_name = NULL;
-	int ret;
-
-	data = dev_get_platdata(&spi->dev);
-
-	flash = devm_kzalloc(&spi->dev, sizeof(*flash), GFP_KERNEL);
-	if (!flash)
-		return -ENOMEM;
-
-	nor = &flash->spi_nor;
-
-	/* install the hooks */
-	nor->read = m25p80_read;
-	nor->write = m25p80_write;
-	nor->erase = m25p80_erase;
-	nor->write_reg = m25p80_write_reg;
-	nor->read_reg = m25p80_read_reg;
-
-    if (JEDEC_MFR(info->jdec_id) == CFI_MFG_ST) {
-
-		if (info->flags & SNOR_F_USE_FSR) {
-			nor->flash_lock = micron_lock;
-			nor->flash_unlock = micron_unlock;
-
-		}
-	}
-
-	nor->dev = &spi->dev;
-	nor->flash_node = spi->dev.of_node;
-	nor->priv = flash;
-
-	spi_set_drvdata(spi, flash);
-	flash->spi = spi;
-
-	if (spi->mode & SPI_RX_QUAD)
-		modes.rd_modes |= SNOR_MODE_1_1_4;
-	else if (spi->mode & SPI_RX_DUAL)
-		modes.rd_modes |= SNOR_MODE_1_1_2;
-
-	if (data && data->name)
-		nor->mtd.name = data->name;
-
-	/* For some (historical?) reason many platforms provide two different
-	 * names in flash_platform_data: "name" and "type". Quite often name is
-	 * set to "m25p80" and then "type" provides a real chip name.
-	 * If that's the case, respect "type" and ignore a "name".
-	 */
-	if (data && data->type)
-		flash_name = data->type;
-	else
-		flash_name = spi->modalias;
-
-	ret = spi_nor_scan(nor, flash_name, &modes);
-	if (ret)
-		return ret;
-
-	ppdata.of_node = spi->dev.of_node;
-
-	return mtd_device_parse_register(&nor->mtd, NULL, &ppdata,
-			data ? data->parts : NULL,
-			data ? data->nr_parts : 0);
-}
-
-tatic int micron_lock(struct spi_nor *spi loff_t ofs, uint64_t len)
+static int micron_lock(struct spi_nor *spi loff_t ofs, uint64_t len)
 {
 	struct m25p *flash = mtd_to_m25p(spi->mtd);
 	u8 TB, BP, SR;
@@ -456,6 +376,86 @@ static int micron_unlock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 err:	mutex_unlock(&flash->lock);
 	return res;
 }
+
+/*
+ * board specific setup should have ensured the SPI clock used here
+ * matches what the READ command supports, at least until this driver
+ * understands FAST_READ (for clocks over 25 MHz).
+ */
+static int m25p_probe(struct spi_device *spi)
+{
+	struct mtd_part_parser_data	ppdata;
+	struct flash_platform_data	*data;
+	struct m25p *flash;
+	struct flash_info *info;
+	struct spi_nor *nor;
+	struct spi_nor_modes modes = {
+		.rd_modes = SNOR_MODE_SLOW,
+		.wr_modes = SNOR_MODE_1_1_1,
+	};
+	char *flash_name = NULL;
+	int ret;
+
+	data = dev_get_platdata(&spi->dev);
+
+	flash = devm_kzalloc(&spi->dev, sizeof(*flash), GFP_KERNEL);
+	if (!flash)
+		return -ENOMEM;
+
+	nor = &flash->spi_nor;
+
+	/* install the hooks */
+	nor->read = m25p80_read;
+	nor->write = m25p80_write;
+	nor->erase = m25p80_erase;
+	nor->write_reg = m25p80_write_reg;
+	nor->read_reg = m25p80_read_reg;
+
+    if (JEDEC_MFR(info->jdec_id) == CFI_MFG_ST) {
+
+		if (info->flags & SNOR_F_USE_FSR) {
+			nor->flash_lock = micron_lock;
+			nor->flash_unlock = micron_unlock;
+
+		}
+	}
+
+	nor->dev = &spi->dev;
+	nor->flash_node = spi->dev.of_node;
+	nor->priv = flash;
+
+	spi_set_drvdata(spi, flash);
+	flash->spi = spi;
+
+	if (spi->mode & SPI_RX_QUAD)
+		modes.rd_modes |= SNOR_MODE_1_1_4;
+	else if (spi->mode & SPI_RX_DUAL)
+		modes.rd_modes |= SNOR_MODE_1_1_2;
+
+	if (data && data->name)
+		nor->mtd.name = data->name;
+
+	/* For some (historical?) reason many platforms provide two different
+	 * names in flash_platform_data: "name" and "type". Quite often name is
+	 * set to "m25p80" and then "type" provides a real chip name.
+	 * If that's the case, respect "type" and ignore a "name".
+	 */
+	if (data && data->type)
+		flash_name = data->type;
+	else
+		flash_name = spi->modalias;
+
+	ret = spi_nor_scan(nor, flash_name, &modes);
+	if (ret)
+		return ret;
+
+	ppdata.of_node = spi->dev.of_node;
+
+	return mtd_device_parse_register(&nor->mtd, NULL, &ppdata,
+			data ? data->parts : NULL,
+			data ? data->nr_parts : 0);
+}
+
 
 
 static int m25p_remove(struct spi_device *spi)
