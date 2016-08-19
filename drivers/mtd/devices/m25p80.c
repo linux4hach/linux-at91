@@ -31,7 +31,7 @@
 struct m25p {
 	struct spi_device	*spi;
 	struct spi_nor		spi_nor;
-	u8     command[MAX_COMMAND_SIZE];
+	u8     command[MAX_CMD_SIZE];
 };
 
 static int m25p80_reset_device(struct m25p *flash);
@@ -348,7 +348,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	write_enable(flash);
 	
 	//write the status register
-	if (write_sr(nor, SR) < 0) {
+	if (write_sr(flash, SR) < 0) {
 		res = 1;
 		goto err;
 	}
