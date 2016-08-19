@@ -311,8 +311,8 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	mutex_lock(&flash->lock);
 
-	sector_size = flash->nor.mtd.sector_size;
-	num_of_sectors = flash->nor.mtd.n_sectors;
+	sector_size = nor->mtd.sector_size;
+	num_of_sectors = nor->mtd.n_sectors;
 
 	start_sector = address / sector_size;
 	//protected_area = len / sector_size;
@@ -379,7 +379,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	u32 start_sector,unprotected_area;
 	u32 sector_size;
 
-	sector_size = flash->sector_size;
+	sector_size = nor->mtd.sector_size;
 	start_sector = address / sector_size;
 
 	do_div(len, sector_size);
@@ -414,7 +414,7 @@ static int m25p80_erase(struct spi_nor *nor, loff_t offset)
 	struct m25p *flash = nor->priv;
 
 	dev_dbg(nor->dev, "%dKiB at 0x%08x\n",
-		flash->spi_nor.mtd.erasesize / 1024, (u32)offset);
+		nor->mtd.erasesize / 1024, (u32)offset);
 
 	/* Set up command buffer. */
 	flash->command[0] = nor->erase_opcode;
