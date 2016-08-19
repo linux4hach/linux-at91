@@ -31,14 +31,13 @@
 struct m25p {
 	struct spi_device	*spi;
 	struct spi_nor		spi_nor;
-	struct mutex        lock;
 	u32                  sector_size;
 	u32                 n_sectors;
 	u8			command[MAX_CMD_SIZE];
 };
 
 static int m25p80_reset_device(struct m25p *flash);
-static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
+static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len);
 
 
 
@@ -310,7 +309,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	int res = 0;
 	uint32_t address = ofs;
 
-	mutex_lock(&flash->flash_lock);
+	mutex_lock(&flash->lock);
 
 	sector_size = flash->mtd.sector_size;
 	num_of_sectors = flash->mtd.n_sectors;
@@ -356,7 +355,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		goto err;
 	}
 
-err:	mutex_unlock(&flash->flash_lock);
+err:	mutex_unlock(&flash->lock);
 	return res;
 
 
