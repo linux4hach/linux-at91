@@ -287,6 +287,7 @@ static int m25p_probe(struct spi_device *spi)
 	struct mtd_part_parser_data	ppdata;
 	struct flash_platform_data	*data;
 	struct m25p *flash;
+	struct flash_info *info;
 	struct spi_nor *nor;
 	struct spi_nor_modes modes = {
 		.rd_modes = SNOR_MODE_SLOW,
