@@ -308,6 +308,15 @@ static int m25p_probe(struct spi_device *spi)
 	nor->write_reg = m25p80_write_reg;
 	nor->read_reg = m25p80_read_reg;
 
+    if (JEDEC_MFR(info->jdec_id) == CFI_MFG_ST) {
+
+		if (info->flags & USE_FSR) {
+			nor->flash_lock = micron_lock;
+			nor->flash_unlock = micron_unlock;
+
+		}
+	}
+
 	nor->dev = &spi->dev;
 	nor->flash_node = spi->dev.of_node;
 	nor->priv = flash;
