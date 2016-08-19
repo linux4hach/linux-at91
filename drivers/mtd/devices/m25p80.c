@@ -311,8 +311,8 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	mutex_lock(&flash->lock);
 
-	sector_size = flash->mtd.sector_size;
-	num_of_sectors = flash->mtd.n_sectors;
+	sector_size = flash->nor.mtd.sector_size;
+	num_of_sectors = flash->nor.mtd.n_sectors;
 
 	start_sector = address / sector_size;
 	//protected_area = len / sector_size;
@@ -355,7 +355,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		goto err;
 	}
 
-err:	mutex_unlock(nor->lock);
+err:	mutex_unlock(&nor->lock);
 	return res;
 
 
@@ -392,7 +392,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
-	mutex_lock(nor->lock);
+	mutex_lock(&nor->lock);
 
 
 	write_enable(flash);
@@ -402,7 +402,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		goto err;
 	}
 
-err:  mutex_unlock(&flash->lock);
+err:  mutex_unlock(&nor->lock);
 	  return res;
 
 
