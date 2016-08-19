@@ -309,8 +309,8 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	mutex_lock(&nor->lock);
 
-	sector_size = nor->mtd.sector_size;
-	num_of_sectors = nor->mtd.n_sectors;
+	sector_size = nor->sector_size;
+	num_of_sectors = nor->n_sectors;
 
 	start_sector = address / sector_size;
 	//protected_area = len / sector_size;
@@ -377,7 +377,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	u32 start_sector,unprotected_area;
 	u32 sector_size;
 
-	sector_size = nor->mtd.sector_size;
+	sector_size = nor->sector_size;
 	start_sector = address / sector_size;
 
 	do_div(len, sector_size);
