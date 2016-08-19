@@ -300,20 +300,20 @@ static int write_sr(struct m25p * flash, u8 val)
 
 }
 
-static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
+static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 
-	struct m25p *flash = spi->mtd;
+	struct m25p *flash = nor->priv;
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
 	u32 sector_size, num_of_sectors;
 	int res = 0;
 	uint32_t address = ofs;
 
-	mutex_lock(&flash->lock);
+	mutex_lock(&flash->flash_lock);
 
-	sector_size = flash->sector_size;
-	num_of_sectors = flash->n_sectors;
+	sector_size = flash->mtd.sector_size;
+	num_of_sectors = flash->mtd.n_sectors;
 
 	start_sector = address / sector_size;
 	//protected_area = len / sector_size;
@@ -351,12 +351,12 @@ static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 	write_enable(flash);
 	
 	//write the status register
-	if (write_sr(flash, SR) < 0) {
+	if (write_sr(spi, SR) < 0) {
 		res = 1;
 		goto err;
 	}
 
-err:	mutex_unlock(&flash->lock);
+err:	mutex_unlock(&flash->flash_lock);
 	return res;
 
 
@@ -372,9 +372,9 @@ err:	mutex_unlock(&flash->lock);
 
 
 
-static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
-	struct m25p *flash = mtd_to_m25p(mtd);
+	struct m25p *flash = nor->priv;
 	uint32_t address = ofs;
 	int res = 0;
 	u32 start_sector,unprotected_area;
