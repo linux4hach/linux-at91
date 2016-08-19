@@ -40,10 +40,6 @@ struct m25p {
 static int m25p80_reset_device(struct m25p *flash);
 static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
-static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
-{
-	return container_of(mtd, struct m25p, mtd);
-}
 
 
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
@@ -304,10 +300,10 @@ static int write_sr(struct m25p * flash, u8 val)
 
 }
 
-static int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 {
 
-	struct m25p *flash = mtd_to_m25p(mtd);
+	struct m25p *flash = spi->mtd;
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
 	u32 sector_size, num_of_sectors;
