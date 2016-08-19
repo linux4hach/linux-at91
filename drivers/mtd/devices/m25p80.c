@@ -57,11 +57,11 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 static int m25p80_reset_device(struct m25p *flash)
 {
 	int ret = 0;
-	flash->command[0] = SPINOR_OP_RESET_ENABLE;
-	ret = spi_write(flash->spi, flash->command, 1);
+	flash->spi_nor.cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
+	ret = spi_write(flash->spi, flash->spi_nor.cmd_buf, 1);
 	cond_resched();
-	flash->command[0] = SPINOR_OP_RESET_MEMORY;
-	ret = ret && spi_write(flash->spi, flash->command ,1);
+	flash->spi_nor.cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
+	ret = ret && spi_write(flash->spi, flash->spi_nor.cmd_buf,1);
 
 	return ret;
 }
@@ -88,13 +88,13 @@ static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 	/* Set up transfers. */
 	memset(xfers, 0, sizeof(xfers));
 
-	flash->command[0] = code;
+	flash->spi_nor.cmd_buf[0] = code;
 	xfers[0].len = 1;
-	xfers[0].tx_buf = flash->command;
+	xfers[0].tx_buf = flash->spi_nor.cmd_buf[0];
 	xfers[0].tx_nbits = code_nbits;
 
 	xfers[1].len = len;
-	xfers[1].rx_buf = &flash->command[1];
+	xfers[1].rx_buf = &flash->spi_nor.cmd_buf[1];
 	xfers[1].rx_nbits = data_nbits;
 
 	/* Process command. */
@@ -102,7 +102,7 @@ static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 	if (ret < 0)
 		dev_err(&spi->dev, "error %d reading %x\n", ret, code);
 	else
-		memcpy(val, &flash->command[1], len);
+		memcpy(val, &flash->spi_nor.cmd[1], len);
 
 	return ret;
 }
@@ -142,18 +142,18 @@ static int m25p80_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
 	/* Set up transfer(s). */
 	memset(xfers, 0, sizeof(xfers));
 
-	flash->command[0] = opcode;
+	flash->spi_nor[0] = opcode;
 	xfers[0].len = 1;
-	xfers[0].tx_buf = flash->command;
+	xfers[0].tx_buf = flash->spi_nor.cmd_buf;
 	xfers[0].tx_nbits = code_nbits;
 
 	if (buf) {
-		memcpy(&flash->command[1], buf, len);
+		memcpy(&flash->spi_nor.cmd_buf[1], buf, len);
 		if (data_nbits == code_nbits) {
 			xfers[0].len += len;
 		} else {
 			xfers[1].len = len;
-			xfers[1].tx_buf = &flash->command[1];
+			xfers[1].tx_buf = &flash->spi_nor.cmd_buf[1];
 			xfers[1].tx_nbits = data_nbits;
 			num_xfers++;
 		}
@@ -186,18 +186,18 @@ static void m25p80_write(struct spi_nor *nor, loff_t to, size_t len,
 	/* Set up transfers. */
 	memset(xfers, 0, sizeof(xfers));
 
-	flash->command[0] = nor->program_opcode;
+	flash->spi_nor.cmd_buf[0] = nor->program_opcode;
 	xfers[0].len = 1;
-	xfers[0].tx_buf = flash->command;
+	xfers[0].tx_buf = flash->spi_nor_cmd_buf;
 	xfers[0].tx_nbits = code_nbits;
 
 	if (cmd_sz > 1) {
-		m25p_addr2cmd(nor, to, flash->command);
+		m25p_addr2cmd(nor, to, flash->spi_nor.cmd_buf);
 		if (addr_nbits == code_nbits) {
 			xfers[0].len += nor->addr_width;
 		} else {
 			xfers[1].len = nor->addr_width;
-			xfers[1].tx_buf = &flash->command[1];
+			xfers[1].tx_buf = &flash->spi_nor.cmd_buf;
 			xfers[1].tx_nbits = addr_nbits;
 			num_xfers++;
 		}
@@ -242,24 +242,24 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 	/* Set up transfers. */
 	memset(xfers, 0, sizeof(xfers));
 
-	flash->command[0] = nor->read_opcode;
+	flash->spi_nor.cmd_buf[0] = nor->read_opcode;
 	xfers[0].len = 1;
-	xfers[0].tx_buf = flash->command;
+	xfers[0].tx_buf = flash->spi_nor.cmd_buf;
 	xfers[0].tx_nbits = code_nbits;
 
-	m25p_addr2cmd(nor, from, flash->command);
+	m25p_addr2cmd(nor, from, flash->spi_nor.cmd_buf);
 	/*
 	 * Clear all dummy/mode cycle bits to avoid sending some manufacturer
 	 * specific pattern, which might make the memory enter its Continuous
 	 * Read mode by mistake.
 	 */
-	memset(flash->command + 1 + nor->addr_width, 0, dummy);
+	memset(flash->spi_nor.cmd_buf + 1 + nor->addr_width, 0, dummy);
 
 	if (addr_nbits == code_nbits) {
 		xfers[0].len += nor->addr_width + dummy;
 	} else {
 		xfers[1].len = nor->addr_width + dummy;
-		xfers[1].tx_buf = &flash->command[1];
+		xfers[1].tx_buf = &flash->spi_nor.cmd_buf[1];
 		xfers[1].tx_nbits = addr_nbits;
 		num_xfers++;
 	}
@@ -288,10 +288,10 @@ static inline int write_enable(struct m25p *flash)
 static int write_sr(struct m25p * flash, u8 val)
 {
 
-	flash->command[0] = SPINOR_OP_WRSR;
-	flash->command[1] = val;
+	flash->spi_nor.cmd_buf[0] = SPINOR_OP_WRSR;
+	flash->spi_nor.cmd_buf[1] = val;
 
-	return spi_write(flash->spi, flash->command, 2);
+	return spi_write(flash->spi, flash->spi_nor.cmd_buf, 2);
 
 
 }
@@ -414,10 +414,10 @@ static int m25p80_erase(struct spi_nor *nor, loff_t offset)
 		nor->mtd.erasesize / 1024, (u32)offset);
 
 	/* Set up command buffer. */
-	flash->command[0] = nor->erase_opcode;
-	m25p_addr2cmd(nor, offset, flash->command);
+	flash->spi_nor.cmd_buf[0] = nor->erase_opcode;
+	m25p_addr2cmd(nor, offset, flash->spi_nor.cmd_buf);
 
-	spi_write(flash->spi, flash->command, m25p_cmdsz(nor));
+	spi_write(flash->spi, flash->spi_nor.cmd_buf, m25p_cmdsz(nor));
 
 	return 0;
 }
