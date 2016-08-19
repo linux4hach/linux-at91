@@ -276,7 +276,7 @@ static int m25p80_erase(struct spi_nor *nor, loff_t offset)
 
 	return 0;
 }
-static int micron_lock(struct spi_nor *spi loff_t ofs, uint64_t len)
+static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 {
 	struct m25p *flash = mtd_to_m25p(spi->mtd);
 	u8 TB, BP, SR;
