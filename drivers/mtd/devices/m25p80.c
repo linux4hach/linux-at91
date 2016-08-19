@@ -31,9 +31,6 @@
 struct m25p {
 	struct spi_device	*spi;
 	struct spi_nor		spi_nor;
-	u32                  sector_size;
-	u32                 n_sectors;
-	u8			command[MAX_CMD_SIZE];
 };
 
 static int m25p80_reset_device(struct m25p *flash);
