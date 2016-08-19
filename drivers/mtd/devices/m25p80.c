@@ -36,6 +36,13 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
+static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
+{
+	return container_of(mtd, struct m25p, mtd);
+
+}
+
+
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
 				     unsigned *addr_nbits,
