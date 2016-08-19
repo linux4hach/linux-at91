@@ -355,7 +355,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		goto err;
 	}
 
-err:	mutex_unlock(&flash->lock);
+err:	mutex_unlock(nor->lock);
 	return res;
 
 
@@ -392,7 +392,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
-	mutex_lock(&flash->lock);
+	mutex_lock(nor->lock);
 
 
 	write_enable(flash);
