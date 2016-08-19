@@ -42,7 +42,6 @@
 
 struct flash_info {
 	char		*name;
-
 	/*
 	 * This array stores the ID bytes.
 	 * The first three bytes are the JEDIC ID.
@@ -56,10 +55,8 @@ struct flash_info {
 	 */
 	unsigned	sector_size;
 	u16		n_sectors;
-
 	u16		page_size;
 	u16		addr_width;
-
 	u16		flags;
 #define	SECT_4K			0x01	/* SPINOR_OP_BE_4K works uniformly */
 #define	SPI_NOR_NO_ERASE	0x02	/* No erase command needed */
@@ -2023,6 +2020,8 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
 
 	mtd->dev.parent = dev;
 	nor->page_size = info->page_size;
+	nor->sector_size = info->sector_size;
+	nor->n_sectors = info->n_sectors;
 	mtd->writebufsize = nor->page_size;
 
 	if (np) {

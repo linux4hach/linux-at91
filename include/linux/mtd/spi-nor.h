@@ -285,6 +285,8 @@ struct spi_nor {
 	struct device		*dev;
 	struct device_node	*flash_node;
 	u32			page_size;
+	u16         n_sectors;
+	u16         sector_size;
 	u8			addr_width;
 	u8			erase_opcode;
 	u8			read_opcode;
