@@ -27,19 +27,23 @@
 #include <linux/spi/flash.h>
 #include <linux/mtd/spi-nor.h>
 
-#define JEDEC_MFR(_jedec_id)   ((_jedec_id) >> 16)
-
 #define	MAX_CMD_SIZE		16
 struct m25p {
 	struct spi_device	*spi;
 	struct spi_nor		spi_nor;
+	struct mutex        lock;
+	struct mtd_info     mtd;
+	u32                  sector_size;
+	u32                 n_sectors;
 	u8			command[MAX_CMD_SIZE];
 };
+
+static int m25p80_reset_device(struct m25p *flash);
+static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
 static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
 {
 	return container_of(mtd, struct m25p, mtd);
-
 }
 
 
@@ -57,6 +61,20 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 
 	return 0;
 }
+
+
+static int m25p80_reset_device(struct m25p *flash)
+{
+	int ret = 0;
+	flash->command[0] = SPINOR_OP_RESET_ENABLE;
+	ret = spi_write(flash->spi, flash->command, 1);
+	cond_resched();
+	flash->command[0] = SPINOR_OP_RESET_MEMORY;
+	ret = ret && spi_write(flash->spi, flash->command ,1);
+
+	return ret;
+}
+
 
 static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 {
@@ -268,24 +286,29 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 	return 0;
 }
 
-static int m25p80_erase(struct spi_nor *nor, loff_t offset)
+static inline int write_enable(struct m25p *flash)
 {
-	struct m25p *flash = nor->priv;
+	u8 code = SPINOR_OP_WREN;
 
-	dev_dbg(nor->dev, "%dKiB at 0x%08x\n",
-		flash->spi_nor.mtd.erasesize / 1024, (u32)offset);
+	return spi_write_then_read(flash->spi, &code, 1, NULL, 0);
 
-	/* Set up command buffer. */
-	flash->command[0] = nor->erase_opcode;
-	m25p_addr2cmd(nor, offset, flash->command);
-
-	spi_write(flash->spi, flash->command, m25p_cmdsz(nor));
-
-	return 0;
 }
-static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
+
+static int write_sr(struct m25p * flash, u8 val)
 {
-	struct m25p *flash = mtd_to_m25p(spi->mtd);
+
+	flash->command[0] = SPINOR_OP_WRSR;
+	flash->command[1] = val;
+
+	return spi_write(flash->spi, flash->command, 2);
+
+
+}
+
+static int micron_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+
+	struct m25p *flash = mtd_to_m25p(mtd);
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
 	u32 sector_size, num_of_sectors;
@@ -293,11 +316,6 @@ static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 	uint32_t address = ofs;
 
 	mutex_lock(&flash->lock);
-	/* Wait until finished previous command */
-	if (wait_till_ready(flash)) {
-		res = 1;
-		goto err;
-	}
 
 	sector_size = flash->sector_size;
 	num_of_sectors = flash->n_sectors;
@@ -345,10 +363,23 @@ static int micron_lock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 
 err:	mutex_unlock(&flash->lock);
 	return res;
+
+
+
+
+
+
+
+
 }
-static int micron_unlock(struct spi_nor *spi, loff_t ofs, uint64_t len)
+
+
+
+
+
+static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
-	struct m25p *flash = mtd_to_m25p(spi->mtd);
+	struct m25p *flash = mtd_to_m25p(mtd);
 	uint32_t address = ofs;
 	int res = 0;
 	u32 start_sector,unprotected_area;
@@ -356,32 +387,48 @@ static int micron_unlock(struct spi_nor *spi, loff_t ofs, uint64_t len)
 
 	sector_size = flash->sector_size;
 	start_sector = address / sector_size;
-	//64 bit division
+
 	do_div(len, sector_size);
 	unprotected_area = len;
 
+
 	if (start_sector == 0 && unprotected_area == 1) {
 		printk("spi: reset the chip...\n");
-		res = reset_device(flash);
+		res = m25p80_reset_device(flash);
 		return res;
 	}
-	mutex_lock(&flash->lock);
-	/* Wait until finished previous command */
-	if (wait_till_ready(flash)) {
-		res = 1;
-		goto err;
-	}
 
-	//enable the write
+	mutex_lock(&flash->lock);
+
+
 	write_enable(flash);
-	//write 0 to the status register to unlock all sectors
+
 	if (write_sr(flash, 0) < 0) {
 		res = 1;
 		goto err;
 	}
 
-err:	mutex_unlock(&flash->lock);
-	return res;
+err:  mutex_unlock(&flash->lock);
+	  return res;
+
+
+
+}
+
+static int m25p80_erase(struct spi_nor *nor, loff_t offset)
+{
+	struct m25p *flash = nor->priv;
+
+	dev_dbg(nor->dev, "%dKiB at 0x%08x\n",
+		flash->spi_nor.mtd.erasesize / 1024, (u32)offset);
+
+	/* Set up command buffer. */
+	flash->command[0] = nor->erase_opcode;
+	m25p_addr2cmd(nor, offset, flash->command);
+
+	spi_write(flash->spi, flash->command, m25p_cmdsz(nor));
+
+	return 0;
 }
 
 /*
@@ -394,7 +441,6 @@ static int m25p_probe(struct spi_device *spi)
 	struct mtd_part_parser_data	ppdata;
 	struct flash_platform_data	*data;
 	struct m25p *flash;
-	struct flash_info *info;
 	struct spi_nor *nor;
 	struct spi_nor_modes modes = {
 		.rd_modes = SNOR_MODE_SLOW,
@@ -417,15 +463,11 @@ static int m25p_probe(struct spi_device *spi)
 	nor->erase = m25p80_erase;
 	nor->write_reg = m25p80_write_reg;
 	nor->read_reg = m25p80_read_reg;
+	
+	/* at this point only micron sytems will be unlockable */
+	nor->flash_lock = micron_lock;
+	nor->flash_unlock = micron_unlock;
 
-    if (JEDEC_MFR(info->jdec_id) == CFI_MFG_ST) {
-
-		if (info->flags & SNOR_F_USE_FSR) {
-			nor->flash_lock = micron_lock;
-			nor->flash_unlock = micron_unlock;
-
-		}
-	}
 
 	nor->dev = &spi->dev;
 	nor->flash_node = spi->dev.of_node;
@@ -464,13 +506,18 @@ static int m25p_probe(struct spi_device *spi)
 }
 
 
-
 static int m25p_remove(struct spi_device *spi)
 {
+
+	int ret = 0;
+	
 	struct m25p	*flash = spi_get_drvdata(spi);
 
+	ret = m25p80_reset_device(flash);
+    ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
+
 	/* Clean up MTD stuff. */
-	return mtd_device_unregister(&flash->spi_nor.mtd);
+	return ret;
 }
 
 /*
