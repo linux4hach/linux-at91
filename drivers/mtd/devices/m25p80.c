@@ -481,6 +481,7 @@ static int m25p_probe(struct spi_device *spi)
 	ppdata.of_node = spi->dev.of_node;
 
 	/* at this point only micron sytems will be unlockable */
+	printk("You actually got to the attachment point\n");
 	nor->flash_lock = micron_lock;
 	nor->flash_unlock = micron_unlock;
 
