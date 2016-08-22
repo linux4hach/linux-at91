@@ -300,6 +300,7 @@ static int write_sr(struct m25p * flash, u8 val)
 static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 
+	printk("You are trying to lock a micron device\n");
 	struct m25p *flash = nor->priv;
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
@@ -355,14 +356,6 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 err:	mutex_unlock(&nor->lock);
 	return res;
-
-
-
-
-
-
-
-
 }
 
 
@@ -371,6 +364,7 @@ err:	mutex_unlock(&nor->lock);
 
 static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
+	printk("You are trying to unlock a micron device.\n");
 	struct m25p *flash = nor->priv;
 	uint32_t address = ofs;
 	int res = 0;
@@ -402,9 +396,6 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 err:  mutex_unlock(&nor->lock);
 	  return res;
-
-
-
 }
 
 static int m25p80_erase(struct spi_nor *nor, loff_t offset)
@@ -503,11 +494,16 @@ static int m25p_remove(struct spi_device *spi)
 {
 
 	int ret = 0;
-	
+
 	struct m25p	*flash = spi_get_drvdata(spi);
 
-	ret = m25p80_reset_device(flash);
-    ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
+	if (flash->fsr_wait)
+	{
+		printk("spi: reset the chip...\n");
+		ret = m25p80_reset_device(flash);
+	}
+
+	ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
 
 	/* Clean up MTD stuff. */
 	return ret;
