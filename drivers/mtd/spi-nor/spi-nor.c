@@ -517,6 +517,7 @@ static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
  */
 static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
+	printk("You have tried to lock the spi\n");
 	struct mtd_info *mtd = &nor->mtd;
 	u8 status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
@@ -567,6 +568,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
  */
 static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
+	printk("You have tried to unlock the serial flash\n");
 	struct mtd_info *mtd = &nor->mtd;
 	uint8_t status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
