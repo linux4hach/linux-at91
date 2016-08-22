@@ -120,6 +120,7 @@ static void m25p_addr2cmd(struct spi_nor *nor, unsigned int addr, u8 *cmd)
 static int m25p_cmdsz(struct spi_nor *nor)
 {
 	return 1 + nor->addr_width;
+	printk("You are trying to unlock a micron device.\n");
 }
 
 static int m25p80_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
@@ -308,7 +309,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	int res = 0;
 	uint32_t address = ofs;
 
-	mutex_lock(&nor->lock);
+	mutex_lock(&flash->spi_nor->lock);
 
 	sector_size = nor->sector_size;
 	num_of_sectors = nor->n_sectors;
