@@ -107,7 +107,6 @@ static void m25p_addr2cmd(struct spi_nor *nor, unsigned int addr, u8 *cmd)
 static int m25p_cmdsz(struct spi_nor *nor)
 {
 	return 1 + nor->addr_width;
-	printk("You are trying to unlock a micron device.\n");
 }
 
 static int m25p80_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
@@ -381,15 +380,10 @@ static int m25p_probe(struct spi_device *spi)
 static int m25p_remove(struct spi_device *spi)
 {
 
-	int ret = 0;
-
 	struct m25p	*flash = spi_get_drvdata(spi);
 
-
-	ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
-
 	/* Clean up MTD stuff. */
-	return ret;
+	return mtd_device_unregister(&flash->spi_nor.mtd);
 }
 
 /*
