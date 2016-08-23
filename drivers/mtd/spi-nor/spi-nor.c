@@ -2019,8 +2019,6 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
 
 	mtd->dev.parent = dev;
 	nor->page_size = info->page_size;
-	nor->sector_size = info->sector_size;
-	nor->n_sectors = info->n_sectors;
 	mtd->writebufsize = nor->page_size;
 
 	if (np) {
