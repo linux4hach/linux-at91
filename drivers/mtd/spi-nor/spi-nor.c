@@ -650,7 +650,23 @@ static int spi_nor_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	printk(KERN_CRIT "SPI_NOR_UNLOCK\n");
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
+    uint32_t address = ofs;
 	int ret;
+	u32 start_sector,unprotected_area;
+	u32 sector_size;
+
+	sector_size = info->sector_size;
+	start_sector = address / sector_size;
+
+	do_div(len, sector_size);
+	unprotected_area = len;
+
+	if (start_sector == 0 && unprotected_area == 1) {
+		printk("spi:  reset the chip ...\n");
+		res = reset_device(nor);
+		return nor;
+	}
+
 
 	ret = spi_nor_lock_and_prep(nor, SPI_NOR_OPS_UNLOCK);
 	if (ret)
@@ -1115,6 +1131,25 @@ static int write_sr_cr(struct spi_nor *nor, u16 val)
 
 	return nor->write_reg(nor, SPINOR_OP_WRSR, nor->cmd_buf, 2);
 }
+
+static int reset_device(struct spi_nor *nor)
+{
+
+
+	if (spi_nor_wait_till_ready(nor))
+		return 1;
+
+	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
+	spi_nor_write(nor, nor->cmd_buf, 1);
+	cond_resched();
+	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
+	spi_nor_write(nor, nor->cmd_buf, 1);
+	
+	return 0;
+
+}
+
+
 
 static int spansion_quad_enable(struct spi_nor *nor)
 {
