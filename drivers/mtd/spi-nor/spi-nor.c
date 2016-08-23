@@ -518,7 +518,7 @@ static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
 static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 
-	printk(KERNEL_EMERG "STM_LOCK");
+	printk(KERN_EMERG "STM_LOCK\n");
 	struct mtd_info *mtd = &nor->mtd;
 	u8 status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
