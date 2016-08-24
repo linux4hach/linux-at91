@@ -519,7 +519,6 @@ static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
 static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 
-	printk(KERN_EMERG "STM_LOCK\n");
 	struct mtd_info *mtd = &nor->mtd;
 	u8 status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
@@ -570,7 +569,6 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
  */
 static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
-    printk(KERN_EMERG "STM_UNLOCK\n");
 	struct mtd_info *mtd = &nor->mtd;
 	uint8_t status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
@@ -632,7 +630,6 @@ static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 static int spi_nor_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
-    printk(KERN_EMERG "SPI_NOR_LOCK\n");
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
 	int ret;
 
@@ -649,7 +646,6 @@ static int spi_nor_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 static int spi_nor_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 
-	printk(KERN_EMERG "SPI_NOR_UNLOCK\n");
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
 	int ret;
 
