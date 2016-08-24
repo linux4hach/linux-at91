@@ -372,10 +372,10 @@ static int reset_device(struct spi_nor *nor)
 		return 1;
 
 	nor->cmd_buf[0] = SPINOR_OP_RESET_ENABLE;
-	spi_nor_write(nor->mtd, nor->cmd_buf, 1);
+	nor->write(nor->mtd, nor->cmd_buf, 1);
 	cond_resched();
 	nor->cmd_buf[0] = SPINOR_OP_RESET_MEMORY;
-	spi_nor_write(nor->mtd, nor->cmd_buf, 1);
+	nor->write(nor->mtd, nor->cmd_buf, 1);
 
 	return 0;
 }
