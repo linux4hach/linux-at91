@@ -1903,9 +1903,9 @@ static int reset_spi_nor(struct spi_nor *nor)
 	if (spi_nor_wait_till_ready(nor))
 		return 1;
 
-    nor->write(nor, SPINOR_OP_RESET_ENABLE, nor->cmd_nor, 1);
+    nor->write_reg(nor, SPINOR_OP_RESET_ENABLE, nor->cmd_nor, 1);
 	cond_resched();
-	nor->write(nor, SPINOR_OP_RESET_MEMORY, nor->cmd_nor, 1);
+	nor->write_reg(nor, SPINOR_OP_RESET_MEMORY, nor->cmd_nor, 1);
 
 	return 0;
 
