@@ -570,6 +570,23 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	struct mtd_info *mtd = &nor->mtd;
+	uint32_t address = ofs;
+
+	u32 start_sector,unprotected_area;
+	u32 sector_size;
+
+	sector_size = mtd->sector_size;
+	start_sector = address / sector_size;
+
+	do_div(len, sector_size);
+	unprotected_area = len;
+
+	if (start_sector == 0 && unprotected_area == 1) {
+		printk("spi: reset the chip...\n");
+		int res = reset_spi_nor(nor);
+		return res;
+	}
+
 	uint8_t status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
 	u8 shift = ffs(mask) - 1, pow, val;
