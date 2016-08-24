@@ -1898,6 +1898,20 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	return 0;
 }
 
+static int reset_spi_nor(struct spi_nor *nor)
+{
+	if (wait_till_ready(nor))
+		return 1;
+
+    nor->write(nor, nor->cmd_nor, SPINOR_OP_RESET_ENABLE, 1);
+	cond_resched();
+	nor->write(nor, nor->cmd_nor, SPINOR_OP_RESET_MEMORY, 1);
+
+	return 0;
+
+}
+
+
 int spi_nor_scan(struct spi_nor *nor, const char *name,
 		 const struct spi_nor_modes *modes)
 {
