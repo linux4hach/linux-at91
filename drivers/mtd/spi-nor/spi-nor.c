@@ -365,9 +365,6 @@ static int spi_nor_lock_and_prep(struct spi_nor *nor, enum spi_nor_ops ops)
 	return ret;
 }
 
-
-
-
 static void spi_nor_unlock_and_unprep(struct spi_nor *nor, enum spi_nor_ops ops)
 {
 	if (nor->unprepare)
