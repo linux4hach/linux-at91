@@ -1919,7 +1919,7 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	return 0;
 }
 
-static int reset_spi_nor(struct spi_nor *nor)
+int reset_spi_nor(struct spi_nor *nor)
 {
 	if (spi_nor_wait_till_ready(nor))
 	{
