@@ -1922,7 +1922,10 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 static int reset_spi_nor(struct spi_nor *nor)
 {
 	if (spi_nor_wait_till_ready(nor))
+	{
+		printk("Failed to reset spi-nor\n");
 		return 1;
+	}
 
 	nor->cmd_buf[0]=SPINOR_OP_RESET_ENABLE;
     nor->write_reg(nor, SPINOR_OP_RESET_ENABLE, nor->cmd_buf, 1);
@@ -1930,6 +1933,7 @@ static int reset_spi_nor(struct spi_nor *nor)
 	nor->cmd_buf[0]=SPINOR_OP_RESET_MEMORY;
 	nor->write_reg(nor, SPINOR_OP_RESET_MEMORY, nor->cmd_buf, 1);
 
+	printk("Successfully reset spi-nor\n");
 	return 0;
 
 }
