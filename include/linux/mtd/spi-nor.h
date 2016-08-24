@@ -333,5 +333,4 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
 		 const struct spi_nor_modes *modes);
 
 int reset_spi_nor(struct spi_nor *nor);
-int spi_nor_ready(struct spi_nor *nor);
 #endif
