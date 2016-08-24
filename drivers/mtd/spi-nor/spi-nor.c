@@ -23,6 +23,7 @@
 #include <linux/spi/flash.h>
 #include <linux/mtd/spi-nor.h>
 static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
+static const struct flash_info *spi_nor_read_id(struct spi_nor *nor);
 
 /* Define max times to check status register before we give up. */
 
