@@ -571,7 +571,7 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	struct mtd_info *mtd = &nor->mtd;
 	uint32_t address = ofs;
-	flash_info *info = spi_nor_read_id(nor);
+	const struct flash_info *info = spi_nor_read_id(nor);
 
 	u32 start_sector,unprotected_area;
 	u32 sector_size;
