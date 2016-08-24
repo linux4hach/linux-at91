@@ -366,18 +366,6 @@ static int spi_nor_lock_and_prep(struct spi_nor *nor, enum spi_nor_ops ops)
 }
 
 
-static int reset_device(struct spi_nor *nor)
-{
-	if (spi_nor_wait_till_ready(nor))
-		return 1;
-
-	nor->write(nor, SPINOR_OP_RESET_ENABLE, nor->cmd_buf, 1);
-	cond_resched();
-	nor->write(nor, SPINOR_OP_RESET_MEMORY, nor->cmd_buf, 1);
-
-	return 0;
-}
-
 
 
 static void spi_nor_unlock_and_unprep(struct spi_nor *nor, enum spi_nor_ops ops)
