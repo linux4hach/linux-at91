@@ -371,8 +371,7 @@ static int m25p_remove(struct spi_device *spi)
 {
 
 	struct m25p	*flash = spi_get_drvdata(spi);
-	struct spi_nor *local_spi_nor = (spi_nor *)flash->spi_nor;
-	reset_spi_nor(local_spi_nor);
+	reset_spi_nor((spi_nor *)flash->spi_nor);
 
 	/* Clean up MTD stuff. */
 	return mtd_device_unregister(&flash->spi_nor.mtd);
