@@ -618,11 +618,12 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	status_old = read_sr(nor);
 
+	printk("You made it to line 621\n");
 	/* Cannot unlock; would unlock larger region than requested */
 	if (stm_is_locked_sr(nor, ofs - mtd->erasesize, mtd->erasesize,
 			     status_old))
 		return -EINVAL;
-
+        printk("You made it to line 626\n");
 	/*
 	 * Need largest pow such that:
 	 *
