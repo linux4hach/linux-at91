@@ -562,7 +562,18 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return -EINVAL;
 
 	write_enable(nor);
-	return write_sr(nor, status_new);
+	int write_status = write_sr(nor, status_new);
+	int locked_status stm_is_locked(nor, ofs, len);
+	if (locked_status)
+	{
+		printk("spi-nor successfully locked\n");
+	}
+	else
+	{
+		printk("spi-nor FAILED to LOCK\n");
+	}
+
+	return write_status;
 }
 
 /*
