@@ -570,9 +570,13 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	{
 		printk("spi-nor successfully locked\n");
 	}
+	else if (locked_status < 0)
+	{
+		printk ("spi_nor has had an error in locking\n");
+	}
 	else
 	{
-		printk("spi-nor FAILED to LOCK\n");
+		printk("spi-nor is still unlocked\n");
 	}
 
 	return write_status;
@@ -640,7 +644,23 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return -EINVAL;
 
 	write_enable(nor);
-	return write_sr(nor, status_new);
+	int write_status = write_sr(nor, status_new);
+	int lock_status = stm_is_locked(nor, ofs, len);
+
+	if (lock_status)
+	{
+		printk("Sorry spi_nor is still locked\n");
+	}
+	else if (lock_status < 0)
+	{
+		printk("Sorry there was an error in unlocking the spi_nor\n");
+	}
+	else
+	{
+		printk("The spi_nor is unlocked\n");
+	}
+
+	return write_status;
 }
 
 /*
