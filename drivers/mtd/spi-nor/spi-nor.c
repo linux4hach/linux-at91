@@ -532,7 +532,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	status_old = read_sr(nor);
 
 	/* SPI NOR always locks to the end */
-	if (ofs + len != mtd->size) {
+	if ((ofs + len) != mtd->size) {
 		/* Does combined region extend to end? */
 		if (!stm_is_locked_sr(nor, ofs + len, mtd->size - ofs - len,
 				      status_old))
@@ -628,7 +628,7 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
 	 */
 	pow = ilog2(mtd->size) - order_base_2(mtd->size - (ofs + len));
-	if (ofs + len == mtd->size) {
+	if ((ofs + len) == mtd->size) {
 		val = 0; /* fully unlocked */
 	} else {
 		val = mask - (pow << shift);
