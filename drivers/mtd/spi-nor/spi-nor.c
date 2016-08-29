@@ -25,6 +25,8 @@
 
 static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
 static const struct flash_info *spi_nor_read_id(struct spi_nor *nor);
+static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len);
+
 
 
 /* Define max times to check status register before we give up. */
@@ -563,7 +565,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	write_enable(nor);
 	int write_status = write_sr(nor, status_new);
-	int locked_status stm_is_locked(nor, ofs, len);
+	int locked_status = stm_is_locked(nor, ofs, len);
 	if (locked_status)
 	{
 		printk("spi-nor successfully locked\n");
