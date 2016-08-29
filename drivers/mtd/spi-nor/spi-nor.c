@@ -642,12 +642,14 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		if (val & ~mask)
 			return -EINVAL;
 	}
+    printk("You made it to line 645\n");
 
 	status_new = (status_old & ~mask) | val;
 
 	/* Only modify protection if it will not lock other areas */
 	if ((status_new & mask) >= (status_old & mask))
 		return -EINVAL;
+    printk("You made it to line 652\n");
 
 	write_enable(nor);
 	int write_status = write_sr(nor, status_new);
