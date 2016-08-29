@@ -538,7 +538,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 				      status_old))
 			return -EINVAL;
 		len = mtd->size - ofs;
-		printk("You got here -" + __LINE__ + "\n");
+		printk("You got to line 541\n");
 	}
 
 	/*
@@ -554,18 +554,18 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	val = mask - (pow << shift);
 	if (val & ~mask)
 		return -EINVAL;
-		printk("You got here -" + __LINE__ + "\n");
+		printk("You got here to line 557");
 	/* Don't "lock" with no region! */
 	if (!(val & mask))
 		return -EINVAL;
-		printk("You got here -" + __LINE__ + "\n");
+		printk("You got here to line 561");
 
 	status_new = (status_old & ~mask) | val;
 
 	/* Only modify protection if it will not unlock other areas */
 	if ((status_new & mask) <= (status_old & mask))
 		return -EINVAL;
-		printk("You got here -" + __LINE__ + "\n");
+		printk("You got here to line 568\n");
 
 	write_enable(nor);
 	int write_status = write_sr(nor, status_new);
