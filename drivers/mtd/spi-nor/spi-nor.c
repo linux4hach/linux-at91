@@ -531,6 +531,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	status_old = read_sr(nor);
 
+	printk("You got to line 534\n");
 	/* SPI NOR always locks to the end */
 	if ((ofs + len) != mtd->size) {
 		/* Does combined region extend to end? */
