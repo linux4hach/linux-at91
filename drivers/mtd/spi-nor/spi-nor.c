@@ -646,7 +646,9 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	//64 bit division
 	do_div(len, sector_size);
 	unprotected_area = len;
-
+	
+	
+	printk("Before reset chip\n line 651");
 	if (start_sector == 0 && unprotected_area == 1) {
 		printk("spi: reset the chip...\n");
 		res = reset_spi_nor(nor);
@@ -659,6 +661,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
+	printk("Line 664\n");
 	//enable the write
 	write_enable(nor);
 	//write 0 to the status register to unlock all sectors
@@ -667,6 +670,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
+	printk("line 673\n");
 	return res;
 
 }
@@ -2125,8 +2129,8 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
 
 	/* NOR protection support for STmicro/Micron chips and similar */
 	if (JEDEC_MFR(info) == SNOR_MFR_MICRON) {
-		nor->flash_lock = stm_lock;
-		nor->flash_unlock = stm_unlock;
+		nor->flash_lock = micron_lock;
+		nor->flash_unlock = micron_unlock;
 		nor->flash_is_locked = stm_is_locked;
 	}
 
