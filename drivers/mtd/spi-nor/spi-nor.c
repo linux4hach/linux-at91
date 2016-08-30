@@ -2031,7 +2031,7 @@ int reset_spi_nor(struct spi_nor *nor)
 	cond_resched();
 	int reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
 
-	if (enable_status && reset_status)
+	if ((enable_status==0) && (reset_status==0))
 	{
 
 	    printk("Successfully reset spi-nor\n");
