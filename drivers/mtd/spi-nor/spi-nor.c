@@ -633,7 +633,7 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
-	struct flash_info *flash = spi_nor_read_id(nor);
+	const struct flash_info *flash = spi_nor_read_id(nor);
 	uint32_t address = ofs;
 	int res = 0;
 	u32 start_sector,unprotected_area;
@@ -671,7 +671,7 @@ err:	mutex_unlock(&nor->lock);
 
 static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
-    flash_info *flash = spi_nor_read_id(nor);	
+    struct flash_info *flash = spi_nor_read_id(nor);	
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
 	u32 sector_size, num_of_sectors;
