@@ -653,13 +653,11 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
-
 	/* Wait until finished previous command */
 	if (spi_nor_wait_till_ready(nor)) {
 		res = 1;
 		return res;
 	}
-	printk("Line 661 in micron unlock\n");
 
 	//enable the write
 	write_enable(nor);
@@ -682,7 +680,6 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	int res = 0;
 	uint32_t address = ofs;
 
-	mutex_lock(&nor->lock);
 	/* Wait until finished previous command */
 	if (spi_nor_wait_till_ready(nor)) {
 		res = 1;
@@ -733,7 +730,6 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		goto err;
 	}
 
-err:	mutex_unlock(&nor->lock);
 	return res;
 }
 
