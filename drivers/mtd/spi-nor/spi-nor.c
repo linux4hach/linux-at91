@@ -652,11 +652,12 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		res = reset_spi_nor(nor);
 		return res;
 	}
-	mutex_lock(&nor->lock);
+
+
 	/* Wait until finished previous command */
 	if (spi_nor_wait_till_ready(nor)) {
 		res = 1;
-		goto err;
+		return res;
 	}
 	printk("Line 661 in micron unlock\n");
 
@@ -665,14 +666,11 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	//write 0 to the status register to unlock all sectors
 	if (write_sr(nor, 0) < 0) {
 		res = 1;
-		goto err;
+		return res;
 	}
-	printk("Line 670 in micron unlock\n");
-
-err:	mutex_unlock(&nor->lock);
-	printk("Line 673 in micron unlock\n");
 
 	return res;
+
 }
 
 static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
