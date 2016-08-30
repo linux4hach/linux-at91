@@ -26,6 +26,8 @@
 static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
 static const struct flash_info *spi_nor_read_id(struct spi_nor *nor);
 static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len);
+static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len);
+static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len);
 
 
 
@@ -652,7 +654,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	}
 	mutex_lock(&nor->lock);
 	/* Wait until finished previous command */
-	if (wait_till_ready(nor)) {
+	if (spi_nor_wait_till_ready(nor)) {
 		res = 1;
 		goto err;
 	}
@@ -671,7 +673,7 @@ err:	mutex_unlock(&nor->lock);
 
 static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
-    struct flash_info *flash = spi_nor_read_id(nor);	
+    const struct flash_info *flash = spi_nor_read_id(nor);	
 	u8 TB, BP, SR;
 	u32 i, start_sector,protected_area;
 	u32 sector_size, num_of_sectors;
