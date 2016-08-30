@@ -531,7 +531,6 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	status_old = read_sr(nor);
 
-	printk("You got to line 534\n");
 	/* SPI NOR always locks to the end */
 	if ((ofs + len) != mtd->size) {
 		/* Does combined region extend to end? */
@@ -539,7 +538,6 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 				      status_old))
 			return -EINVAL;
 		len = mtd->size - ofs;
-		printk("You got to line 541\n");
 	}
 
 	/*
@@ -555,36 +553,18 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	val = mask - (pow << shift);
 	if (val & ~mask)
 		return -EINVAL;
-		printk("You got here to line 557");
 	/* Don't "lock" with no region! */
 	if (!(val & mask))
 		return -EINVAL;
-		printk("You got here to line 561");
 
 	status_new = (status_old & ~mask) | val;
 
 	/* Only modify protection if it will not unlock other areas */
 	if ((status_new & mask) <= (status_old & mask))
 		return -EINVAL;
-		printk("You got here to line 568\n");
 
 	write_enable(nor);
-	int write_status = write_sr(nor, status_new);
-	int locked_status = stm_is_locked(nor, ofs, len);
-	if (locked_status)
-	{
-		printk("spi-nor successfully locked\n");
-	}
-	else if (locked_status < 0)
-	{
-		printk ("spi_nor has had an error in locking\n");
-	}
-	else
-	{
-		printk("spi-nor is still unlocked\n");
-	}
-
-	return write_status;
+	return write_sr(nor, status_new);
 }
 
 /*
@@ -618,12 +598,10 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	status_old = read_sr(nor);
 
-	printk("You made it to line 621\n");
 	/* Cannot unlock; would unlock larger region than requested */
 	if (stm_is_locked_sr(nor, ofs - mtd->erasesize, mtd->erasesize,
 			     status_old))
 		return -EINVAL;
-        printk("You made it to line 626\n");
 	/*
 	 * Need largest pow such that:
 	 *
@@ -642,34 +620,119 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		if (val & ~mask)
 			return -EINVAL;
 	}
-    printk("You made it to line 645\n");
 
 	status_new = (status_old & ~mask) | val;
 
 	/* Only modify protection if it will not lock other areas */
 	if ((status_new & mask) >= (status_old & mask))
 		return -EINVAL;
-    printk("You made it to line 652\n");
 
 	write_enable(nor);
-	int write_status = write_sr(nor, status_new);
-	int lock_status = stm_is_locked(nor, ofs, len);
-
-	if (lock_status)
-	{
-		printk("Sorry spi_nor is still locked\n");
-	}
-	else if (lock_status < 0)
-	{
-		printk("Sorry there was an error in unlocking the spi_nor\n");
-	}
-	else
-	{
-		printk("The spi_nor is unlocked\n");
-	}
-
-	return write_status;
+	return write_sr(nor, status_new);
 }
+
+static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+	struct flash_info *flash = spi_nor_read_id(nor);
+	uint32_t address = ofs;
+	int res = 0;
+	u32 start_sector,unprotected_area;
+	u32 sector_size;
+
+	sector_size = flash->sector_size;
+	start_sector = address / sector_size;
+	//64 bit division
+	do_div(len, sector_size);
+	unprotected_area = len;
+
+	if (start_sector == 0 && unprotected_area == 1) {
+		printk("spi: reset the chip...\n");
+		res = reset_spi_nor(nor);
+		return res;
+	}
+	mutex_lock(&nor->lock);
+	/* Wait until finished previous command */
+	if (wait_till_ready(nor)) {
+		res = 1;
+		goto err;
+	}
+
+	//enable the write
+	write_enable(nor);
+	//write 0 to the status register to unlock all sectors
+	if (write_sr(nor, 0) < 0) {
+		res = 1;
+		goto err;
+	}
+
+err:	mutex_unlock(&nor->lock);
+	return res;
+}
+
+static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+{
+    flash_info *flash = spi_nor_read_id(nor);	
+	u8 TB, BP, SR;
+	u32 i, start_sector,protected_area;
+	u32 sector_size, num_of_sectors;
+	int res = 0;
+	uint32_t address = ofs;
+
+	mutex_lock(&nor->lock);
+	/* Wait until finished previous command */
+	if (spi_nor_wait_till_ready(nor)) {
+		res = 1;
+		goto err;
+	}
+
+	sector_size = flash->sector_size;
+	num_of_sectors = flash->n_sectors;
+
+	start_sector = address / sector_size;
+	//protected_area = len / sector_size;
+	//64 bit division
+	do_div(len, sector_size);
+	protected_area = len;
+	
+	if (protected_area == 0 ) {
+		res = 1;
+		goto err;
+	}
+
+	//protect the lower sectors if the start sector is 0, otherwise start the protection from the upper sectors
+	if (start_sector < num_of_sectors/2) {
+		TB = 1;
+	}
+	else {
+		TB = 0;
+	}
+
+	BP = 1;
+	for (i = 1; i <= num_of_sectors/2; i = i*2) {
+		//over protection if the number of protected sectors is not a multiple of 2
+		//all sectors are protected if the number of protected sectors is geater than the half of total sectors
+		if (protected_area <= i) {
+			break;	
+		}
+		BP++;		
+	}
+
+	//set the status register
+	SR = (((BP & 8) >> 3) << 6) | (TB << 5) | ((BP & 7) << 2);
+	
+	//enable the write
+	write_enable(nor);
+	
+	//write the status register
+	if (write_sr(nor, SR) < 0) {
+		res = 1;
+		goto err;
+	}
+
+err:	mutex_unlock(&nor->lock);
+	return res;
+}
+
 
 /*
  * Check if a region of the flash is (completely) locked. See stm_lock() for
