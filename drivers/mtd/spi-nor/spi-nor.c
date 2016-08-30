@@ -2039,7 +2039,7 @@ int reset_spi_nor(struct spi_nor *nor)
 	}
 	else
 	{
-		print("Failed to reset spi-nor\n");
+		printk("Failed to reset spi-nor\n");
 		return 1;
 	}
 
