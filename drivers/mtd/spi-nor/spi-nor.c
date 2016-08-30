@@ -589,11 +589,6 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	do_div(len, sector_size);
 	unprotected_area = len;
 
-	if (start_sector == 0 && unprotected_area == 1) {
-		printk("spi: reset the chip...\n");
-		return reset_spi_nor(nor);
-	}
-
 	uint8_t status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
 	u8 shift = ffs(mask) - 1, pow, val;
@@ -648,9 +643,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	unprotected_area = len;
 	
 	
-	printk("Before reset chip\n line 651");
 	if (start_sector == 0 && unprotected_area == 1) {
-		printk("spi: reset the chip...\n");
 		res = reset_spi_nor(nor);
 		return res;
 	}
@@ -661,7 +654,6 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
-	printk("Line 664\n");
 	//enable the write
 	write_enable(nor);
 	//write 0 to the status register to unlock all sectors
@@ -670,7 +662,6 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		return res;
 	}
 
-	printk("line 673\n");
 	return res;
 
 }
@@ -2035,11 +2026,23 @@ int reset_spi_nor(struct spi_nor *nor)
 		return 1;
 	}
 
-    write_sr(nor, SPINOR_OP_RESET_ENABLE);
+	
+    int enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
 	cond_resched();
-	write_sr(nor, SPINOR_OP_RESET_MEMORY);
+	int reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
 
-	printk("Successfully reset spi-nor\n");
+	if (enable_status && reset_status)
+	{
+
+	    printk("Successfully reset spi-nor\n");
+		return 0;
+	}
+	else
+	{
+		print("Failed to reset spi-nor\n");
+		return 1;
+	}
+
 	return 0;
 
 }
