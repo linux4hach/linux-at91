@@ -2126,8 +2126,8 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
 
 	/* NOR protection support for STmicro/Micron chips and similar */
 	if (JEDEC_MFR(info) == SNOR_MFR_MICRON) {
-		nor->flash_lock = stm_lock;
-		nor->flash_unlock = stm_unlock;
+		nor->flash_lock = micron_lock;
+		nor->flash_unlock = micron_unlock;
 		nor->flash_is_locked = stm_is_locked;
 	}
 
