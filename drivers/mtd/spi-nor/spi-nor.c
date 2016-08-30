@@ -683,7 +683,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* Wait until finished previous command */
 	if (spi_nor_wait_till_ready(nor)) {
 		res = 1;
-		goto err;
+		return res;
 	}
 
 	sector_size = flash->sector_size;
@@ -697,7 +697,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	
 	if (protected_area == 0 ) {
 		res = 1;
-		goto err;
+		return  res;
 	}
 
 	//protect the lower sectors if the start sector is 0, otherwise start the protection from the upper sectors
@@ -727,7 +727,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	//write the status register
 	if (write_sr(nor, SR) < 0) {
 		res = 1;
-		goto err;
+		return res;
 	}
 
 	return res;
