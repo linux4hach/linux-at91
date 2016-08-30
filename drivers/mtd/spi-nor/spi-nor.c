@@ -658,6 +658,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		res = 1;
 		goto err;
 	}
+	printk("Line 661 in micron unlock\n");
 
 	//enable the write
 	write_enable(nor);
@@ -666,8 +667,11 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		res = 1;
 		goto err;
 	}
+	printk("Line 670 in micron unlock\n");
 
 err:	mutex_unlock(&nor->lock);
+	printk("Line 673 in micron unlock\n");
+
 	return res;
 }
 
