@@ -835,6 +835,7 @@ static int spi_nor_is_locked(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 		.addr_width = (_addr_width),				\
 		.flags = (_flags),
 
+
 /* NOTE: double check command sets and memory organization when you add
  * more nor chips.  This current list focusses on newer chips, which
  * have been converging on command sets which including JEDEC ID.
@@ -2124,8 +2125,8 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
 
 	/* NOR protection support for STmicro/Micron chips and similar */
 	if (JEDEC_MFR(info) == SNOR_MFR_MICRON) {
-		nor->flash_lock = micron_lock;
-		nor->flash_unlock = micron_unlock;
+		nor->flash_lock = stm_lock;
+		nor->flash_unlock = stm_unlock;
 		nor->flash_is_locked = stm_is_locked;
 	}
 

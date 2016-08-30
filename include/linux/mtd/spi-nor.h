@@ -87,6 +87,7 @@
 /* Used for Micron flashes only. */
 #define SPINOR_OP_RESET_ENABLE   0x66    /* Reset Enable */
 #define SPINOR_OP_RESET_MEMORY   0x99    /* Reset Memory */
+#define SPINOR_USE_FSR     0x80    /* use flag status register */
 #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
 #define SPINOR_OP_WD_EVCR      0x61    /* Write EVCR register */
 
