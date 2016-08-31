@@ -242,6 +242,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
 				  pdev->name, wdt);
 		if (err)
 			return err;
+
+		INIT_WORK(&reboot_work, wdt_reboot);
 	}
 
 	if ((tmp & wdt->mr_mask) != (wdt->mr & wdt->mr_mask))
