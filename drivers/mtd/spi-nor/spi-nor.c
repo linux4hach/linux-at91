@@ -489,7 +489,7 @@ static void stm_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
 /*
  * Return 1 if the entire region is locked, 0 otherwise
  */
-static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
+static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uin64_t len,
 							u8 sr)
 {
 	loff_t lock_offs;
@@ -668,7 +668,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 			printk("The serial flash has successfully unlocked!\n");
 		} else
 		{	
-			printk!("The serial flash has failed to unlock\n");
+			printk("The serial flash has failed to unlock\n");
 			res = 1;
 			return res;
 		}
