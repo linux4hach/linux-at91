@@ -740,7 +740,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	}
 	else {
 
-		if (stm_is_locked(nor,ofs,len) > 0) {
+		if (stm_is_locked(nor,ofs,len) >= 0) {
 			printk("Successfully locked the flash!\n");
 		} else
 		{
