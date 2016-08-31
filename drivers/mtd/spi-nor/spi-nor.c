@@ -661,6 +661,12 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		res = 1;
 		return res;
 	}
+	else
+	{
+		printk("The serial flash has successfully unlocked!\n");
+	}
+
+
 
 	return res;
 
@@ -724,6 +730,11 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 		res = 1;
 		return res;
 	}
+	else {
+
+		printk("Successfully locked the flash!\n");
+	}
+
 
 	return res;
 }
@@ -2033,13 +2044,14 @@ int reset_spi_nor(struct spi_nor *nor)
 
 	if ((reset_status == 0) && (enable_status==0))
 	{
-
+	    printk("Serial Flash Memory Reset\n");
 		return 0;
 
 	}
 	else
 	{
-		return 1;
+		printk("Serial Flash Memory FAILED to Reset\n");
+        return 1;
 
 	}
 
