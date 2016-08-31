@@ -663,7 +663,7 @@ static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	}
 	else
 	{
-		if (!(spi_nor_is_locked(nor,ofs,len)))
+		if (!(stm_is_locked(nor,ofs,len)))
 		{
 			printk("The serial flash has successfully unlocked!\n");
 		} else
@@ -739,7 +739,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	}
 	else {
 
-		if (spi_nor_is_locked(nor,ofs,len)) {
+		if (stm_is_locked(nor,ofs,len)) {
 			printk("Successfully locked the flash!\n");
 		} else
 		{
