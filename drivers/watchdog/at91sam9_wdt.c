@@ -120,10 +120,6 @@ static void wdt_reboot(struct work_struct *work)
 
 
 
-
-}
-
-
 /* ......................................................................... */
 
 static irqreturn_t wdt_interrupt(int irq, void *dev_id)
