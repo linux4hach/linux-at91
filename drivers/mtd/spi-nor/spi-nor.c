@@ -536,8 +536,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* SPI NOR always locks to the end */
 	if ((ofs + len) != mtd->size) {
 		/* Does combined region extend to end? */
-		if (!stm_is_locked(nor, ofs + len, mtd->size - ofs - len,
-							  status_old))
+		if (!stm_is_locked_sr(nor, ofs + len, mtd->size - ofs - len, status_old))
 			return -EINVAL;
 		len = mtd->size - ofs;
 	}
