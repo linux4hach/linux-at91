@@ -734,11 +734,13 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	//write the status register
 	if (write_sr(nor, SR) < 0) {
 		res = 1;
+    	printk("Failed to lock the flash!\n");
+
 		return res;
 	}
 	else {
 
-		if (stm_is_locked(nor,ofs,len)) {
+		if (stm_is_locked(nor,ofs,len) > 0) {
 			printk("Successfully locked the flash!\n");
 		} else
 		{
