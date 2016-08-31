@@ -526,7 +526,7 @@ static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uin64_t len,
 static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 
-	struct mtd_info *mtd = &nor->mtd;
+	struct mtd_info *mtd = &nor->mtd_sr;
 	u8 status_old, status_new;
 	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
 	u8 shift = ffs(mask) - 1, pow, val;
@@ -536,7 +536,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	/* SPI NOR always locks to the end */
 	if ((ofs + len) != mtd->size) {
 		/* Does combined region extend to end? */
-		if (!stm_is_locked_sr(nor, ofs + len, mtd->size - ofs - len,
+		if (!stm_is_locked(nor, ofs + len, mtd->size - ofs - len,
 							  status_old))
 			return -EINVAL;
 		len = mtd->size - ofs;
