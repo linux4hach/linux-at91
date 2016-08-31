@@ -38,6 +38,7 @@
 #include <linux/delay.h>
 #include <linux/workqueue.h>
 #include <linux/interrupt.h>
+#include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include "at91sam9_wdt.h"
 
@@ -85,8 +86,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
 
 #define to_wdt(wdd) container_of(wdd, struct at91wdt, wdd)
 struct at91wdt {
-	bool nowayout;
-	unsigned int irq;
 	struct watchdog_device wdd;
 	void __iomem *base;
 	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
