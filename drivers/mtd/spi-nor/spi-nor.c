@@ -2026,14 +2026,23 @@ int reset_spi_nor(struct spi_nor *nor)
 		return 1;
 	}
 
-    int enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
+	int enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
 	cond_resched();
 	int reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
 
-	 printk("Enable status %d", enable_status);
-	 printk("Reset memory %d", reset_status);
 
-	return 0;
+	if ((reset_status == 0) && (enable_status==0))
+	{
+
+		return 0;
+
+	}
+	else
+	{
+		return 1;
+
+	}
+
 }
 
 int spi_nor_scan(struct spi_nor *nor, const char *name,
