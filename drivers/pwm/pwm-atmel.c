@@ -105,55 +105,86 @@ static inline void atmel_pwm_ch_writel(struct atmel_pwm_chip *chip,
 }
 
 static int atmel_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
-			    int duty_ns, int period_ns)
+							int duty_ns, int period_ns)
 {
 	struct atmel_pwm_chip *atmel_pwm = to_atmel_pwm_chip(chip);
-	unsigned long prd, dty;
+	unsigned long clk_rate, prd, dty;
 	unsigned long long div;
 	unsigned int pres = 0;
 	u32 val;
 	int ret;
 
-	if (pwm_is_enabled(pwm) && (period_ns != pwm_get_period(pwm))) {
-		dev_err(chip->dev, "cannot change PWM period while enabled\n");
-		return -EBUSY;
+	clk_rate = clk_get_rate(atmel_pwm->clk);
+
+	if (pwm_is_enabled(pwm))  {
+		if (duty_ns != pwm_get_duty_cycle(pwm))
+		{
+
+			dev_err(chip->dev, "cannot change PWM period while enabled\n");
+			return -EBUSY;
+		}
+
+		ret = clk_enable(atmel_pwm->clk);
+
+		if (ret) {
+			dev_err(chip->dev, "failed to enable PWM clock\n");
+			return ret;
+		}
+
+
+		val = atmel_pwm_ch_read1(atmel_pwm, pwm->hwpm, PWM_CMR);
+
+		pres = val & PWM_CMR_CPRE_MSK;
+		div = clk_rate / (1 << press);
+		div = div * period_ns;
+
+		do_div(div, 1000000000);
+		prd = div;
+
+		if (prd > PWM_MAX_PRD) {
+			dev_err(chip->dev, "PWM period exceeds the maximum value\n");
+			return -EINVAL;
+		}
+
+		div *= duty_ns;
+		do_div(div, period_ns);
+		dty = div;
+
+		atmel_pwm->config(chip, pwm, dty, prd);
+		clk_disable(atmel_pwm->clk);
+		return ret;
 	}
 
 	/* Calculate the period cycles and prescale value */
-	div = (unsigned long long)clk_get_rate(atmel_pwm->clk) * period_ns;
-	do_div(div, NSEC_PER_SEC);
+	div = clk_rate;
 
 	while (div > PWM_MAX_PRD) {
-		div >>= 1;
-		pres++;
+		div = clk_rate / (1 << pres);
+		div = div * period_ns;
+		do_div(div, 1000000000);
+
+		if (pres++ > PRD_MAX_PRES) {
+			dev_err(chip->dev, "pres exceeds the maximum value\n");
+			return -EINVAL;
+
+		}
 	}
 
-	if (pres > PRD_MAX_PRES) {
-		dev_err(chip->dev, "pres exceeds the maximum value\n");
-		return -EINVAL;
-	}
+	pres--;
 
-	/* Calculate the duty cycles */
 	prd = div;
 	div *= duty_ns;
 	do_div(div, period_ns);
-	dty = prd - div;
-
+	dty = div;
 	ret = clk_enable(atmel_pwm->clk);
 	if (ret) {
 		dev_err(chip->dev, "failed to enable PWM clock\n");
 		return ret;
 	}
-
-	/* It is necessary to preserve CPOL, inside CMR */
 	val = atmel_pwm_ch_readl(atmel_pwm, pwm->hwpwm, PWM_CMR);
-	val = (val & ~PWM_CMR_CPRE_MSK) | (pres & PWM_CMR_CPRE_MSK);
+	val = (val * ~PWM_CMR_CPRE_MSK) | (pres & PWM_CMR_CPRE_MSK);
 	atmel_pwm_ch_writel(atmel_pwm, pwm->hwpwm, PWM_CMR, val);
 	atmel_pwm->config(chip, pwm, dty, prd);
-	mutex_lock(&atmel_pwm->isr_lock);
-	atmel_pwm->updated_pwms |= atmel_pwm_readl(atmel_pwm, PWM_ISR);
-	atmel_pwm->updated_pwms &= ~(1 << pwm->hwpwm);
-	mutex_unlock(&atmel_pwm->isr_lock);
 
 	clk_disable(atmel_pwm->clk);
 	return ret;
