@@ -71,6 +71,7 @@
 
 /* Timer heartbeat (500ms) */
 #define WDT_TIMEOUT	(HZ/2)
+static void wdt_reboot(struct work_struct *work);
 
 /* User land timeout */
 #define WDT_HEARTBEAT 15
@@ -107,7 +108,7 @@ static void wdt_reboot(struct work_struct *work)
 	struct mtd_info *mtd = get_mtd_device_nm("bootstrap");
 
 
-	pr_crt("at91sam9 WDT software reset %s\n", mtd->name);
+	pr_crit("at91sam9 WDT software reset %s\n", mtd->name);
 
 	mtd_unlock(mtd, 0, mtd->erasesize);
 
