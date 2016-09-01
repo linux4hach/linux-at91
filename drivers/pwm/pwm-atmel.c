@@ -135,7 +135,7 @@ static int atmel_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		val = atmel_pwm_ch_readl(atmel_pwm, pwm->hwpm, PWM_CMR);
 
 		pres = val & PWM_CMR_CPRE_MSK;
-		div = clk_rate / (1 << press);
+		div = clk_rate / (1 << pres);
 		div = div * period_ns;
 
 		do_div(div, 1000000000);
