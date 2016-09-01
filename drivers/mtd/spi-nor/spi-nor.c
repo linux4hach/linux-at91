@@ -22,6 +22,8 @@
 #include <linux/of_platform.h>
 #include <linux/spi/flash.h>
 #include <linux/mtd/spi-nor.h>
+#define DISABLE_STM_LOCK_AND_UNLOCK
+
 
 static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
 static const struct flash_info *spi_nor_read_id(struct spi_nor *nor);
@@ -523,6 +525,8 @@ static int stm_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
  *
  * Returns negative on errors, 0 on success.
  */
+
+#ifndef DISABLE_STM_LOCK_AND_UNLOCK
 static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 
@@ -573,6 +577,7 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
  *
  * Returns negative on errors, 0 on success.
  */
+
 static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	struct mtd_info *mtd = &nor->mtd;
@@ -626,6 +631,7 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	write_enable(nor);
 	return write_sr(nor, status_new);
 }
+#endif
 
 static int micron_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
@@ -2054,9 +2060,11 @@ int reset_spi_nor(struct spi_nor *nor)
 		return 1;
 	}
 
-	int enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
+	int enable_status = 0;
+	enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
 	cond_resched();
-	int reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
+	int reset_status = 0;
+	reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
 
 
 	if ((reset_status == 0) && (enable_status==0))
