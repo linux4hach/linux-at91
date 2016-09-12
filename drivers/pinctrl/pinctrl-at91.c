@@ -320,8 +320,23 @@ static const struct pinctrl_ops at91_pctrl_ops = {
 static void __iomem *pin_to_controller(struct at91_pinctrl *info,
 				 unsigned int bank)
 {
+	void __iomem *reg;
 	if (!gpio_chips[bank])
+	{
+
 		return NULL;
+
+	}
+	else
+	{
+		reg = gpio_chips[bank]->regbase;
+		if (reg == NULL)
+		{
+			return ioremap((0xfffff500+pin*0x200),512);
+
+		}
+
+	}
 
 	return gpio_chips[bank]->regbase;
 }
