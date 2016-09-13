@@ -1,0 +1,15 @@
+#! /bin/bash
+
+KERNEL="zImage"
+DT="at91sam9g35ek.dtb"
+
+cd $BUILDROOT
+rm -rf output/build/linux-4.4-at91
+rm dl/linux-4.4-at91.tar.gz
+./generate-flash-images.sh
+scp output/images/$KERNEL engr$.admin@chlorine:/tmp
+scp output/images/$DT engr$/admin@chlorine:/tmp
+ssh -x -C engr$.admin@chlorine flash_unlock /dev/mtd5 0 900
+ssh -x -C engr$.admin@chlorine flashcp -v /tmp/$KERNEL /dev/mtd4
+ssh -x -C engr$.admin@chlorine flashcp -v /tmp/$DT /dev/mtd3
+/opt/Projects/cm130/source/scripts/rebootTarget.sh
