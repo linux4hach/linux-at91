@@ -2054,18 +2054,19 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 
 int reset_spi_nor(struct spi_nor *nor)
 {
+	
+	
+	int enable_status = 0;
+	int reset_status = 0; 
+	
 	if (spi_nor_wait_till_ready(nor))
 	{
 		printk("Failed to reset spi-nor\n");
 		return 1;
 	}
 
-	int enable_status; 
-	enable_staus = 0;
 	enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
 	cond_resched();
-	int reset_status; 
-	reset_status = 0;
 	reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
 
 
