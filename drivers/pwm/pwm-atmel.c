@@ -181,12 +181,14 @@ static int atmel_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		dev_err(chip->dev, "failed to enable PWM clock\n");
 		return ret;
 	}
+
 	val = atmel_pwm_ch_readl(atmel_pwm, pwm->hwpwm, PWM_CMR);
-	val = (val * ~PWM_CMR_CPRE_MSK) | (pres & PWM_CMR_CPRE_MSK);
+	val = (val & ~PWM_CMR_CPRE_MSK) | (pres & PWM_CMR_CPRE_MSK);
+
 	atmel_pwm_ch_writel(atmel_pwm, pwm->hwpwm, PWM_CMR, val);
 	atmel_pwm->config(chip, pwm, dty, prd);
 
-	clk_disable(atmel_pwm->clk);
+    clk_disable(atmel_pwm->clk);
 	return ret;
 }
 
