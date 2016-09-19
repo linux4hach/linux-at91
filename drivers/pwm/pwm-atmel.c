@@ -282,7 +282,7 @@ static int atmel_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 
 	atmel_pwm_writel(atmel_pwm, PWM_ENA, 1 << pwm->hwpwm);
 
-	while (!(atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm_hwpwm))) {
+	while (!(atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm->hwpwm))) {
 		   atmel_pwm_writel(atmel_pwm, PWM_ENA, 1 << pwm->hwpwm);
 		   cpu_relax();
 
@@ -311,7 +311,7 @@ static void atmel_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 	mutex_unlock(&atmel_pwm->isr_lock);
 	atmel_pwm_writel(atmel_pwm, PWM_DIS, 1 << pwm->hwpwm);
 
-	while (!(atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm_hwpwm))) {
+	while (!(atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm->hwpwm))) {
 		   atmel_pwm_writel(atmel_pwm, PWM_DIS, 1 << pwm->hwpwm);
 		   cpu_relax();
     }
