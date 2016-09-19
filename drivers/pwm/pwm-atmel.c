@@ -285,7 +285,7 @@ static int atmel_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 	while (!(atmel_pwm_readl(atmel_pwm, PWM_SR) & (1 << pwm->hwpwm))) {
 		   atmel_pwm_writel(atmel_pwm, PWM_ENA, 1 << pwm->hwpwm);
 		   cpu_relax();
-
+	}
 
 	return 0;
 }
