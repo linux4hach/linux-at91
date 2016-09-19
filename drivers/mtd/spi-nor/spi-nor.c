@@ -747,7 +747,7 @@ static int micron_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	else {
 
 		if (stm_is_locked(nor,ofs,len) >= 0) {
-			printk("Successfully CPF WAS HERE locked the flash!\n");
+			printk("Successfully locked the flash!\n");
 		} else
 		{
 
