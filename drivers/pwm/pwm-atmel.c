@@ -114,7 +114,8 @@ static int atmel_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 	u32 val;
 	int ret;
 
-	printk("You made it here, you requested %d for duty cycle and $d for period_ns",duty_ns, period_ns);
+	printk("\n You requested %d ns for duty cycle \n 
+		   %d ns for for period",duty_ns, period_ns);
 
 	clk_rate = clk_get_rate(atmel_pwm->clk);
 
