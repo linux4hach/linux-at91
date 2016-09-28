@@ -332,8 +332,7 @@ static void __iomem *pin_to_controller(struct at91_pinctrl *info,
 		reg = gpio_chips[bank]->regbase;
 		if (reg == NULL)
 		{
-			printk("You will have to remap!\n");
-			//return ioremap((0xfffff500+pin*0x200),512);
+			return ioremap((0xfffff500+pin*0x200),512);
 
 		}
 
