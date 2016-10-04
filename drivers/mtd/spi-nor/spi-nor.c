@@ -2085,6 +2085,8 @@ int reset_spi_nor(struct spi_nor *nor)
 
 	}
 
+	return 1;
+
 }
 
 int spi_nor_scan(struct spi_nor *nor, const char *name,
