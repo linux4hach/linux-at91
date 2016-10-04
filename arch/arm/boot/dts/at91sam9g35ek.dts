@@ -29,7 +29,7 @@
         status = "okay";
       };
 adc0: adc@f804c000 {
-        status = "disabled";
+        status = "okay";
       };
       rtc@fffffeb0 {
         status = "okay";
