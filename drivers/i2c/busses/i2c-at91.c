@@ -85,6 +85,17 @@
 #define	AT91_TWI_RHR		0x0030	/* Receive Holding Register */
 #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
 
+#define MAX_NB_GPIO_PER_BANK 32
+enum at91_periph {
+	AT91_PERIPH_GPIO = 	0,
+	AT91_PERIPH_A = 	1,
+	AT91_PERIPH_C = 	3,
+	AT91_PERIPH_D =     4,
+
+
+};
+
+
 #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
 #define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
 #define	AT91_TWI_ACR_DIR	BIT(8)
@@ -144,6 +155,10 @@ struct at91_twi_dev {
 	bool recv_len_abort;
 	u32 fifo_size;
 	struct at91_twi_dma dma;
+	int sc1_pin;
+	int sda_pin;
+	int use_pullup;
+	enum at91_periph periph;
 };
 
 static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
@@ -690,7 +705,8 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
 					      dev->adapter.timeout);
 	if (time_left == 0) {
 		dev->transfer_status |= at91_twi_read(dev, AT91_TWI_SR);
-		dev_err(dev->dev, "controller timed out\n");
+		dev_err(dev->dev, "controller timed out - try to recover it\n");
+		i2c_recover_bus(&dev->adapter);
 		at91_init_twi_bus(dev);
 		ret = -ETIMEDOUT;
 		goto error;
@@ -1034,13 +1050,78 @@ static struct at91_twi_pdata *at91_twi_get_driver_data(
 	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver_data;
 }
 
+
+/* i2c bus recover routines */
+static int at91_i2c_get_sc1(struct i2c_adapter * adap)
+{
+
+	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+
+	return at91_get_gpio_value(dev->sc1_pin);
+
+
+}
+
+
+static void at91_i2c_setsc1(struct i2c_adapter * adap, int val)
+{
+
+	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+	at91_set_gpio_value(dev->sc1_pin, val);
+
+
+
+}
+
+static void at91_i2c_prepare_recovery(struct i2c_adapter *adap)
+{
+
+	struct at91_two_dev *dev = i2c_get_adapdata(adap);
+	at91_set_gpio_periph(dev->sc1_pin,dev->use_pullup);
+	at91_set_gpio_output(dev->sc1_pin,1);
+
+
+}
+
+
+static void at91_i2c_unprepare_recovery(struct i2c_adapter *adap)
+{
+
+	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+
+	switch (dev->periph) {
+	  case AT91_PERIPH_A:
+		  at91_set_A_periph(dev->sc1_pin, dev->use_pullup);
+		  break;
+	  case AT91_PERIPH_B:
+		  at91_set_B_periph(dev->sc1-pin, dev->use_pullup);
+		  break;
+	  case AT91_PERIPH_C:
+		  at91_set_C_periph(dev->sc1_pin, dev->use_pullup);
+		  break;
+	  case AT91_PERIPH_D:
+		  at91_set_D_periph(dev->sc1_pin, dev->use_pullup);
+		  break;
+      case AT91_PERIPH_GPIO:
+		  break;
+	}
+}
+
+
+
+
 static int at91_twi_probe(struct platform_device *pdev)
 {
 	struct at91_twi_dev *dev;
 	struct resource *mem;
+	struct device_node *pinctrl_np;
 	int rc;
 	u32 phy_addr;
 	u32 bus_clk_rate;
+
+	int size4;
+	const _be32 *list;
+	int bank, pin;
 
 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
 	if (!dev)
@@ -1073,6 +1154,38 @@ static int at91_twi_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, dev);
+
+	pinctrl_np = of_parse_phandle(dev->dev->of_node, "pinctrl-0", 0);
+	if (!pinctrl_np) {
+		dev_err(dev->dev, "failed to get the i2c pinctrl info\n");
+		return -ENODEV;
+	}
+
+list = of_get_property(pinctrl_np, "atmel,pins", &size);
+ 	/* we do not check return since it's safe node passed down */
+ 	size /= sizeof(*list);
+ 	if (size != 8) {
+ 		dev_err(dev->dev, "wrong i2c pins number\n");
+ 		return -EINVAL;
+ 	}
+ 	//read the i2c data line
+ 	bank = be32_to_cpu(*list++);
+ 	pin = be32_to_cpu(*list++);
+ 	dev->sda_pin = bank * MAX_NB_GPIO_PER_BANK + pin;
+ 	list++;
+ 	list++;
+ 	//read the i2c clock line
+ 	bank = be32_to_cpu(*list++);
+ 	pin = be32_to_cpu(*list++);
+ 	dev->scl_pin = bank * MAX_NB_GPIO_PER_BANK + pin;
+ 	dev->periph = be32_to_cpu(*list++);
+ 	dev->use_pullup = be32_to_cpu(*list++);
+ 
+ 	of_node_put(pinctrl_np);
+ 
+
+
+
 
 	dev->clk = devm_clk_get(dev->dev, NULL);
 	if (IS_ERR(dev->clk)) {
@@ -1110,6 +1223,7 @@ static int at91_twi_probe(struct platform_device *pdev)
 	dev->adapter.nr = pdev->id;
 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
 	dev->adapter.dev.of_node = pdev->dev.of_node;
+    dev->adapter.bus_reovery_info = &at91_i2c_bus_recovery_info;
 
 	pm_runtime_set_autosuspend_delay(dev->dev, AUTOSUSPEND_TIMEOUT);
 	pm_runtime_use_autosuspend(dev->dev);
