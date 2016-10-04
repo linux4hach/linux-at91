@@ -2068,6 +2068,7 @@ int reset_spi_nor(struct spi_nor *nor)
 	enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
 	cond_resched();
 	reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
+	cond_resched();
 
 
 	if ((reset_status == 0) && (enable_status==0))
