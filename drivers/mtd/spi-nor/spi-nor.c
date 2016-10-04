@@ -2052,7 +2052,6 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	return 0;
 }
 
-/* Reset the spi-nor */
 int reset_spi_nor(struct spi_nor *nor)
 {
 	
@@ -2069,7 +2068,6 @@ int reset_spi_nor(struct spi_nor *nor)
 	enable_status = write_sr(nor, SPINOR_OP_RESET_ENABLE);
 	cond_resched();
 	reset_status = write_sr(nor, SPINOR_OP_RESET_MEMORY);
-	cond_reched();
 
 
 	if ((reset_status == 0) && (enable_status==0))
@@ -2084,8 +2082,6 @@ int reset_spi_nor(struct spi_nor *nor)
 		return 1;
 
 	}
-
-	return 1;
 
 }
 
