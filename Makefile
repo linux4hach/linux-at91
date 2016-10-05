@@ -1,8 +1,13 @@
 VERSION = 4
 PATCHLEVEL = 4
 SUBLEVEL = 14
-EXTRAVERSION =
-NAME = Blurry Fish Butt
+EXTRAVERSION = 1
+NAME = Hach Home Brew
+
+
+# This version of the kernel is still pure 4.4.14 
+# but it includes modifications to device drivers 
+# including LCD Display, sdcard, PWM, SPI, and I2C
 
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
