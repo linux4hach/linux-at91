@@ -34,15 +34,6 @@ struct m25p {
 	u8			command[MAX_CMD_SIZE];
 };
 
-static int m25p80_reset_device(struct m25p *flash);
-static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
-
-static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
-{
-	return container_of(mtd, struct m25p, mtd);
-}
-
-
 static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 				     unsigned *code_nbits,
 				     unsigned *addr_nbits,
@@ -57,20 +48,6 @@ static inline int m25p80_proto2nbits(enum spi_nor_protocol proto,
 
 	return 0;
 }
-
-
-static int m25p80_reset_device(struct m25p *flash)
-{
-	int ret = 0;
-	flash->command[0] = SPINOR_OP_RESET_ENABLE;
-	ret = spi_write(flash->spi, flash->command, 1);
-	cond_resched();
-	flash->command[0] = SPINOR_OP_RESET_MEMORY;
-	ret = ret && spi_write(flash->spi, flash->command ,1);
-
-	return ret;
-}
-
 
 static int m25p80_read_reg(struct spi_nor *nor, u8 code, u8 *val, int len)
 {
@@ -282,50 +259,6 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
 	return 0;
 }
 
-
-static int micron_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
-{
-	struct m25p *flash - mtd_to_m25p(mtd);
-	uint32_t address = ofs;
-	int res = 0;
-	u32 start_sector,unprotected_area;
-	u32 sector_size;
-
-	sector_size = flash->sector_size;
-	start_sector = address / sector_size;
-
-	do_div(len, sector_size);
-	unprotected_area = len;
-
-
-	if (start_sector == 0 && unprotectedc_area == 1) {
-		printk("spi: reset the chip...\n");
-		res = m25p80_reset_device(flash);
-		return res;
-	}
-
-	mutex_lock(&flash->lock);
-
-	if (wait_till_ready(flash)) {
-		res = 1;
-		goto  err;
-	}
-
-
-	write_enable(flash);
-
-	if (write_sr(flash, 0) < 0) {
-		res = 1;
-		goto err;
-	}
-
-err:  mutex_unlock(&flash->lock);
-	  return res;
-
-
-
-}
-
 static int m25p80_erase(struct spi_nor *nor, loff_t offset)
 {
 	struct m25p *flash = nor->priv;
@@ -414,16 +347,10 @@ static int m25p_probe(struct spi_device *spi)
 
 static int m25p_remove(struct spi_device *spi)
 {
-
-	int ret = 0;
-	
 	struct m25p	*flash = spi_get_drvdata(spi);
 
-	ret = m25p80_reset_device(flash);
-    ret = ret && mtd_device_unregister(&flash->spi_nor.mtd);
-
 	/* Clean up MTD stuff. */
-	return ret;
+	return mtd_device_unregister(&flash->spi_nor.mtd);
 }
 
 /*
