@@ -26,6 +26,7 @@
 #include <linux/pm_runtime.h>
 
 #include "atmel_hlcdc_dc.h"
+#include <drm/atmel_drm.h>
 
 #define ATMEL_HLCDC_LAYER_IRQS_OFFSET		8
 
@@ -50,6 +51,10 @@ static const struct atmel_hlcdc_dc_desc atmel_hlcdc_dc_at91sam9n12 = {
 	.min_height = 0,
 	.max_width = 1280,
 	.max_height = 860,
+	.max_spw = 0x3f,
+	.max_vpw = 0x3f,
+	.max_hpw = 0xff,
+	.conflicting_output_formats = true,
 	.nlayers = ARRAY_SIZE(atmel_hlcdc_at91sam9n12_layers),
 	.layers = atmel_hlcdc_at91sam9n12_layers,
 };
@@ -134,6 +139,10 @@ static const struct atmel_hlcdc_dc_desc atmel_hlcdc_dc_at91sam9x5 = {
 	.min_height = 0,
 	.max_width = 800,
 	.max_height = 600,
+	.max_spw = 0x3f,
+	.max_vpw = 0x3f,
+	.max_hpw = 0xff,
+	.conflicting_output_formats = true,
 	.nlayers = ARRAY_SIZE(atmel_hlcdc_at91sam9x5_layers),
 	.layers = atmel_hlcdc_at91sam9x5_layers,
 };
@@ -237,6 +246,10 @@ static const struct atmel_hlcdc_dc_desc atmel_hlcdc_dc_sama5d3 = {
 	.min_height = 0,
 	.max_width = 2048,
 	.max_height = 2048,
+	.max_spw = 0x3f,
+	.max_vpw = 0x3f,
+	.max_hpw = 0x1ff,
+	.conflicting_output_formats = true,
 	.nlayers = ARRAY_SIZE(atmel_hlcdc_sama5d3_layers),
 	.layers = atmel_hlcdc_sama5d3_layers,
 };
@@ -320,6 +333,9 @@ static const struct atmel_hlcdc_dc_desc atmel_hlcdc_dc_sama5d4 = {
 	.min_height = 0,
 	.max_width = 2048,
 	.max_height = 2048,
+	.max_spw = 0xff,
+	.max_vpw = 0xff,
+	.max_hpw = 0x3ff,
 	.nlayers = ARRAY_SIZE(atmel_hlcdc_sama5d4_layers),
 	.layers = atmel_hlcdc_sama5d4_layers,
 };
@@ -333,6 +349,10 @@ static const struct of_device_id atmel_hlcdc_of_match[] = {
 		.data = &atmel_hlcdc_dc_at91sam9x5,
 	},
 	{
+		.compatible = "atmel,sama5d2-hlcdc",
+		.data = &atmel_hlcdc_dc_sama5d4,
+	},
+	{
 		.compatible = "atmel,sama5d3-hlcdc",
 		.data = &atmel_hlcdc_dc_sama5d3,
 	},
@@ -342,6 +362,7 @@ static const struct of_device_id atmel_hlcdc_of_match[] = {
 	},
 	{ /* sentinel */ },
 };
+MODULE_DEVICE_TABLE(of, atmel_hlcdc_of_match);
 
 int atmel_hlcdc_dc_mode_valid(struct atmel_hlcdc_dc *dc,
 			      struct drm_display_mode *mode)
@@ -353,19 +374,19 @@ int atmel_hlcdc_dc_mode_valid(struct atmel_hlcdc_dc *dc,
 	int hback_porch = mode->htotal - mode->hsync_end;
 	int hsync_len = mode->hsync_end - mode->hsync_start;
 
-	if (hsync_len > 0x40 || hsync_len < 1)
+	if (hsync_len > dc->desc->max_spw + 1 || hsync_len < 1)
 		return MODE_HSYNC;
 
-	if (vsync_len > 0x40 || vsync_len < 1)
+	if (vsync_len > dc->desc->max_spw + 1 || vsync_len < 1)
 		return MODE_VSYNC;
 
-	if (hfront_porch > 0x200 || hfront_porch < 1 ||
-	    hback_porch > 0x200 || hback_porch < 1 ||
+	if (hfront_porch > dc->desc->max_hpw + 1 || hfront_porch < 1 ||
+	    hback_porch > dc->desc->max_hpw + 1 || hback_porch < 1 ||
 	    mode->hdisplay < 1)
 		return MODE_H_ILLEGAL;
 
-	if (vfront_porch > 0x40 || vfront_porch < 1 ||
-	    vback_porch > 0x40 || vback_porch < 0 ||
+	if (vfront_porch > dc->desc->max_vpw + 1 || vfront_porch < 1 ||
+	    vback_porch > dc->desc->max_vpw || vback_porch < 0 ||
 	    mode->vdisplay < 1)
 		return MODE_V_ILLEGAL;
 
@@ -402,7 +423,7 @@ static irqreturn_t atmel_hlcdc_dc_irq_handler(int irq, void *data)
 }
 
 static struct drm_framebuffer *atmel_hlcdc_fb_create(struct drm_device *dev,
-		struct drm_file *file_priv, struct drm_mode_fb_cmd2 *mode_cmd)
+		struct drm_file *file_priv, const struct drm_mode_fb_cmd2 *mode_cmd)
 {
 	return drm_fb_cma_create(dev, file_priv, mode_cmd);
 }
@@ -422,11 +443,102 @@ static void atmel_hlcdc_fb_output_poll_changed(struct drm_device *dev)
 	}
 }
 
+struct atmel_hlcdc_dc_commit {
+	struct work_struct work;
+	struct drm_device *dev;
+	struct drm_atomic_state *state;
+};
+
+static void
+atmel_hlcdc_dc_atomic_complete(struct atmel_hlcdc_dc_commit *commit)
+{
+	struct drm_device *dev = commit->dev;
+	struct atmel_hlcdc_dc *dc = dev->dev_private;
+	struct drm_atomic_state *old_state = commit->state;
+
+	/* Apply the atomic update. */
+	drm_atomic_helper_commit_modeset_disables(dev, old_state);
+	drm_atomic_helper_commit_planes(dev, old_state, false);
+	drm_atomic_helper_commit_modeset_enables(dev, old_state);
+
+	drm_atomic_helper_wait_for_vblanks(dev, old_state);
+
+	drm_atomic_helper_cleanup_planes(dev, old_state);
+
+	drm_atomic_state_free(old_state);
+
+	/* Complete the commit, wake up any waiter. */
+	spin_lock(&dc->commit.wait.lock);
+	dc->commit.pending = false;
+	wake_up_all_locked(&dc->commit.wait);
+	spin_unlock(&dc->commit.wait.lock);
+
+	kfree(commit);
+}
+
+static void atmel_hlcdc_dc_atomic_work(struct work_struct *work)
+{
+	struct atmel_hlcdc_dc_commit *commit =
+		container_of(work, struct atmel_hlcdc_dc_commit, work);
+
+	atmel_hlcdc_dc_atomic_complete(commit);
+}
+
+static int atmel_hlcdc_dc_atomic_commit(struct drm_device *dev,
+					struct drm_atomic_state *state,
+					bool async)
+{
+	struct atmel_hlcdc_dc *dc = dev->dev_private;
+	struct atmel_hlcdc_dc_commit *commit;
+	int ret;
+
+	ret = drm_atomic_helper_prepare_planes(dev, state);
+	if (ret)
+		return ret;
+
+	/* Allocate the commit object. */
+	commit = kzalloc(sizeof(*commit), GFP_KERNEL);
+	if (!commit) {
+		ret = -ENOMEM;
+		goto error;
+	}
+
+	INIT_WORK(&commit->work, atmel_hlcdc_dc_atomic_work);
+	commit->dev = dev;
+	commit->state = state;
+
+	spin_lock(&dc->commit.wait.lock);
+	ret = wait_event_interruptible_locked(dc->commit.wait,
+					      !dc->commit.pending);
+	if (ret == 0)
+		dc->commit.pending = true;
+	spin_unlock(&dc->commit.wait.lock);
+
+	if (ret) {
+		kfree(commit);
+		goto error;
+	}
+
+	/* Swap the state, this is the point of no return. */
+	drm_atomic_helper_swap_state(dev, state);
+
+	if (async)
+		queue_work(dc->wq, &commit->work);
+	else
+		atmel_hlcdc_dc_atomic_complete(commit);
+
+	return 0;
+
+error:
+	drm_atomic_helper_cleanup_planes(dev, state);
+	return ret;
+}
+
 static const struct drm_mode_config_funcs mode_config_funcs = {
 	.fb_create = atmel_hlcdc_fb_create,
 	.output_poll_changed = atmel_hlcdc_fb_output_poll_changed,
 	.atomic_check = drm_atomic_helper_check,
-	.atomic_commit = drm_atomic_helper_commit,
+	.atomic_commit = atmel_hlcdc_dc_atomic_commit,
 };
 
 static int atmel_hlcdc_dc_modeset_init(struct drm_device *dev)
@@ -440,7 +552,7 @@ static int atmel_hlcdc_dc_modeset_init(struct drm_device *dev)
 
 	ret = atmel_hlcdc_create_outputs(dev);
 	if (ret) {
-		dev_err(dev->dev, "failed to create panel: %d\n", ret);
+		dev_err(dev->dev, "failed to create HLCDC outputs: %d\n", ret);
 		return ret;
 	}
 
@@ -504,6 +616,7 @@ static int atmel_hlcdc_dc_load(struct drm_device *dev)
 	if (!dc->wq)
 		return -ENOMEM;
 
+	init_waitqueue_head(&dc->commit.wait);
 	dc->desc = match->data;
 	dc->hlcdc = dev_get_drvdata(dev->dev->parent);
 	dev->dev_private = dc;
@@ -689,6 +802,41 @@ static const struct file_operations fops = {
 	.mmap               = drm_gem_cma_mmap,
 };
 
+/*
+ioctl to export the physical address of GEM to user space for
+video decoder
+*/
+int atmel_drm_gem_get_ioctl(struct drm_device *drm, void *data,
+				      struct drm_file *file_priv)
+{
+	struct drm_gem_object *gem_obj;
+	struct drm_gem_cma_object *cma_obj;
+	struct drm_mode_map_dumb *args = data;
+
+	mutex_lock(&drm->struct_mutex);
+
+	gem_obj = drm_gem_object_lookup(drm, file_priv, args->handle);
+	if (!gem_obj) {
+		dev_err(drm->dev, "failed to lookup gem object\n");
+		mutex_unlock(&drm->struct_mutex);
+		return -EINVAL;
+	}
+
+	cma_obj = to_drm_gem_cma_obj(gem_obj);
+	args->offset = (__u64)cma_obj->paddr;
+
+	drm_gem_object_unreference(gem_obj);
+
+	mutex_unlock(&drm->struct_mutex);
+
+	return 0;
+}
+static const struct drm_ioctl_desc atmel_ioctls[] = {
+	DRM_IOCTL_DEF_DRV(ATMEL_GEM_GET, atmel_drm_gem_get_ioctl,
+			DRM_CONTROL_ALLOW|DRM_UNLOCKED),
+};
+
+
 static struct drm_driver atmel_hlcdc_dc_driver = {
 	.driver_features = DRIVER_HAVE_IRQ | DRIVER_GEM |
 			   DRIVER_MODESET | DRIVER_PRIME |
@@ -716,6 +864,8 @@ static struct drm_driver atmel_hlcdc_dc_driver = {
 	.dumb_create = drm_gem_cma_dumb_create,
 	.dumb_map_offset = drm_gem_cma_dumb_map_offset,
 	.dumb_destroy = drm_gem_dumb_destroy,
+	.ioctls	= atmel_ioctls,
+	.num_ioctls= ARRAY_SIZE(atmel_ioctls),
 	.fops = &fops,
 	.name = "atmel-hlcdc",
 	.desc = "Atmel HLCD Controller DRM",
@@ -749,6 +899,7 @@ static int atmel_hlcdc_dc_drm_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_unregister;
 
+	dev_info(ddev->dev, "DRM device successfully registered\n");
 	return 0;
 
 err_unregister:
