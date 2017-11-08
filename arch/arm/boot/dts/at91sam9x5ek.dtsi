@@ -119,13 +119,24 @@
 
 			spi0: spi@f0000000 {
 				status = "disabled";	/* conflict with mmc1 */
-				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
+				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>; /* SPI0_NPCS0 */
 				m25p80@0 {
 					compatible = "atmel,at25df321a";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
 			};
+
+   	spi1: spi@f0004000 {
+				status = "okay";	/* conflict with mmc1 */
+				cs-gpios = <0>, <&pioA 0 0>, <0>, <0>; /* SPI1_NPCS1 */
+				LTC2498@1 {
+					compatible = "spidev";
+					spi-max-frequency = <50000000>;
+					reg = <0>;
+				};
+			};
+
 
 			watchdog@fffffe40 {
 				status = "okay";
