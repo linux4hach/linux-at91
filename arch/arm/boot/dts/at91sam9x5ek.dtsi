@@ -59,7 +59,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_board_usb2>;
 				atmel,vbus-gpio = <&pioB 16 GPIO_ACTIVE_HIGH>;
-				status = "okay";
+				status = "disabled";
 			};
 
 			i2c0: i2c@f8010000 {
