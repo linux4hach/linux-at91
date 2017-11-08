@@ -698,7 +698,7 @@ static const struct panel_desc az_4p3_480272ef_atxl = {
 		.width = 98, //width in mm
 		.height = 57, //height in mm
 	},
-	.bus_format = VIDEO_BUS_FMT_RGB565_1X16,
+	.bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
 
