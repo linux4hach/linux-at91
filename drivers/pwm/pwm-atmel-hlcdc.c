@@ -70,8 +70,7 @@ static int atmel_hlcdc_pwm_apply(struct pwm_chip *c, struct pwm_device *pwm,
 			if (!clk_freq)
 				return -EINVAL;
 
-			/* clk_period_ns = (u64)NSEC_PER_SEC * 256; */
-			clk_period_ns = (u64)NSEC_PER_SEC * 128;
+			clk_period_ns = (u64)NSEC_PER_SEC * 256;
 			do_div(clk_period_ns, clk_freq);
 		}
 
