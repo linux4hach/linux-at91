@@ -677,31 +677,6 @@ static const struct panel_desc edt_etm0700g0dh6 = {
 	},
 };
 
-
-static const struct drm_display_mode az_4p3_480272ef_atxl_mode = {
-  .clock = 9000, //khz
-  .hdisplay = 480, //width in pixels
-  .hsync_start = 480 + 5,
-  .hsync_end = 480 + 40 + 5,
-  .htotal = 480 + 50,
-  .vdisplay = 272, //height in pixels
-  .vsync_start = 272 + 8,
-  .vsync_end = 272 + 8 + 8,
-  .vtotal = 272 + 24, 
-  .vrefresh = 60,
-};
-
-static const struct panel_desc az_4p3_480272ef_atxl = {
-	.modes = &az_4p3_480272ef_atxl_mode,
-	.num_modes = 1,
-	.size = {
-		.width = 98, //width in mm
-		.height = 57, //height in mm
-	},
-	.bus_format = MEDIA_BUS_FMT_RGB565_1X16,
-};
-
-
 static const struct drm_display_mode foxlink_fl500wvr00_a0t_mode = {
 	.clock = 32260,
 	.hdisplay = 800,
@@ -1620,9 +1595,6 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "foxlink,fl500wvr00-a0t",
 		.data = &foxlink_fl500wvr00_a0t,
-	}, {
-		.compatible = "az,az_4p3_480272ef_atxl",
-		.data = &az_4p3_480272ef_atxl,
 	}, {
 		.compatible = "giantplus,gpg482739qs5",
 		.data = &giantplus_gpg482739qs5
