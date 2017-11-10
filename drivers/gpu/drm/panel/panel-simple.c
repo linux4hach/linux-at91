@@ -709,7 +709,7 @@ static const struct panel_desc nhd_4p3_480272ef_atx1 = {
 	.bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
-static const struct drm_display_mode DT050TFT_800_480 = {
+static const struct drm_display_mode DT050TFT_800_480_mode = {
 	.clock = 30000, //kHz
 	.hdisplay = 800, //width in pixels
 	.hsync_start = 800 + 2,
@@ -722,8 +722,8 @@ static const struct drm_display_mode DT050TFT_800_480 = {
 	.vrefresh = 60,
 };
 
-static const struct panel_desc DT0TFT_800_480_mode = {
-	.modes = &nhd_4p3_480272ef_atx1_mode,
+static const struct panel_desc DT0TFT_800_480 = {
+	.modes = &DT050TFT_800_480_mode,
 	.num_modes = 1,
 	.size = {
 		.width = 120, //width in mm
