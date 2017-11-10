@@ -64,8 +64,17 @@ pwm0: pwm@f8034000 {
 		status = "disabled";
 	};
 
+/*
 	panel: panel {
 		compatible = "newhaven,nhd-4p3-480272ef-atx1", "simple-panel";
+		backlight = <&backlight>;
+		power-supply = <&panel_reg>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+*/
+	panel: panel {
+		compatible = "dto,DT050TFT_800_400", "simple-panel";
 		backlight = <&backlight>;
 		power-supply = <&panel_reg>;
 		#address-cells = <1>;

@@ -709,6 +709,29 @@ static const struct panel_desc nhd_4p3_480272ef_atx1 = {
 	.bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
+static const struct drm_display_mode DT050TFT_800_480 = {
+	.clock = 30000, //kHz
+	.hdisplay = 800, //width in pixels
+	.hsync_start = 800 + 2,
+	.hsync_end = 800 + 41 +2,
+	.htotal = 800 + 45 ,
+	.vdisplay = 480, //height in pixels
+	.vsync_start = 480 + 2,
+	.vsync_end = 480 + 10 + 2,
+	.vtotal = 480 + 14,
+	.vrefresh = 60,
+};
+
+static const struct panel_desc DT0TFT_800_480_mode = {
+	.modes = &nhd_4p3_480272ef_atx1_mode,
+	.num_modes = 1,
+	.size = {
+		.width = 120, //width in mm
+		.height = 75, //height in mm
+	},
+
+	.bus_format = MEDIA_BUS_FMT_RGB565_1X16,
+};
 
 
 
@@ -1170,6 +1193,9 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "newhaven,nhd-4p3-480272ef-atx1",
 	    .data = &nhd_4p3_480272ef_atx1,
+	}, {
+		.compatible = "dto,DT050TFT_800_480",
+		.data = &DT050TFT_800_480,
 	}, {
 		.compatible = "giantplus,gpg482739qs5",
 		.data = &giantplus_gpg482739qs5
