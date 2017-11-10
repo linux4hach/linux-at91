@@ -50,7 +50,7 @@
 			};
 
 			usart0: serial@f801c000 {
-				status = "okay";
+				status = "disabled";
 			};
 
 			i2c0: i2c@f8010000 {
