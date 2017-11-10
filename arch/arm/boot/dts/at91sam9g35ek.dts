@@ -10,29 +10,45 @@
 #include "at91sam9g35.dtsi"
 #include "at91sam9x5dm.dtsi"
 #include "at91sam9x5ek.dtsi"
-
+#include <dt-bindings/input/input.h>
 / {
 	model = "Atmel AT91SAM9G35-EK";
 	compatible = "atmel,at91sam9g35ek", "atmel,at91sam9x5ek", "atmel,at91sam9x5", "atmel,at91sam9";
 
 	ahb {
 		apb {
+			hlcdc: hlcdc@f8038000 {
+				status = "okay";
+			};
+
 			macb0: ethernet@f802c000 {
 				phy-mode = "rmii";
 				status = "okay";
 			};
 
-			hlcdc: hlcdc@f8038000 {
+			adc0: adc@f804c000 {
 				status = "okay";
 			};
-		};
-	};
 
-	backlight: backlight {
+			pwm0: pwm@f8034000 {
+				status = "okay";  
+			}; 
+ 			rtc@fffffeb0 {
+    				status = "okay";
+  			};
+    		};
+
+   	};
+ 
+	bl_reg: backlight_regulator {
 		status = "okay";
 	};
 
-	bl_reg: backlight_regulator {
+	panel_reg: panel_regulator {
+		status = "okay";
+	};
+
+	backlight: backlight {
 		status = "okay";
 	};
 
@@ -40,7 +56,97 @@
 		status = "okay";
 	};
 
-	panel_reg: panel_regulator {
-		status = "okay";
-	};
+
+  gpio_keys {
+    compatible = "gpio-keys";
+    poll-interval = <100>;
+    /* autorepeat; */
+    /* Keypad button is Back */
+    button_0 {
+      debounce_interval = <50>;
+      label = "button 0";
+      gpios = <&pioC 16 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_HOME>;
+      /* gpio-key,wakeup; */
+    };
+
+    /* Keypad button is READING*/
+  button_1 {
+      debounce_interval = <50>;
+      label = "button 1";
+      gpios = <&pioC 17 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_R>;
+      /* gpio-key,wakeup; */
+    };
+
+   /* Keypad button is RIGHT ARROW */
+  button_2 {
+      debounce_interval = <50>;
+      label = "button 2";
+      gpios = <&pioC 18 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_RIGHT>;
+      /* gpio-key,wakeup; */
+    };
+
+
+   /* Keypad button is UP ARROW */
+   button_3 {
+      debounce_interval = <50>;
+      label = "button 3";
+      gpios = <&pioC 19 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_UP>;
+      /* gpio-key,wakeup; */
+    };
+
+
+
+    /* Keypad button is ENTER*/
+    button_4 {
+      debounce_interval = <50>;
+      label = "button 4";
+      gpios = <&pioC 20 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_ENTER>;
+      /* gpio-key,wakeup; */
+    };
+
+    /* Keypad button is DOWN ARROW */
+    button_5 {
+      debounce_interval = <50>;
+      label = "button 5";
+      gpios = <&pioC 21 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_DOWN>;
+      /* gpio-key,wakeup; */
+    };
+
+    /* Keypad button is LEFT ARROW */
+    button_6 {
+      debounce_interval = <50>;
+      label = "button 6";
+      gpios = <&pioC 22 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_LEFT>;
+      /* gpio-key,wakeup; */
+    };
+
+    /* Keypad button MUTE */
+    button_7 {
+      debounce_interval = <50>;
+      label = "button 7";
+      gpios = <&pioC 23 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_M>;
+      /* gpio-key,wakeup; */
+    };
+
+  /* Keypad button Menu */
+    button_8 {
+      debounce_interval = <50>;
+      label = "button 8";
+ 
+      gpios = <&pioC 25 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_Q>;
+      /* gpio-key,wakeup; */
+    };
+
+  };
+  
+     
 };
