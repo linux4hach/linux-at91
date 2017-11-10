@@ -20,30 +20,22 @@
 			hlcdc: hlcdc@f8038000 {
 				status = "okay";
 			};
-
-			adc0: adc@f804c000 {
-				status = "okay";
-			};
-
-			pwm0: pwm@f8034000 {
-				status = "okay";
-			};
 		};
-	};
-
-	bl_reg: backlight_regulator {
-		status = "okay";
-	};
-
-	panel_reg: panel_regulator {
-		status = "okay";
 	};
 
 	backlight: backlight {
 		status = "okay";
 	};
 
+	bl_reg: backlight_regulator {
+		status = "okay";
+	};
+
 	panel: panel {
+		status = "okay";
+	};
+
+	panel_reg: panel_regulator {
 		status = "okay";
 	};
 };
