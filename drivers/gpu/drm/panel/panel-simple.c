@@ -722,7 +722,7 @@ static const struct drm_display_mode DT050TFT_800_480_mode = {
 	.vrefresh = 60,
 };
 
-static const struct panel_desc DT0TFT_800_480 = {
+static const struct panel_desc DT050TFT_800_480 = {
 	.modes = &DT050TFT_800_480_mode,
 	.num_modes = 1,
 	.size = {
