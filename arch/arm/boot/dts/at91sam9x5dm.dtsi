@@ -74,7 +74,7 @@ pwm0: pwm@f8034000 {
 		status = "disabled";
 */
 	panel: panel {
-		compatible = "dto,DT050TFT_800_400", "simple-panel";
+		compatible = "dto,DT050TFT_800_480", "simple-panel";
 		backlight = <&backlight>;
 		power-supply = <&panel_reg>;
 		#address-cells = <1>;

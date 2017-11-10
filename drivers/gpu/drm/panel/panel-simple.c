@@ -1194,7 +1194,7 @@ static const struct of_device_id platform_of_match[] = {
 		.compatible = "newhaven,nhd-4p3-480272ef-atx1",
 	    .data = &nhd_4p3_480272ef_atx1,
 	}, {
-		.compatible = "dto,DT050TFT_800_480",
+		.compatible = "dto,DT050TFT_800_80",
 		.data = &DT050TFT_800_480,
 	}, {
 		.compatible = "giantplus,gpg482739qs5",
