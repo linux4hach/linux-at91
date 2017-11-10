@@ -50,18 +50,17 @@
 			};
 
 			usart0: serial@f801c000 {
-				atmel,use-dma-rx;
-				atmel,use-dma-tx;
 				status = "okay";
 			};
 
-				i2c0: i2c@f8010000 {
+			i2c0: i2c@f8010000 {
 				status = "okay";
 
 				wm8731: wm8731@1a {
 					compatible = "wm8731";
 					reg = <0x1a>;
 				};
+
 			};
 
 			adc0: adc@f804c000 {
@@ -71,23 +70,6 @@
 			};
 
 			pinctrl@fffff400 {
-				camera_sensor {
-					pinctrl_pck0_as_isi_mck: pck0_as_isi_mck-0 {
-						atmel,pins =
-							<AT91_PIOC 15 AT91_PERIPH_C AT91_PINCTRL_NONE>;	/* ISI_MCK */
-					};
-
-					pinctrl_sensor_power: sensor_power-0 {
-						atmel,pins =
-							<AT91_PIOA 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-					};
-
-					pinctrl_sensor_reset: sensor_reset-0 {
-						atmel,pins =
-							<AT91_PIOA 7 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-					};
-				};
-
 				mmc0 {
 					pinctrl_board_mmc0: mmc0-board {
 						atmel,pins =
@@ -102,54 +84,39 @@
 					};
 				};
 
-				usb2 {
-					pinctrl_board_usb2: usb2-board {
-						atmel,pins =
-							<AT91_PIOB 16 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;		/* PB16 gpio vbus sense, deglitch */
-					};
-				};
 			};
 
 			spi0: spi@f0000000 {
-				status = "okay";	/* conflict with mmc1 */
+				status = "okay";
 				cs-gpios = <&pioA 14 0>, <0>, <0>, <0>;
 				m25p80@0 {
-					compatible = "atmel,at25df321a";
+					/* compatible = "atmel,at25df321a"; */
+          compatible = "jedec,spi-nor";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};
 			};
 
-         spi1:spi@f0004000 {
-              status = "okay";
-              cs-gpios = <0>, <&pioA 0 0>, <0>, <0>;
-              LTC2498@1 {
-                compatible = "spidev";
-                spi-max-frequency = <4000000>;
-                reg = <1>;
-                    };
-            };
+spi1:spi@f0004000 {
+       status = "okay";
+       cs-gpios = <0>, <&pioA 0 0>, <0>, <0>;
+       LTC2498@1 {
+         compatible = "spidev";
+         spi-max-frequency = <4000000>;
+         reg = <1>;
+       };
+     };
+
+
 
 			watchdog@fffffe40 {
+        timeout-sec = <30>;
 				status = "okay";
 			};
 
 			ssc0: ssc@f0010000 {
 				status = "okay";
 			};
-		};
-
-		usb0: ohci@00600000 {
-			status = "okay";
-			num-ports = <3>;
-			atmel,vbus-gpio = <0 /* &pioD 18 GPIO_ACTIVE_LOW *//* Activate to have access to port A */
-					   &pioD 19 GPIO_ACTIVE_LOW
-					   &pioD 20 GPIO_ACTIVE_LOW
-					  >;
-		};
-
-		usb1: ehci@00700000 {
-			status = "okay";
 		};
 	};
 
