@@ -76,7 +76,7 @@ pwm0: pwm@f8034000 {
 
 
         panel: panel {
-                compatible = "newhaven,nhd_70_800480def_asxv", "simple-panel";
+                compatible = "newhaven,nhd_70_800480ef_asxv", "simple-panel";
                 backlight = <&backlight>;
                 power-supply = <&panel_reg>;
                 #address-cells = <1>;

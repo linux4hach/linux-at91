@@ -733,8 +733,8 @@ static const struct panel_desc DT050TFT_800_480 = {
         .bus_format = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC | MEDIA_BUS_FMT_RGB565_1X16,
 };
 
-static const struct drm_display_mode nhd_70_800480def_asxv_mode = {
-        .clock = 30000, //kHz
+static const struct drm_display_mode nhd_70_800480ef_asxv_mode = {
+        .clock = 50000, //kHz
         .hdisplay = 800, //width in pixels
         .hsync_start = 800 + 2,
         .hsync_end = 800 + 41 +2,
@@ -746,12 +746,12 @@ static const struct drm_display_mode nhd_70_800480def_asxv_mode = {
         .vrefresh = 60,
 };
 
-static const struct panel_desc nhd_70_800480def_asxv = {
-        .modes = &nhd_70_800480def_asxv_mode,
+static const struct panel_desc nhd_70_800480ef_asxv = {
+        .modes = &nhd_70_800480ef_asxv_mode,
         .num_modes = 1,
         .size = {
-                .width = 120, //width in mm
-                .height = 75, //height in mm
+                .width = 154, //width in mm
+                .height = 86, //height in mm
         },
 
         .bus_format = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC | MEDIA_BUS_FMT_RGB565_1X16,
