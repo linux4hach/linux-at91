@@ -75,7 +75,7 @@ pwm0: pwm@f8034000 {
 
 
 
-/*
+
         panel: panel {
                 compatible = "newhaven,nhd_70_800480ef_asxv", "simple-panel";
                 backlight = <&backlight>;
@@ -83,9 +83,9 @@ pwm0: pwm@f8034000 {
                 #address-cells = <1>;
                 #size-cells = <0>;
                 status = "disabled";
-*/
 
 
+/*
         panel: panel {
                 compatible = "dto,DT050TFT_800_480", "simple-panel";
                 backlight = <&backlight>;
@@ -93,7 +93,7 @@ pwm0: pwm@f8034000 {
                 #address-cells = <1>;
                 #size-cells = <0>;
                 status = "disabled";
-
+*/
 
                 port@0 {
                         #address-cells = <1>;

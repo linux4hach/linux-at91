@@ -734,7 +734,7 @@ static const struct panel_desc DT050TFT_800_480 = {
 };
 
 static const struct drm_display_mode nhd_70_800480ef_asxv_mode = {
-        .clock = 50000, //kHz
+        .clock = 30000, //kHz
         .hdisplay = 800, //width in pixels
         .hsync_start = 800 + 2,
         .hsync_end = 800 + 41 +2,
@@ -1216,7 +1216,10 @@ static const struct of_device_id platform_of_match[] = {
                 .data = &foxlink_fl500wvr00_a0t,
         }, {
                 .compatible = "newhaven,nhd-4p3-480272ef-atx1",
-            .data = &nhd_4p3_480272ef_atx1,
+                .data = &nhd_4p3_480272ef_atx1,
+        }, {
+                .compatible = "newhaven,nhd_70_800480ef_asxv",
+                .data = &nhd_70_800480ef_asxv,
         }, {
                 .compatible = "dto,DT050TFT_800_480",
                 .data = &DT050TFT_800_480,
