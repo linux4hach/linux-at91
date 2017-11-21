@@ -63,6 +63,7 @@ pwm0: pwm@f8034000 {
                 regulator-max-microvolt = <5000000>;
                 status = "disabled";
         };
+
 /*
         panel: panel {
                 compatible = "newhaven,nhd-4p3-480272ef-atx1", "simple-panel";
@@ -74,10 +75,18 @@ pwm0: pwm@f8034000 {
 */
 
 
-
-
+/*
         panel: panel {
                 compatible = "newhaven,nhd_70_800480ef_asxv", "simple-panel";
+                backlight = <&backlight>;
+                power-supply = <&panel_reg>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+                status = "disabled";
+*/
+
+        panel: panel {
+                compatible = "newhaven,nhd_50_800480tf_atx", "simple-panel";
                 backlight = <&backlight>;
                 power-supply = <&panel_reg>;
                 #address-cells = <1>;
@@ -94,6 +103,7 @@ pwm0: pwm@f8034000 {
                 #size-cells = <0>;
                 status = "disabled";
 */
+
 
                 port@0 {
                         #address-cells = <1>;

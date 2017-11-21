@@ -709,11 +709,12 @@ static const struct panel_desc nhd_4p3_480272ef_atx1 = {
         .bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
+
 static const struct drm_display_mode DT050TFT_800_480_mode = {
         .clock = 30000, //kHz
         .hdisplay = 800, //width in pixels
         .hsync_start = 800 + 2,
-        .hsync_end = 800 + 41 +2,
+        .hsync_end = 800 + 41 + 2,
         .htotal = 800 + 45 ,
         .vdisplay = 480, //height in pixels
         .vsync_start = 480 + 2,
@@ -730,19 +731,19 @@ static const struct panel_desc DT050TFT_800_480 = {
                 .height = 75, //height in mm
         },
 
-        .bus_format = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC | MEDIA_BUS_FMT_RGB565_1X16,
+        .bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
 static const struct drm_display_mode nhd_70_800480ef_asxv_mode = {
         .clock = 30000, //kHz
         .hdisplay = 800, //width in pixels
-        .hsync_start = 800 + 2,
-        .hsync_end = 800 + 41 +2,
-        .htotal = 800 + 45 ,
+        .hsync_start = 800 + 40,
+        .hsync_end = 800 + 88,
+        .htotal = 800 + 128 ,
         .vdisplay = 480, //height in pixels
-        .vsync_start = 480 + 2,
-        .vsync_end = 480 + 10 + 2,
-        .vtotal = 480 + 14,
+        .vsync_start = 480 + 13,
+        .vsync_end = 480 + 32,
+        .vtotal = 480 + 45,
         .vrefresh = 60,
 };
 
@@ -750,13 +751,36 @@ static const struct panel_desc nhd_70_800480ef_asxv = {
         .modes = &nhd_70_800480ef_asxv_mode,
         .num_modes = 1,
         .size = {
-                .width = 154, //width in mm
-                .height = 86, //height in mm
+                .width = 165, //width in mm
+                .height = 104, //height in mm
         },
 
-        .bus_format = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC | MEDIA_BUS_FMT_RGB565_1X16,
+        .bus_format = MEDIA_BUS_FMT_RGB565_1X16,
 };
 
+static const struct drm_display_mode nhd_50_800480tf_atx_mode = {
+        .clock = 30000, //kHz
+        .hdisplay = 800, //width in pixels
+        .hsync_start = 800 + 40,
+        .hsync_end = 800 + 88,
+        .htotal = 800 + 128 ,
+        .vdisplay = 480, //height in pixels
+        .vsync_start = 480 + 13,
+        .vsync_end = 480 + 32,
+        .vtotal = 480 + 45,
+        .vrefresh = 60,
+};
+
+static const struct panel_desc nhd_50_800480tf_atx = {
+        .modes = &nhd_50_800480tf_atx_mode,
+        .num_modes = 1,
+        .size = {
+                .width = 120, //width in mm
+                .height = 75, //height in mm
+        },
+
+        .bus_format = MEDIA_BUS_FMT_RGB565_1X16,
+};
 
 
 static const struct drm_display_mode giantplus_gpg482739qs5_mode = {
@@ -1218,11 +1242,14 @@ static const struct of_device_id platform_of_match[] = {
                 .compatible = "newhaven,nhd-4p3-480272ef-atx1",
                 .data = &nhd_4p3_480272ef_atx1,
         }, {
-                .compatible = "newhaven,nhd_70_800480ef_asxv",
-                .data = &nhd_70_800480ef_asxv,
-        }, {
                 .compatible = "dto,DT050TFT_800_480",
                 .data = &DT050TFT_800_480,
+        }, {
+                .compatible = "newhaven,nhd_50_800480tf_atx",
+                .data = &nhd_50_800480tf_atx,
+        }, {
+                .compatible = "newhaven,nhd_70_800480ef_asxv",
+                .data = &nhd_70_800480ef_asxv,
         }, {
                 .compatible = "giantplus,gpg482739qs5",
                 .data = &giantplus_gpg482739qs5
